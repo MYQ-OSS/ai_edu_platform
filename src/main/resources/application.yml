@@ -1,0 +1,34 @@
+# Spring Boot 应用主配置文件
+# ====================================
+
+spring:
+  # 应用基础配置
+  application:
+    name: ai_edu_platform  # 应用名称，用于服务注册和日志标识
+  profiles:
+    active: dev  # 默认激活的开发环境配置
+  servlet:
+    multipart:
+      max-file-size: 10MB  # 单个上传文件最大大小限制
+      max-request-size: 10MB  # 整个请求最大大小限制（包含所有文件和表单数据）
+
+# 服务器配置
+server:
+  port: 8080  # 应用启动端口
+  servlet:
+    context-path: /api  # 应用上下文路径，所有接口都会加上此前缀
+
+# MyBatis-Plus 持久层框架配置
+mybatis-plus:
+  mapper-locations: classpath*:/mybatis/mapper/**/*.xml  # XML 映射文件扫描路径
+  type-aliases-package: top.mayiqin.ai_edu_platform.entity.po  # 实体类别名包路径，XML 中可直接使用类名
+  configuration:
+    map-underscore-to-camel-case: true  # 开启数据库下划线字段到 Java 驼峰命名的自动转换
+    cache-enabled: false  # 关闭 MyBatis 二级缓存（通常使用 Redis 等分布式缓存）
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl  # 使用 SLF4J 输出 SQL 日志
+  global-config:
+    db-config:
+      id-type: auto  # 主键策略：数据库自增
+      logic-delete-field: deleted  # 全局逻辑删除字段名
+      logic-delete-value: 1  # 逻辑删除值（已删除）
+      logic-not-delete-value: 0  # 逻辑未删除值

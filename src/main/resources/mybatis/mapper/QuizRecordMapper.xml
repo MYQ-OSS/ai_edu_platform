@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.mayiqin.ai_edu_platform.mapper.QuizRecordMapper">
+
+    <resultMap id="BaseResultMap" type="top.mayiqin.ai_edu_platform.entity.po.QuizRecord">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="questionId" column="question_id" />
+            <result property="userOptions" column="user_options" />
+            <result property="userAnswer" column="user_answer" />
+            <result property="score" column="score" />
+            <result property="comment" column="comment" />
+            <result property="suggest" column="suggest" />
+            <result property="reason" column="reason" />
+            <result property="trueOptions" column="true_options" />
+            <result property="analysis" column="analysis" />
+            <result property="accuracy" column="accuracy" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,question_id,user_options,user_answer,score,
+        comment,suggest,reason,true_options,analysis,
+        accuracy,create_time
+    </sql>
+</mapper>

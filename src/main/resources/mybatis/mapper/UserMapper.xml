@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.mayiqin.ai_edu_platform.mapper.UserMapper">
+
+    <resultMap id="BaseResultMap" type="top.mayiqin.ai_edu_platform.entity.po.User">
+            <id property="id" column="id" />
+            <result property="username" column="username" />
+            <result property="password" column="password" />
+            <result property="identity" column="identity" />
+            <result property="salary" column="salary" />
+            <result property="experience" column="experience" />
+            <result property="answerTimes" column="answer_times" />
+            <result property="averageScore" column="average_score" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,username,password,identity,salary,experience,
+        answer_times,average_score,create_time
+    </sql>
+</mapper>
