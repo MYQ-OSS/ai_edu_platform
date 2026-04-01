@@ -1,1 +1,13 @@
-// 路由入口文件
+import { createRouter, createWebHistory } from 'vue-router'
+import routes from './routes'
+import { setupRouterGuard } from './guard'
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+// 应用路由守卫
+setupRouterGuard(router)
+
+export default router
