@@ -1,5 +1,6 @@
 package top.mayiqin.ai_edu_platform.handler;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.BindException;
 import org.springframework.validation.FieldError;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * 统一处理系统中抛出的各类异常，并返回标准化的响应结果
  */
 @Slf4j
+@Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 

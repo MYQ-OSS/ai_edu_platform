@@ -33,20 +33,15 @@ mybatis-plus:
       logic-delete-value: 1  # 逻辑删除值（已删除）
       logic-not-delete-value: 0  # 逻辑未删除值
 
-# Knife4j 接口文档配置
+# springdoc-openapi
 springdoc:
-  swagger-ui:
-    path: /swagger-ui.html  # Swagger UI 路径
-    tags-sorter: alpha  # 标签按字母排序
-    operations-sorter: alpha  # 接口按字母排序
-  api-docs:
-    path: /v3/api-docs  # OpenAPI 文档路径
-
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: top.mayiqin.ai_edu_platform.controller
+# knife4j
 knife4j:
-  enable: true  # 开启 Knife4j 增强功能
+  enable: true
   setting:
-    language: zh_cn  # 设置中文语言
-    enable-swagger-models: true  # 显示模型定义
-    enable-document-manage: true  # 启用文档管理
-    swagger-model-name: 实体类列表  # 模型列表名称
+    language: zh_cn
 

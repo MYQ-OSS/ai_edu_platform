@@ -1,5 +1,6 @@
 package top.mayiqin.ai_edu_platform.exception;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
