@@ -1,44 +1,44 @@
-import request from './request'
+import request from "./request";
 
 // 用户注册
 export const register = (data) => {
   return request({
-    url: '/user/register',
-    method: 'POST',
-    data
-  })
-}
+    url: "/api/user/register",
+    method: "POST",
+    data,
+  });
+};
 
 // 用户登录
 export const login = (data) => {
   return request({
-    url: '/user/login',
-    method: 'POST',
-    data
-  })
-}
+    url: "/user/login",
+    method: "POST",
+    data,
+  });
+};
 
 // 获取个人信息
 export const getUserInfo = () => {
   return request({
-    url: '/user/info',
-    method: 'GET'
-  })
-}
+    url: "/user/info",
+    method: "GET",
+  });
+};
 
 // 编辑个人信息
 export const editUserInfo = (data) => {
   return request({
-    url: '/user/info/edit',
-    method: 'PUT',
-    data
-  })
-}
+    url: "/user/info/edit",
+    method: "PUT",
+    data,
+  });
+};
 
 // 获取学习足迹
 export const getLearningHistory = () => {
   return request({
-    url: '/user/learning-history',
-    method: 'GET'
-  })
-}
+    url: "/user/learning-history",
+    method: "GET",
+  });
+};
