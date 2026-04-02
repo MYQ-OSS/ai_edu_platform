@@ -3,7 +3,7 @@ import request from "./request";
 // 用户注册
 export const register = (data) => {
   return request({
-    url: "/api/user/register",
+    url: "/user/register",
     method: "POST",
     data,
   });

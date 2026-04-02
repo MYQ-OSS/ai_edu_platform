@@ -79,7 +79,7 @@
                   <template #header>
                     <div class="card-header">
                       <span class="card-icon">💰</span>
-                      <span>薪资查询</span>
+                      <span>薪资评估</span>
                     </div>
                   </template>
                   <div class="card-content">
