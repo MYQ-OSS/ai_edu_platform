@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.mayiqin.ai_edu_platform.mapper.SalaryReportMapper">
+
+    <resultMap id="BaseResultMap" type="top.mayiqin.ai_edu_platform.entity.po.SalaryReport">
+            <id property="id" column="id" />
+            <result property="userId" column="user_id" />
+            <result property="direction" column="direction" />
+            <result property="city" column="city" />
+            <result property="experience" column="experience" />
+            <result property="salaryRange" column="salary_range" />
+            <result property="aiSuggestion" column="ai_suggestion" />
+            <result property="createTime" column="create_time" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,user_id,direction,city,experience,salary_range,
+        ai_suggestion,create_time
+    </sql>
+</mapper>

@@ -11,6 +11,12 @@ spring:
     multipart:
       max-file-size: 10MB  # 单个上传文件最大大小限制
       max-request-size: 10MB  # 整个请求最大大小限制（包含所有文件和表单数据）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/ai_edu_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: ""
+
 
 # 服务器配置
 server:
@@ -45,16 +51,13 @@ knife4j:
   setting:
     language: zh_cn
 
+sky:
+  jwt:
+    # 设置jwt签名加密时使用的秘钥
+    admin-secret-key: itcast
+    # 设置jwt过期时间
+    admin-ttl: 7200000
+    # 设置前端传递过来的令牌名称
+    admin-token-name: token
 
-# springdoc-openapi
-springdoc:
-  group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: top.mayiqin.ai_edu_platform.controller
-# knife4j
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
 

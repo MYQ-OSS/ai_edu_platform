@@ -1,0 +1,35 @@
+# 开发环境配置文件
+# ====================================
+
+spring:
+  # 安全配置
+  security:
+    user:
+      name: admin
+      password: 1234
+  # 数据源配置（MySQL 数据库连接）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL 8.x 驱动类名
+    url: jdbc:mysql://localhost:3306/ai_edu_platform?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      # 数据库连接 URL 参数说明：
+      # - useUnicode=true: 使用 Unicode 编码
+      # - characterEncoding=utf-8: 字符集为 UTF-8
+      # - useSSL=false: 开发环境关闭 SSL（生产环境应开启）
+      # - serverTimezone=Asia/Shanghai: 设置服务器时区为上海时间
+      # - allowPublicKeyRetrieval=true: 允许公钥检索（解决 MySQL 8 认证问题）
+    username: root  # 数据库用户名（请根据实际情况修改）
+    password: 123456  # 数据库密码（请根据实际情况修改）
+
+  # Jackson JSON 序列化配置
+  jackson:
+    time-zone: Asia/Shanghai  # 设置 JSON 日期输出的时区为东八区
+    date-format: yyyy-MM-dd HH:mm:ss  # 日期格式化模式
+
+# 日志级别配置
+logging:
+  level:
+    root: INFO  # 根日志级别为 INFO，减少不必要的日志输出
+    top.mayiqin.ai_edu_platform: DEBUG  # 项目包日志级别为 DEBUG，方便开发调试
+    com.baomidou.mybatisplus: DEBUG  # MyBatis-Plus 框架日志，可看到 SQL 执行细节
+    top.mayiqin.ai_edu_platform.mapper: DEBUG  # Mapper 层日志，可看到具体 SQL 语句
+    org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration: ERROR
