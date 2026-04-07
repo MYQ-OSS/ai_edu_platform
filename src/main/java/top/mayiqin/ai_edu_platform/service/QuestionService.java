@@ -2,6 +2,8 @@ package top.mayiqin.ai_edu_platform.service;
 
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.mayiqin.ai_edu_platform.dto.question.QuestionGenerateDTO;
+import top.mayiqin.ai_edu_platform.vo.QuestionVO;
 
 /**
 * @author m'y'q
@@ -10,4 +12,5 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface QuestionService extends IService<Question> {
 
+    QuestionVO generateQuestion(QuestionGenerateDTO request);
 }

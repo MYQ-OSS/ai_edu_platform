@@ -91,6 +91,13 @@
             <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
             <version>4.4.0</version>
         </dependency>
+
+        <!-- OpenAI Java SDK，用于调用 DashScope 兼容接口 -->
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>2.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>
