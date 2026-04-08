@@ -137,7 +137,7 @@ onMounted(async () => {
 
 const loadUserInfo = async () => {
   try {
-    const response = await userStore.getUserInfo()
+    const response = await userStore.fetchUserInfo()
     if (response.code === 200) {
       Object.assign(userForm, response.data)
     }

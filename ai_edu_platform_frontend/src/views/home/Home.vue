@@ -16,7 +16,7 @@
                 </div>
               </template>
               <div class="personal-info-content">
-                <el-avatar :size="80" class="avatar">
+                <el-avatar :size="80" class="avatar" src="/程序员.png">
                   {{ userInfo?.username?.charAt(0) || 'U' }}
                 </el-avatar>
                 <h3>{{ userInfo?.username || '未登录' }}</h3>
@@ -48,7 +48,7 @@
                 </div>
               </template>
               <div class="personal-info-content">
-                <el-avatar :size="80" class="avatar">U</el-avatar>
+                <el-avatar :size="80" class="avatar" src="/程序员.png">U</el-avatar>
                 <h3>欢迎使用AI教育平台</h3>
                 <p>登录后查看个人信息和学习记录</p>
                 <el-button type="primary" @click="navigateTo('/login')" class="login-btn">
@@ -106,11 +106,6 @@
           </el-col>
         </el-row>
       </el-main>
-      <el-footer>
-        <div class="footer-content">
-          <p>© 2026 AI 教育平台 版权所有</p>
-        </div>
-      </el-footer>
     </el-container>
   </div>
 </template>
@@ -129,7 +124,7 @@ const userInfo = ref(null)
 onMounted(async () => {
   isLoggedIn.value = userStore.isLoggedIn
   if (isLoggedIn.value) {
-    await userStore.getUserInfo()
+    await userStore.fetchUserInfo()
     userInfo.value = userStore.userInfo
   }
 })
@@ -312,21 +307,6 @@ const navigateTo = (path) => {
 .login-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-/* 页脚 */
-.el-footer {
-  background-color: #303133;
-  color: white;
-  line-height: 60px;
-  text-align: center;
-  margin-top: 60px;
-}
-
-.footer-content p {
-  margin: 0;
-  font-size: 14px;
-  opacity: 0.8;
 }
 
 /* 响应式设计 */

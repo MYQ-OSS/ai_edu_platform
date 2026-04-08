@@ -13,6 +13,7 @@ import java.util.Date;
 
 /**
  * 用户基础信息表
+ * @author m'y'q
  * @TableName t_user
  */
 @TableName(value ="t_user")
@@ -74,4 +75,11 @@ public class User {
      */
     @TableField(value = "create_time")
     private Date createTime;
+
+    /**
+     * 存储JWT令牌，仅用于前端返回
+     * 数据库不存在此字段
+     */
+    @TableField(exist = false)
+    private String token;
 }

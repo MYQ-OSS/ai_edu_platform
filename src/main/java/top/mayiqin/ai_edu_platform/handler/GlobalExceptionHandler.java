@@ -7,7 +7,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import top.mayiqin.ai_edu_platform.exception.AccountAlreadyExistsException;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
+import top.mayiqin.ai_edu_platform.exception.LoginFailedException;
 import top.mayiqin.ai_edu_platform.exception.Result;
 
 import java.util.stream.Collectors;
@@ -15,11 +17,36 @@ import java.util.stream.Collectors;
 /**
  * 全局异常处理器
  * 统一处理系统中抛出的各类异常，并返回标准化的响应结果
+ * @author m'y'q
  */
 @Slf4j
 @Hidden
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 处理账号已存在异常
+     *
+     * @param e 账号已存在异常
+     * @return 统一响应结果
+     */
+    @ExceptionHandler(AccountAlreadyExistsException.class)
+    public Result<Void> handleAccountAlreadyExistsException(AccountAlreadyExistsException e) {
+        log.warn("账号已存在异常：{}", e.getMessage());
+        return Result.error(e.getCode(), e.getMessage());
+    }
+
+    /**
+     * 处理登录失败异常
+     *
+     * @param e 登录失败异常
+     * @return 统一响应结果
+     */
+    @ExceptionHandler(LoginFailedException.class)
+    public Result<Void> handleLoginFailedException(LoginFailedException e) {
+        log.warn("登录失败异常：{}", e.getMessage());
+        return Result.error(e.getCode(), e.getMessage());
+    }
 
     /**
      * 处理业务异常

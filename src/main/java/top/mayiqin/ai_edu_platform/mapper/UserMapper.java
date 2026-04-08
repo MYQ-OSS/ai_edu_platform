@@ -1,5 +1,6 @@
 package top.mayiqin.ai_edu_platform.mapper;
 
+import org.apache.ibatis.annotations.Select;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 
@@ -11,6 +12,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 */
 public interface UserMapper extends BaseMapper<User> {
 
+    @Select("select * from t_user where username = #{username}")
+    User getByUsername(String username);
 }
 
 

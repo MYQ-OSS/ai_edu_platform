@@ -12,7 +12,7 @@ spring:
       # - useSSL=true: 生产环境必须开启 SSL 加密传输
       # - serverTimezone=Asia/Shanghai: 设置服务器时区为上海时间
     username: root  # 数据库用户名（请根据实际情况修改）
-    password: 1234  # 数据库密码（请根据实际情况修改，建议使用强密码）
+    password: MYQ1234567  # 数据库密码（请根据实际情况修改，建议使用强密码）
 
   # Jackson JSON 序列化配置
   jackson:

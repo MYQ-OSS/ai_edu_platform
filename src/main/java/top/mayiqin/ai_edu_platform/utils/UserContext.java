@@ -1,5 +1,8 @@
 package top.mayiqin.ai_edu_platform.utils;
 
+/**
+ * @author m'y'q
+ */
 public class UserContext {
     private static final ThreadLocal<Long> USER_ID_HOLDER = new ThreadLocal<>();
 

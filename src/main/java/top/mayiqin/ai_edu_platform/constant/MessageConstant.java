@@ -2,6 +2,7 @@ package top.mayiqin.ai_edu_platform.constant;
 
 /**
  * 信息提示常量类
+ * @author m'y'q
  */
 public class MessageConstant {
 

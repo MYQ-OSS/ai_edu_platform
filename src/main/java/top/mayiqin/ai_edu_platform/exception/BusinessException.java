@@ -1,12 +1,12 @@
 package top.mayiqin.ai_edu_platform.exception;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 /**
  * 自定义业务异常类
  * 用于处理业务逻辑中的异常情况
+ * @author m'y'q
  */
 @Data
 @EqualsAndHashCode(callSuper = true)

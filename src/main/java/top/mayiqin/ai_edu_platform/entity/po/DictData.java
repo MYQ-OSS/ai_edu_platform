@@ -13,6 +13,7 @@ import java.util.Date;
 
 /**
  * 数据字典表（技术方向/学历/身份等基础配置）
+ * @author m'y'q
  * @TableName t_dict_data
  */
 @TableName(value ="t_dict_data")

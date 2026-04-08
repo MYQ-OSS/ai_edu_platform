@@ -1,7 +1,14 @@
 package top.mayiqin.ai_edu_platform.service;
 
+import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
+
+import java.util.Map;
 
 /**
 * @author m'y'q
@@ -10,4 +17,41 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface UserService extends IService<User> {
 
+    /**
+     * 用户注册
+     *
+     * @param userRegisterDTO 用户注册信息
+     * @return 用户ID
+     */
+    Long register(UserRegisterDTO userRegisterDTO);
+
+    /**
+     * 用户登录
+     *
+     * @param userLoginDTO 用户登录信息
+     * @return 包含 token 以及 userId 的登录结果
+     */
+    Map<String, Object> login(UserLoginDTO userLoginDTO);
+
+    /**
+     * 查询用户个人信息
+     * @return 用户信息VO（不包含密码等敏感字段）
+     */
+    UserInfoVO getUserInfo();
+
+    /**
+     * 更新用户个人信息
+     * @param userUpdateDTO 用户更新信息
+     */
+    void updateUserInfo(UserUpdateDTO userUpdateDTO);
+
+    /**
+     * 获取学习足迹
+     *
+     * @return 学习足迹数据
+     */
+    LearningHistoryVO getLearningHistory();
 }
+
+
+

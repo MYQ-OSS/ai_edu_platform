@@ -41,7 +41,6 @@ export const useUserStore = defineStore('user', {
           this.token = response.data.token
           this.isLoggedIn = true
           localStorage.setItem('token', response.data.token)
-          localStorage.setItem('userId', response.data.userId)
         }
         this.loading = false
         return response
@@ -52,7 +51,7 @@ export const useUserStore = defineStore('user', {
       }
     },
     // 获取个人信息
-    async getUserInfo() {
+    async fetchUserInfo() {
       if (!this.token) return
       this.loading = true
       this.error = null
@@ -109,7 +108,6 @@ export const useUserStore = defineStore('user', {
       this.token = null
       this.isLoggedIn = false
       localStorage.removeItem('token')
-      localStorage.removeItem('userId')
     }
   }
 })

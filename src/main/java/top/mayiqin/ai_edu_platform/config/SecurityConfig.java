@@ -10,6 +10,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Spring Security 安全配置类
+ * @author m'y'q
  */
 @Configuration
 @EnableWebSecurity

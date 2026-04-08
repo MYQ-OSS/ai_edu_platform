@@ -13,6 +13,7 @@ import java.util.Date;
 
 /**
  * 薪资评估报告表
+ * @author m'y'q
  * @TableName t_salary_report
  */
 @TableName(value ="t_salary_report")

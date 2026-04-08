@@ -20,4 +20,5 @@
         id,username,password,identity,salary,experience,
         answer_times,average_score,create_time
     </sql>
+
 </mapper>

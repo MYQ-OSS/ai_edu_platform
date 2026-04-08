@@ -7,6 +7,7 @@ import java.io.Serializable;
 /**
  * 统一响应结果封装类
  * 用于封装所有接口的返回数据格式
+ * @author m'y'q
  */
 @Data
 public class Result<T> implements Serializable {
@@ -100,9 +101,11 @@ public class Result<T> implements Serializable {
 
     /**
      * 判断是否成功
+     * 使用 @JsonIgnore 避免序列化到JSON中
      *
      * @return true-成功，false-失败
      */
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public boolean isSuccess() {
         return this.code != null && this.code == 200;
     }

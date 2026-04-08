@@ -14,6 +14,7 @@ import java.util.Date;
 
 /**
  * 用户答题记录表
+ * @author m'y'q
  * @TableName t_quiz_record
  */
 @TableName(value ="t_quiz_record")

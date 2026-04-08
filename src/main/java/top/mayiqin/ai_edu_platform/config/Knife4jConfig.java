@@ -35,13 +35,14 @@ public class Knife4jConfig {
                                 .name("Apache 2.0")
                                 .url("https://www.apache.org/licenses/LICENSE-2.0")))
                 // 添加全局安全认证（Bearer Token）
-                .addSecurityItem(new SecurityRequirement().addList("Bearer"))
-                .schemaRequirement("Bearer", new SecurityScheme()
-                        .name("Authorization")
-                        .type(SecurityScheme.Type.HTTP)
-                        .scheme("bearer")
-                        .bearerFormat("JWT")
-                        .in(SecurityScheme.In.HEADER)
-                        .description("JWT Token 认证，格式: Bearer {token}"));
+                .addSecurityItem(new SecurityRequirement().addList("Authorization"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Authorization", new SecurityScheme()
+                                .name("Authorization")
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                                .in(SecurityScheme.In.HEADER)
+                                .description("JWT Token 认证，格式: Bearer {token}")));
     }
 }

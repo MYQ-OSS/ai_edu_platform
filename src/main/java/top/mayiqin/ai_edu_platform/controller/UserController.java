@@ -2,17 +2,18 @@ package top.mayiqin.ai_edu_platform.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import top.mayiqin.ai_edu_platform.entity.po.User;
+import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
+import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
 import top.mayiqin.ai_edu_platform.exception.Result;
 import top.mayiqin.ai_edu_platform.service.UserService;
-import top.mayiqin.ai_edu_platform.utils.JwtUtil;
 
-
-import javax.security.auth.login.AccountNotFoundException;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,78 +31,86 @@ public class UserController {
     /**
      * 用户登录
      *
-     * @param user
-     * @return
+     * @param userLoginDTO 用户登录信息
+     * @return 响应结果
      */
     @Operation(summary = "用户登录")
     @PostMapping("/login")
-    public Result<User> login(@RequestBody User user) throws AccountNotFoundException {
-        log.info("用户登录：{}", user);
-
-        User loginUser = userService.login(user);
-
-        //登录成功后，生成jwt令牌
-        Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", loginUser.getId());
-
-        String token = JwtUtil.createJWT(
-                "DaiMaDouDui",          // 自定义密钥
-                3600 * 1000,           // 过期时间1小时
-                claims);
-
-
-        User userLoginVO = User.builder()
-                .id(loginUser.getId())
-                .username(loginUser.getUsername())
-                .token(token)
-                .build();
-
-        return Result.success(userLoginVO);
+    public Result<Map<String, Object>> login(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+        log.info("用户登录请求: username={}", userLoginDTO.getUsername());
+        
+        // 调用服务层登录，验证账号密码并生成 JWT
+        Map<String, Object> responseData = userService.login(userLoginDTO);
+        
+        log.info("用户登录成功: username={}", userLoginDTO.getUsername());
+        return Result.success("登录成功", responseData);
     }
 
     /**
-     * 退出
+     * 用户注册
      *
-     * @return
+     * @param userRegisterDTO 用户注册信息
+     * @return 响应结果
      */
-    @Operation(summary = "退出")
-    @PostMapping("/logout")
-    public Result<String> logout() {
-        return Result.success();
+    @Operation(summary = "用户注册")
+    @PostMapping("/register")
+    public Result<Long> register(@Valid @RequestBody UserRegisterDTO userRegisterDTO) {
+        log.info("用户注册请求: username={}", userRegisterDTO.getUsername());
+        
+        // 调用服务层注册，返回用户ID
+        Long userId = userService.register(userRegisterDTO);
+
+        log.info("用户注册成功: username={}", userRegisterDTO.getUsername());
+        return Result.success("注册成功", userId);
     }
 
     /**
-     * 新增用户
-     * @param user
-     * @return
-     */
-    @Operation(summary = "新增用户")
-    @PostMapping("/add")
-    public Result save(@RequestBody User user) {
-        log.info("新增用户:{}", user);
-        System.out.println("当前线程的id " + Thread.currentThread().getId());
-        userService.save(user);
-        return Result.success();
-    }
-
-    /**
-     * 查询用户信息
-     * @return
+     * 查询个人信息
+     * @return 用户信息DTO（不包含密码等敏感字段）
      */
     @Operation(summary = "查询个人信息")
-    @GetMapping("/profile")
-    public Result<User> getProfile() {
-        User user = userService.getCurrentUserProfile();
-        // 隐藏密码，禁止返回给前端
-        user.setPassword("******");
-        return Result.success(user);
+    @GetMapping("/info")
+    public Result<UserInfoVO> getUserInfo() {
+        log.info("查询用户信息请求");
+            
+        // 获取当前登录用户信息
+        UserInfoVO userInfo = userService.getUserInfo();
+
+        log.info("查询用户信息成功: username={}", userInfo.getUsername());
+        return Result.success(userInfo);
     }
 
-    @Operation(summary = "编辑个人基础信息")
-    @PutMapping("/profile") // PUT 请求表示更新
-    public Result updateProfile(@RequestBody User user) {
-        userService.updateProfile(user);
-        return Result.success("修改成功");
+    /**
+     * 编辑个人信息
+     *
+     * @param userUpdateDTO 用户更新信息
+     * @return 响应结果
+     */
+    @Operation(summary = "编辑个人信息")
+    @PutMapping("/info/edit")
+    public Result<Void> updateUserInfo(@Valid @RequestBody UserUpdateDTO userUpdateDTO) {
+        log.info("编辑用户信息请求");
+        
+        // 调用服务层更新用户信息
+        userService.updateUserInfo(userUpdateDTO);
+        
+        return Result.success("修改成功", null);
+    }
+
+    /**
+     * 获取学习足迹
+     *
+     * @return 响应结果
+     */
+    @Operation(summary = "获取学习足迹")
+    @GetMapping("/learning-history")
+    public Result<LearningHistoryVO> getLearningHistory() {
+        log.info("获取学习足迹请求");
+        
+        // 调用服务层获取学习足迹
+        LearningHistoryVO learningHistory = userService.getLearningHistory();
+        
+        return Result.success("获取学习足迹成功", learningHistory);
     }
 
 }

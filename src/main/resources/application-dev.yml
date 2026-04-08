@@ -18,7 +18,17 @@ spring:
       # - serverTimezone=Asia/Shanghai: 设置服务器时区为上海时间
       # - allowPublicKeyRetrieval=true: 允许公钥检索（解决 MySQL 8 认证问题）
     username: root  # 数据库用户名（请根据实际情况修改）
-    password: 1234  # 数据库密码（请根据实际情况修改）
+    password: MYQ1234567  # 数据库密码（请根据实际情况修改）
+    
+    # HikariCP 连接池配置
+    hikari:
+      minimum-idle: 5  # 最小空闲连接数
+      maximum-pool-size: 20  # 最大连接池大小
+      idle-timeout: 300000  # 空闲连接超时时间（毫秒），默认10分钟
+      max-lifetime: 1800000  # 连接最大生命周期（毫秒），默认30分钟（必须小于MySQL的wait_timeout）
+      connection-timeout: 30000  # 连接超时时间（毫秒），默认30秒
+      connection-test-query: SELECT 1  # 连接测试查询
+      pool-name: AiEduHikariCP  # 连接池名称
 
   # Jackson JSON 序列化配置
   jackson:
@@ -33,3 +43,4 @@ logging:
     com.baomidou.mybatisplus: DEBUG  # MyBatis-Plus 框架日志，可看到 SQL 执行细节
     top.mayiqin.ai_edu_platform.mapper: DEBUG  # Mapper 层日志，可看到具体 SQL 语句
     org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration: ERROR
+    org.springframework.web.servlet.resource.ResourceHttpRequestHandler: WARN  # 忽略静态资源找不到的警告（如 favicon.ico）

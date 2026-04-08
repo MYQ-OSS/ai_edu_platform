@@ -56,7 +56,7 @@ const handleLogin = async () => {
         const response = await userStore.login(loginForm)
         if (response.code === 200) {
           ElMessage.success('登录成功')
-          await userStore.getUserInfo()
+          await userStore.fetchUserInfo()
           router.push('/home')
         } else {
           ElMessage.error(response.msg)
