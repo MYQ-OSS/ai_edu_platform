@@ -57,6 +57,13 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- Hutool 工具类库，提供字符串、日期、加密等常用工具方法 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.40</version>
+        </dependency>
+
         <!-- Lombok 注解库，简化 Java 实体类代码编写 -->
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -85,6 +92,13 @@
             <version>3.5.9</version>
         </dependency>
 
+        <!-- MyBatis-Plus JSqlParser 插件，支持 SQL 解析和动态 SQL 生成 -->
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <version>3.5.9</version>
+        </dependency>
+
         <!-- Knife4j OpenAPI 文档增强，适配 Spring Boot 3.x -->
         <dependency>
             <groupId>com.github.xiaoymin</groupId>
@@ -92,29 +106,30 @@
             <version>4.4.0</version>
         </dependency>
 
-        <!-- JWT令牌生成与解析 -->
+        <!-- JWT令牌生成与解析（支持 Jakarta EE，适配 Spring Boot 3.x） -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.12.6</version>
         </dependency>
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-            <version>2.3.1</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.12.6</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.xml.bind</groupId>
-            <artifactId>jaxb-impl</artifactId>
-            <version>2.3.1</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.12.6</version>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- OpenAI Java SDK，用于调用 DashScope 兼容接口 -->
+        <!-- Spring AI OpenAI Starter，支持兼容 OpenAI 格式的 API（如阿里云 DashScope） -->
         <dependency>
-            <groupId>com.openai</groupId>
-            <artifactId>openai-java</artifactId>
-            <version>2.6.0</version>
+            <groupId>org.springframework.ai</groupId>
+            <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
+            <version>1.0.0-M6</version>
         </dependency>
     </dependencies>
 

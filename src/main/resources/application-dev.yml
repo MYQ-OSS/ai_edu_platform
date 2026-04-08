@@ -44,3 +44,5 @@ logging:
     top.mayiqin.ai_edu_platform.mapper: DEBUG  # Mapper 层日志，可看到具体 SQL 语句
     org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration: ERROR
     org.springframework.web.servlet.resource.ResourceHttpRequestHandler: WARN  # 忽略静态资源找不到的警告（如 favicon.ico）
+    org.springframework.web.client.RestTemplate: DEBUG  # 查看 HTTP 请求详情
+    org.springframework.ai: DEBUG  # Spring AI 详细日志

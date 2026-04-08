@@ -117,3 +117,22 @@ VALUES ('tech_direction', 'java_backend', 'Java后端开发', 1),
        ('tech_direction', 'frontend_vue', 'Vue前端开发', 3),
        ('tech_direction', 'frontend_react', 'React前端开发', 4),
        ('tech_direction', 'ai_develop', 'AI开发', 5);
+
+-- ----------------------------
+-- 用户收藏表 t_quiz_collect
+-- ----------------------------
+DROP TABLE IF EXISTS t_quiz_collect;
+CREATE TABLE t_quiz_collect
+(
+    id          BIGINT   NOT NULL AUTO_INCREMENT COMMENT '收藏记录唯一标识',
+    user_id     BIGINT   NOT NULL COMMENT '用户唯一ID',
+    question_id BIGINT   NOT NULL COMMENT '题目唯一ID',
+    is_collect  CHAR(1)  NOT NULL DEFAULT '1' COMMENT '是否收藏（1=收藏，0=取消）',
+    create_time DATETIME          DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+    update_time DATETIME          DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_user_question (user_id, question_id) COMMENT '保证同一用户对同一题目只有一条收藏记录',
+    INDEX idx_user_id (user_id) COMMENT '提升查询用户收藏列表的效率',
+    INDEX idx_question_id (question_id) COMMENT '提升查询题目被收藏情况的效率'
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='用户题目收藏表';

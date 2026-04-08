@@ -27,17 +27,20 @@ public class LearningHistoryVO {
      * 答题记录列表
      */
     @Schema(description = "答题记录列表")
+    @Builder.Default
     private List<QuizRecord> quizRecords = new ArrayList<>();
     
     /**
      * 正确率趋势（最近10次答题的正确率）
      */
     @Schema(description = "正确率趋势（最近10次答题的正确率）")
+    @Builder.Default
     private List<BigDecimal> accuracyTrend = new ArrayList<>();
     
     /**
      * 薪资报告列表
      */
     @Schema(description = "薪资报告列表")
+    @Builder.Default
     private List<SalaryReport> salaryReports = new ArrayList<>();
 }

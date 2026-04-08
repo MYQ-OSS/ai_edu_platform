@@ -2,12 +2,12 @@ package top.mayiqin.ai_edu_platform.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.JwtBuilder;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.SignatureException;
+import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
@@ -15,6 +15,7 @@ import java.util.Map;
 /**
  * JWT工具类
  * 提供JWT令牌的生成、解析和验证功能
+ * 使用 jjwt 0.12.x 版本，支持 Jakarta EE
  * @author m'y'q
  */
 @Slf4j
@@ -29,23 +30,23 @@ public class JwtUtil {
      * @return JWT令牌字符串
      */
     public static String createJWT(String secretKey, long ttlMillis, Map<String, Object> claims) {
-        // 指定签名的时候使用的签名算法
-        SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.HS256;
-
         // 计算过期时间
         long expMillis = System.currentTimeMillis() + ttlMillis;
         Date exp = new Date(expMillis);
 
-        // 构建JWT
-        JwtBuilder builder = Jwts.builder()
-                // 设置自定义声明
-                .setClaims(claims)
-                // 设置签名算法和密钥
-                .signWith(signatureAlgorithm, secretKey.getBytes(StandardCharsets.UTF_8))
-                // 设置过期时间
-                .setExpiration(exp);
+        // 将字符串密钥转换为 SecretKey
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
 
-        return builder.compact();
+        // 构建JWT
+        return Jwts.builder()
+                // 设置自定义声明
+                .claims(claims)
+                // 设置过期时间
+                .expiration(exp)
+                // 设置签名算法和密钥
+                .signWith(key)
+                // 生成紧凑的JWT字符串
+                .compact();
     }
 
     /**
@@ -55,24 +56,29 @@ public class JwtUtil {
      * @param token     加密后的token
      * @return Claims对象，包含所有声明信息
      * @throws ExpiredJwtException Token已过期
-     * @throws SignatureException 签名验证失败
+     * @throws JwtException 签名验证失败或Token无效
      * @throws IllegalArgumentException Token格式错误
      */
     public static Claims parseJWT(String secretKey, String token) {
         try {
+            // 将字符串密钥转换为 SecretKey
+            SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
             // 解析JWT并获取Claims
-            Claims claims = Jwts.parser()
+            return Jwts.parser()
                     // 设置签名密钥
-                    .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                    .verifyWith(key)
+                    // 构建解析器
+                    .build()
                     // 解析token
-                    .parseClaimsJws(token)
-                    .getBody();
-            return claims;
+                    .parseSignedClaims(token)
+                    // 获取负载内容
+                    .getPayload();
         } catch (ExpiredJwtException e) {
             log.warn("JWT Token已过期: {}", e.getMessage());
             throw e;
-        } catch (SignatureException e) {
-            log.warn("JWT Token签名验证失败: {}", e.getMessage());
+        } catch (JwtException e) {
+            log.warn("JWT Token验证失败: {}", e.getMessage());
             throw e;
         } catch (Exception e) {
             log.error("JWT Token解析失败: {}", e.getMessage());

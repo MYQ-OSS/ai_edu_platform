@@ -2,58 +2,57 @@ package top.mayiqin.ai_edu_platform.service.impl;
 
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.openai.client.OpenAIClient;
-import com.openai.client.okhttp.OpenAIOkHttpClient;
-import com.openai.models.chat.completions.ChatCompletion;
-import com.openai.models.chat.completions.ChatCompletionCreateParams;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
-import top.mayiqin.ai_edu_platform.dto.question.QuestionGenerateDTO;
+import top.mayiqin.ai_edu_platform.ai.tool.QuestionGenerateTool;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.mapper.QuestionMapper;
 import top.mayiqin.ai_edu_platform.service.QuestionService;
-import top.mayiqin.ai_edu_platform.vo.QuestionVO;
+import top.mayiqin.ai_edu_platform.entity.vo.QuestionVO;
 
 import java.util.Date;
-import java.util.Objects;
 
 /**
-* @author m'y'q
-* @description 针对表【t_question(AI生成题库表)】的数据库操作Service实现
-* @createDate 2026-03-31 20:55:08
-*/
+ * 题目服务实现类
+ * 使用 Spring AI 调用大语言模型生成面试题目
+ * @author m'y'q
+ * @description 针对表【t_question(AI生成题库表)】的数据库操作Service实现
+ * @createDate 2026-03-31 20:55:08
+ */
 @Service
+@Slf4j
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> implements QuestionService {
 
-    @Value("${ai.dashscope.api-key}")
-    private String apiKey;
+    private final ChatClient chatClient;
+    private final QuestionGenerateTool questionGenerateTool;
 
-    @Value("${ai.dashscope.base-url:https://dashscope.aliyuncs.com/compatible-mode/v1}")
-    private String baseUrl;
-
-    @Value("${ai.dashscope.model-name:qwen-max}")
-    private String modelName;
-
-    @Value("${ai.dashscope.temperature:0.3}")
-    private Double temperature;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    public QuestionServiceImpl(ChatClient chatClient, QuestionGenerateTool questionGenerateTool) {
+        this.chatClient = chatClient;
+        this.questionGenerateTool = questionGenerateTool;
+    }
 
     @Override
     public QuestionVO generateQuestion(QuestionGenerateDTO request) {
+        // 参数校验
+        if (request == null) {
+            throw new BusinessException(400, "请求参数不能为空");
+        }
+        
         try {
+            // 调用 AI 生成题目
             String aiJson = callAiGenerateQuestion(request);
-            JsonNode root = objectMapper.readTree(aiJson);
-            String questionName = requireText(root, "questionName");
-            String questionDesc = requireText(root, "questionDesc");
+            
+            // 使用 Tool 验证并解析 AI 返回的 JSON
+            JsonNode root = questionGenerateTool.validateAndParseJson(aiJson);
+            String questionName = root.get("questionName").asText();
+            String questionDesc = root.get("questionDesc").asText();
             JsonNode optionsNode = root.get("options");
-            if (optionsNode == null || !optionsNode.isArray() || optionsNode.isEmpty()) {
-                throw new BusinessException(500, "AI接口调用失败");
-            }
-            String options = objectMapper.writeValueAsString(optionsNode);
+            String options = questionGenerateTool.getObjectMapper().writeValueAsString(optionsNode);
 
+            // 构建题目实体并保存到数据库
             Question question = Question.builder()
                     .questionName(questionName)
                     .questionDesc(questionDesc)
@@ -65,9 +64,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
             boolean saved = this.save(question);
             if (!saved || question.getId() == null) {
-                throw new BusinessException(500, "AI接口调用失败");
+                log.error("题目保存失败: {}", question);
+                throw new BusinessException(500, "题目保存失败");
             }
 
+            log.info("题目生成并保存成功: questionId={}, questionName={}", question.getId(), question.getQuestionName());
+
+            // 返回 VO
             return QuestionVO.builder()
                     .questionId(question.getId())
                     .questionName(question.getQuestionName())
@@ -77,83 +80,62 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
                     .direction(question.getDirection())
                     .build();
         } catch (BusinessException e) {
+            // 业务异常直接抛出
             throw e;
         } catch (Exception e) {
-            throw new BusinessException(500, "AI接口调用失败");
+            log.error("题目生成失败: {}", e.getMessage(), e);
+            throw new BusinessException(500, "题目生成失败: " + e.getMessage());
         }
     }
 
+    /**
+     * 调用 Spring AI ChatClient 生成题目
+     *
+     * @param request 题目生成请求参数
+     * @return AI 返回的 JSON 字符串
+     */
     private String callAiGenerateQuestion(QuestionGenerateDTO request) {
-        if (apiKey == null || apiKey.isBlank()) {
-            throw new BusinessException(500, "AI接口调用失败：api-key未配置");
-        }
+        // 使用 Tool 构建 Prompt
+        String prompt = questionGenerateTool.generateQuestion(
+                request.getDirection(),
+                request.getTargetSalary(),
+                request.getIdentity(),
+                request.getCity(),
+                request.getTimeLimit()
+        );
+        
+        log.trace("调用AI生成题目，prompt: {}", prompt);
 
-        String prompt = buildPrompt(request);
-        OpenAIClient client = OpenAIOkHttpClient.builder()
-                .apiKey(apiKey)
-                .baseUrl(baseUrl)
-                .build();
+        try {
+            // 使用 Spring AI ChatClient 调用大模型
+            log.debug("开始调用 AI 接口...");
+            String result = chatClient.prompt()
+                    .user(prompt)
+                    .call()
+                    .content();
 
-        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-                .addUserMessage(prompt)
-                .model(modelName)
-                .temperature(temperature)
-                .build();
-
-        ChatCompletion completion = client.chat().completions().create(params);
-        if (completion.choices() == null || completion.choices().isEmpty()) {
-            throw new BusinessException(500, "AI接口调用失败");
-        }
-
-        String content = completion.choices().getFirst().message().content().orElse(null);
-        if (content == null || content.isBlank()) {
-            throw new BusinessException(500, "AI接口调用失败");
-        }
-        return stripCodeFence(content);
-    }
-
-    private String buildPrompt(QuestionGenerateDTO request) {
-        String identity = Objects.requireNonNullElse(request.getIdentity(), "求职者");
-        String city = Objects.requireNonNullElse(request.getCity(), "目标城市不限");
-        Integer timeLimit = Objects.requireNonNullElse(request.getTimeLimit(), 30);
-        return """
-                你是资深技术面试官。请根据以下信息生成一道个性化技术挑战题。
-                direction: %s
-                targetSalary: %d
-                identity: %s
-                city: %s
-                timeLimit: %d
-
-                请仅返回JSON，不要包含任何额外文字，格式必须严格如下：
-                {
-                  "questionName": "题目名称",
-                  "questionDesc": "题目描述",
-                  "options": [
-                    {"label": "技术栈1", "value": "stack1"},
-                    {"label": "技术栈2", "value": "stack2"},
-                    {"label": "技术栈3", "value": "stack3"}
-                  ]
-                }
-                """.formatted(request.getDirection(), request.getTargetSalary(), identity, city, timeLimit);
-    }
-
-    private String stripCodeFence(String raw) {
-        String trimmed = raw.trim();
-        if (trimmed.startsWith("```")) {
-            int start = trimmed.indexOf('\n');
-            int end = trimmed.lastIndexOf("```");
-            if (start >= 0 && end > start) {
-                return trimmed.substring(start + 1, end).trim();
+            if (result == null || result.isBlank()) {
+                log.error("AI返回内容为空");
+                throw new BusinessException(500, "AI返回内容为空");
             }
+
+            log.debug("AI返回内容长度: {}", result.length());
+
+            return result;
+        } catch (BusinessException e) {
+            // 业务异常直接抛出
+            throw e;
+        } catch (org.springframework.ai.retry.NonTransientAiException e) {
+            // AI 服务非临时性异常（如 404、401、403 等）
+            log.error("AI 服务调用失败: {}", e.getMessage());
+            log.error("请检查：1) API Key 是否有效 2) 网络连接是否正常 3) 模型名称是否正确");
+            log.debug("详细异常信息", e);
+            throw new BusinessException(500, "AI 服务调用失败，请检查 API Key 和网络连接");
+        } catch (Exception e) {
+            log.error("调用AI接口失败: {}", e.getMessage(), e);
+            throw new BusinessException(500, "调用AI接口失败: " + e.getMessage());
         }
-        return trimmed;
     }
 
-    private String requireText(JsonNode root, String fieldName) {
-        JsonNode node = root.get(fieldName);
-        if (node == null || node.asText().isBlank()) {
-            throw new BusinessException(500, "AI接口调用失败");
-        }
-        return node.asText();
-    }
+
 }

@@ -11,6 +11,15 @@ spring:
     multipart:
       max-file-size: 10MB  # 单个上传文件最大大小限制
       max-request-size: 10MB  # 整个请求最大大小限制（包含所有文件和表单数据）
+  # Spring AI 配置（阿里云 DashScope 兼容 OpenAI 格式）
+  ai:
+    openai:
+      api-key: ${AI_DASHSCOPE_API_KEY:sk-f4dffa83276644ecae2f7bd1ad283705}
+      base-url: https://dashscope.aliyuncs.com/compatible-mode
+      chat:
+        options:
+          model: ${AI_DASHSCOPE_MODEL:qwen-plus}  # qwen-turbo(快)/qwen-plus(均衡)/qwen-max(高质量)
+          temperature: ${AI_DASHSCOPE_TEMPERATURE:0.3}
 
 # 服务器配置
 server:
@@ -47,13 +56,5 @@ knife4j:
 
 # JWT配置
 jwt:
-  secret-key: DaiMaDouDui # JWT签名密钥（生产环境建议使用更复杂的密钥，并通过环境变量注入）
+  secret-key: DaiMaDouDui_Secure_Key_2026_For_JWT # JWT签名密钥（至少32字符/256位，生产环境建议使用环境变量注入更复杂的密钥）
   expiration: 3600000 # Token过期时间（毫秒），默认1小时
-# AI 接口配置
-ai:
-  dashscope:
-    api-key: sk-7664a5e900094020ade80c5259dbeab2
-    base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
-    model-name: qwen-max
-    temperature: 0.3
-
