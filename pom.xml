@@ -109,6 +109,13 @@
             <version>2.3.1</version>
             <scope>runtime</scope>
         </dependency>
+
+        <!-- OpenAI Java SDK，用于调用 DashScope 兼容接口 -->
+        <dependency>
+            <groupId>com.openai</groupId>
+            <artifactId>openai-java</artifactId>
+            <version>2.6.0</version>
+        </dependency>
     </dependencies>
 
     <build>
