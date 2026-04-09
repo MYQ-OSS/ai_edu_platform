@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuizCollectDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuizSubmitDTO;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.Result;
 import top.mayiqin.ai_edu_platform.service.QuestionService;
 import top.mayiqin.ai_edu_platform.service.QuizCollectService;
@@ -66,7 +67,7 @@ public class QuestionController {
         QuestionVO data = questionService.generateQuestion(request);
         
         log.info("题目生成成功: questionId={}, questionName={}", data.getQuestionId(), data.getQuestionName());
-        return Result.success("题目生成成功", data);
+        return Result.success(MessageConstant.QUESTION_GENERATE_SUCCESS, data);
     }
 
     /**
@@ -95,7 +96,7 @@ public class QuestionController {
         
         log.info("答题结果提交成功: recordId={}, score={}, accuracy={}", 
                 data.getRecordId(), data.getScore(), data.getAccuracy());
-        return Result.success("答题结果提交成功", data);
+        return Result.success(MessageConstant.QUIZ_SUBMIT_SUCCESS, data);
     }
 
     /**
@@ -117,7 +118,7 @@ public class QuestionController {
         QuizReportVO data = quizRecordService.getQuizReport(recordId);
         
         log.info("答题报告获取成功: recordId={}, score={}", data.getRecordId(), data.getScore());
-        return Result.success("获取答题报告成功", data);
+        return Result.success(MessageConstant.GET_QUIZ_REPORT_SUCCESS, data);
     }
 
     /**

@@ -15,6 +15,7 @@ import top.mayiqin.ai_edu_platform.entity.dto.SalaryEvaluateDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryEvaluateVO;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryReportVO;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.Result;
 import top.mayiqin.ai_edu_platform.service.SalaryReportService;
 
@@ -66,7 +67,7 @@ public class SalaryController {
         log.info("薪资评估报告生成成功: reportId={}, salaryRange={}", 
                 data.getReportId(), data.getSalaryRange());
         
-        return Result.success("薪资评估报告生成成功", data);
+        return Result.success(MessageConstant.SALARY_EVALUATE_SUCCESS, data);
     }
 
     /**
@@ -88,7 +89,7 @@ public class SalaryController {
         SalaryReportVO data = salaryReportService.getReportDetail(reportId);
         
         log.info("薪资评估报告获取成功: reportId={}, salaryRange={}", data.getId(), data.getSalaryRange());
-        return Result.success("获取薪资评估报告成功", data);
+        return Result.success(MessageConstant.GET_SALARY_REPORT_SUCCESS, data);
     }
 
     /**
@@ -110,6 +111,6 @@ public class SalaryController {
         List<SalaryHistoryVO> data = salaryReportService.getHistoryList(userId);
         
         log.info("薪资评估历史记录获取成功: userId={}, count={}", userId, data.size());
-        return Result.success("获取薪资评估历史成功", data);
+        return Result.success(MessageConstant.GET_SALARY_HISTORY_SUCCESS, data);
     }
 }

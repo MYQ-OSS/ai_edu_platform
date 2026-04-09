@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import top.mayiqin.ai_edu_platform.entity.po.QuizCollect;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.mapper.QuestionMapper;
 import top.mayiqin.ai_edu_platform.mapper.QuizCollectMapper;
@@ -47,7 +48,7 @@ public class QuizCollectServiceImpl extends ServiceImpl<QuizCollectMapper, QuizC
             Question question = questionMapper.selectById(questionId);
             if (question == null) {
                 log.error("题目不存在: questionId={}", questionId);
-                throw new BusinessException(404, "题目不存在");
+                throw new BusinessException(404, MessageConstant.QUESTION_NOT_EXIST);
             }
             log.debug("题目验证通过: questionName={}", question.getQuestionName());
 
@@ -66,7 +67,7 @@ public class QuizCollectServiceImpl extends ServiceImpl<QuizCollectMapper, QuizC
                 boolean updated = this.updateById(existingRecord);
                 if (!updated) {
                     log.error("更新收藏状态失败: userId={}, questionId={}", userId, questionId);
-                    throw new BusinessException(500, "更新收藏状态失败");
+                    throw new BusinessException(500, MessageConstant.UPDATE_COLLECT_STATUS_FAILED);
                 }
                 
                 log.info("更新收藏状态成功: userId={}, questionId={}, isCollect={}", userId, questionId, isCollect);
@@ -84,7 +85,7 @@ public class QuizCollectServiceImpl extends ServiceImpl<QuizCollectMapper, QuizC
                     boolean saved = this.save(newRecord);
                     if (!saved) {
                         log.error("新增收藏记录失败: userId={}, questionId={}", userId, questionId);
-                        throw new BusinessException(500, "新增收藏记录失败");
+                        throw new BusinessException(500, MessageConstant.ADD_COLLECT_RECORD_FAILED);
                     }
                     
                     log.info("新增收藏成功: userId={}, questionId={}", userId, questionId);

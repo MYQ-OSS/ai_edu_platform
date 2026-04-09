@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.properties.JwtProperties;
 import top.mayiqin.ai_edu_platform.utils.JwtUtil;
 import top.mayiqin.ai_edu_platform.utils.UserContext;
@@ -25,11 +26,11 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         // 从请求头中获取token（标准 Authorization 头）
-        String token = request.getHeader("Authorization");
+        String token = request.getHeader(MessageConstant.AUTH_HEADER_NAME);
         
         // 处理Bearer前缀
-        if (StringUtils.hasText(token) && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        if (StringUtils.hasText(token) && token.startsWith(MessageConstant.AUTH_TOKEN_PREFIX)) {
+            token = token.substring(MessageConstant.AUTH_TOKEN_PREFIX.length());
             log.info("去除Bearer前缀后的Token: {}...", token.substring(0, Math.min(20, token.length())));
         }
         
@@ -38,7 +39,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             log.warn("❌ 请求未携带token，拒绝访问: {}", request.getRequestURI());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"msg\":\"未登录或Token已过期，请先登录\",\"data\":null}");
+            response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_MISSING_OR_EXPIRED));
             return false;
         }
         
@@ -54,7 +55,7 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             log.warn("❌ Token验证失败 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"msg\":\"Token无效或已过期\",\"data\":null}");
+            response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_INVALID));
             return false;
         }
         

@@ -22,7 +22,6 @@
             :class="{ active: selectedTechStacks.includes(tech.id) }"
             @click="toggleTechStack(tech.id)"
           >
-            <div class="tech-icon">{{ tech.icon }}</div>
             <div class="tech-name">{{ tech.name }}</div>
           </div>
         </div>
@@ -67,35 +66,58 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { submitQuiz } from '../../api/questionApi'
+import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const answer = ref('')
 const selectedTechStacks = ref([])
 
-// 模拟题目数据
+// 题目数据
 const question = reactive({
-  title: '如何设计一个高性能的前端应用？',
-  content: '请设计一个高性能的前端应用，考虑以下因素：1. 页面加载速度；2. 运行时性能；3. 代码可维护性；4. 用户体验。请结合具体的技术栈和最佳实践，详细描述你的设计方案。'
+  id: null,
+  title: '',
+  content: '',
+  options: []
 })
 
-// 模拟技术栈数据
-const techStacks = reactive([
-  { id: 1, name: 'Vue 3', icon: '🟢' },
-  { id: 2, name: 'React', icon: '⚛️' },
-  { id: 3, name: 'TypeScript', icon: '🔷' },
-  { id: 4, name: 'Webpack', icon: '📦' },
-  { id: 5, name: 'Vite', icon: '⚡' },
-  { id: 6, name: 'Tailwind CSS', icon: '🎨' },
-  { id: 7, name: 'Redux', icon: '🔄' },
-  { id: 8, name: 'GraphQL', icon: '🔗' }
-])
+// 技术栈选项（从题目options解析）
+const techStacks = ref([])
 
-// 页面加载时获取前提信息
+// 页面加载时获取题目数据
 onMounted(() => {
-  const inputData = localStorage.getItem('questionInputData')
-  if (!inputData) {
-    ElMessage.warning('请先填写前提信息')
+  const currentQuestion = localStorage.getItem('currentQuestion')
+  if (!currentQuestion) {
+    ElMessage.warning('请先生成题目')
+    router.push('/question/input')
+    return
+  }
+  
+  try {
+    const questionData = JSON.parse(currentQuestion)
+    question.id = questionData.questionId
+    question.title = questionData.questionName
+    question.content = questionData.questionDesc
+    
+    // 解析options JSON字符串为数组
+    if (questionData.options) {
+      try {
+        const options = JSON.parse(questionData.options)
+        question.options = options
+        // 转换为前端展示格式
+        techStacks.value = options.map((opt, index) => ({
+          id: index + 1,
+          name: opt.label,
+          value: opt.value
+        }))
+      } catch (e) {
+        console.error('解析题目选项失败:', e)
+      }
+    }
+  } catch (error) {
+    ElMessage.error('题目数据格式错误')
     router.push('/question/input')
   }
 })
@@ -120,13 +142,25 @@ const removeTechStack = (techId) => {
 
 // 根据ID获取技术栈名称
 const getTechNameById = (techId) => {
-  const tech = techStacks.find(t => t.id === techId)
+  const tech = techStacks.value.find(t => t.id === techId)
   return tech ? tech.name : ''
+}
+
+// 根据ID获取技术栈value
+const getTechValueById = (techId) => {
+  const tech = techStacks.value.find(t => t.id === techId)
+  return tech ? tech.value : ''
 }
 
 // 提交答案
 const handleSubmit = async () => {
-  if (!answer.value) {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  
+  if (!answer.value || !answer.value.trim()) {
     ElMessage.warning('请输入答案')
     return
   }
@@ -136,23 +170,44 @@ const handleSubmit = async () => {
     return
   }
   
+  if (!question.id) {
+    ElMessage.error('题目ID不存在')
+    return
+  }
+  
   loading.value = true
   try {
-    // 模拟提交答案
-    // 实际项目中应该调用API提交答案
-    setTimeout(() => {
-      loading.value = false
-      // 保存答案数据到localStorage，以便在报告页使用
-      localStorage.setItem('questionAnswerData', JSON.stringify({
-        answer: answer.value,
-        selectedTechStacks: selectedTechStacks.value
-      }))
-      ElMessage.success('答案提交成功')
+    // 构造用户选择的选项JSON
+    const userOptions = selectedTechStacks.value.map(techId => {
+      const tech = techStacks.value.find(t => t.id === techId)
+      return {
+        label: tech.name,
+        value: tech.value
+      }
+    })
+    
+    // 调用提交接口
+    const requestData = {
+      userId: userStore.userInfo?.id,
+      questionId: question.id,
+      userOptions: JSON.stringify(userOptions),
+      userAnswer: answer.value
+    }
+    
+    const response = await submitQuiz(requestData)
+    
+    if (response.code === 200) {
+      ElMessage.success('答题结果提交成功')
+      // 保存recordId到localStorage，用于报告页获取详情
+      localStorage.setItem('quizRecordId', response.data.recordId)
       router.push('/question/report')
-    }, 1000)
+    } else {
+      ElMessage.error(response.msg || '提交失败')
+    }
   } catch (error) {
+    ElMessage.error(error.response?.data?.msg || '提交失败，请稍后重试')
+  } finally {
     loading.value = false
-    ElMessage.error('提交失败，请稍后重试')
   }
 }
 
@@ -165,7 +220,7 @@ const goBack = () => {
 <style scoped>
 .question-answer-container {
   padding: 20px;
-  max-width: 1000px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -189,13 +244,15 @@ const goBack = () => {
 }
 
 .question-section h3 {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #303133;
+  font-size: 20px;
 }
 
 .question-content {
-  line-height: 1.6;
+  line-height: 1.8;
   color: #606266;
+  font-size: 16px;
 }
 
 .tech-stack-section {
@@ -205,28 +262,29 @@ const goBack = () => {
 }
 
 .tech-stack-section h3 {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   color: #303133;
+  font-size: 18px;
 }
 
 .tech-stack-cards {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 20px;
 }
 
 .tech-card {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  width: 100px;
-  height: 100px;
+  aspect-ratio: 1 / 1;
+  padding: 20px;
   border: 2px solid #e4e7ed;
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
   background-color: #f5f7fa;
+  word-break: break-word;
 }
 
 .tech-card:hover {
@@ -239,15 +297,12 @@ const goBack = () => {
   background-color: #ecf5ff;
 }
 
-.tech-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
-}
-
 .tech-name {
-  font-size: 14px;
+  font-size: 18px;
   color: #303133;
   text-align: center;
+  line-height: 1.5;
+  font-weight: 500;
 }
 
 .answer-section {
@@ -257,8 +312,9 @@ const goBack = () => {
 }
 
 .answer-section h3 {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #303133;
+  font-size: 18px;
 }
 
 .selected-tech-section {
@@ -268,8 +324,9 @@ const goBack = () => {
 }
 
 .selected-tech-section h3 {
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   color: #303133;
+  font-size: 18px;
 }
 
 .selected-tech-tags {

@@ -56,12 +56,12 @@
           <el-form :model="formData.tech" :rules="rules.tech" ref="techFormRef" label-width="120px">
             <el-form-item label="技术方向" prop="direction">
               <el-select v-model="formData.tech.direction" placeholder="请选择技术方向">
-                <el-option label="前端开发" value="frontend" />
-                <el-option label="后端开发" value="backend" />
-                <el-option label="移动端开发" value="mobile" />
-                <el-option label="数据科学" value="data" />
-                <el-option label="DevOps" value="devops" />
-                <el-option label="其他" value="other" />
+                <el-option 
+                  v-for="item in techDirections" 
+                  :key="item.dictCode" 
+                  :label="item.dictName" 
+                  :value="item.dictName"
+                />
               </el-select>
             </el-form-item>
             <el-form-item label="掌握的技术" prop="skills">
@@ -134,17 +134,23 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { evaluateSalary, getTechDirections } from '../../api/salaryApi'
+import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const activeStep = ref(0)
 const loading = ref(false)
 const basicFormRef = ref(null)
 const techFormRef = ref(null)
 const projectFormRef = ref(null)
 const newSkill = ref('')
+
+// 技术方向列表
+const techDirections = ref([])
 
 // 表单数据
 const formData = reactive({
@@ -211,6 +217,23 @@ const rules = {
   }
 }
 
+// 页面加载时获取技术方向字典数据
+onMounted(async () => {
+  await loadTechDirections()
+})
+
+// 加载技术方向字典数据
+const loadTechDirections = async () => {
+  try {
+    const response = await getTechDirections()
+    if (response.code === 200) {
+      techDirections.value = response.data || []
+    }
+  } catch (error) {
+    console.error('获取技术方向失败:', error)
+  }
+}
+
 // 上一步
 const prevStep = () => {
   activeStep.value--
@@ -253,22 +276,41 @@ const removeSkill = (skill) => {
 
 // 提交表单
 const handleSubmit = async () => {
+  if (!userStore.isLoggedIn) {
+    ElMessage.warning('请先登录')
+    router.push('/login')
+    return
+  }
+  
   await projectFormRef.value.validate(async (valid) => {
     if (valid) {
       loading.value = true
       try {
-        // 模拟提交数据
-        // 实际项目中应该调用API提交数据
-        setTimeout(() => {
-          loading.value = false
-          // 保存表单数据到localStorage，以便在报告页使用
-          localStorage.setItem('salaryInputData', JSON.stringify(formData))
-          ElMessage.success('评估请求提交成功')
+        // 构造请求参数
+        const requestData = {
+          userId: userStore.userInfo?.id,
+          direction: formData.tech.direction,
+          city: formData.basic.city || '',
+          experience: formData.project.description,
+          education: formData.basic.education || '',
+          identity: formData.basic.experience === 'fresh' ? '学生' : '在职'
+        }
+        
+        // 调用薪资评估接口
+        const response = await evaluateSalary(requestData)
+        
+        if (response.code === 200) {
+          ElMessage.success('薪资评估报告生成成功')
+          // 保存reportId到localStorage
+          localStorage.setItem('salaryReportId', response.data.reportId)
           router.push('/salary/report')
-        }, 1000)
+        } else {
+          ElMessage.error(response.msg || '评估失败')
+        }
       } catch (error) {
+        ElMessage.error(error.response?.data?.msg || '评估失败，请稍后重试')
+      } finally {
         loading.value = false
-        ElMessage.error('提交失败，请稍后重试')
       }
     }
   })

@@ -6,8 +6,9 @@ import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
+import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
@@ -69,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 2. 检查账号是否已存在
         User existUser = userMapper.getByUsername(username);
         if (existUser != null) {
-            throw new AccountAlreadyExistsException("账号已存在");
+            throw new AccountAlreadyExistsException(MessageConstant.ACCOUNT_ALREADY_EXISTS);
         }
         
         // 3. 密码加密（使用BCrypt）
@@ -136,13 +137,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         log.info("查询用户信息请求: userId={}", userId);
         
         if (userId == null) {
-            throw new BusinessException(401, "用户未登录，请先登录");
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
         }
         
         // 根据ID查询用户信息
         User user = userMapper.selectById(userId);
         if (user == null) {
-            throw new BusinessException(404, "用户不存在");
+            throw new BusinessException(404, MessageConstant.ACCOUNT_NOT_FOUND);
         }
         
         // 转换为VO，自动排除密码等敏感字段
@@ -165,13 +166,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 1. 获取当前登录用户ID
         Long userId = UserContext.getCurrentUserId();
         if (userId == null) {
-            throw new BusinessException(401, "用户未登录，请先登录");
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
         }
         
         // 2. 检查用户是否存在
         User existUser = userMapper.selectById(userId);
         if (existUser == null) {
-            throw new BusinessException(404, "用户不存在");
+            throw new BusinessException(404, MessageConstant.ACCOUNT_NOT_FOUND);
         }
         
         // 3. 构建更新对象（只允许更新特定字段）
@@ -217,7 +218,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         // 1. 获取当前登录用户ID
         Long userId = UserContext.getCurrentUserId();
         if (userId == null) {
-            throw new BusinessException(401, "用户未登录，请先登录");
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
         }
         
         // 2. 查询答题记录（按创建时间降序）

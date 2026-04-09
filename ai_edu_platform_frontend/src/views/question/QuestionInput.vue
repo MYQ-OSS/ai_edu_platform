@@ -11,12 +11,12 @@
         
         <el-form-item label="技术方向" prop="techDirection" required>
           <el-select v-model="inputForm.techDirection" placeholder="请选择技术方向">
-            <el-option label="前端开发" value="frontend" />
-            <el-option label="后端开发" value="backend" />
-            <el-option label="移动端开发" value="mobile" />
-            <el-option label="数据科学" value="data" />
-            <el-option label="DevOps" value="devops" />
-            <el-option label="其他" value="other" />
+            <el-option 
+              v-for="item in techDirections" 
+              :key="item.dictCode" 
+              :label="item.dictName" 
+              :value="item.dictName"
+            />
           </el-select>
         </el-form-item>
         
@@ -43,19 +43,25 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { generateQuiz, getTechDirections } from '../../api/questionApi'
+import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const inputFormRef = ref(null)
 const loading = ref(false)
+
+// 技术方向列表
+const techDirections = ref([])
 
 const inputForm = reactive({
   identity: '',
   techDirection: '',
   expectedSalary: '',
-  timeLimit: '',
+  timeLimit: 30,
   city: ''
 })
 
@@ -73,23 +79,61 @@ const rules = {
   ]
 }
 
+// 页面加载时获取技术方向字典数据
+onMounted(async () => {
+  await loadTechDirections()
+})
+
+// 加载技术方向字典数据
+const loadTechDirections = async () => {
+  try {
+    const response = await getTechDirections()
+    if (response.code === 200) {
+      techDirections.value = response.data || []
+    }
+  } catch (error) {
+    console.error('获取技术方向失败:', error)
+  }
+}
+
 const handleSubmit = async () => {
   await inputFormRef.value.validate(async (valid) => {
     if (valid) {
+      if (!userStore.isLoggedIn) {
+        ElMessage.warning('请先登录')
+        router.push('/login')
+        return
+      }
+      
       loading.value = true
       try {
-        // 模拟提交数据
-        // 实际项目中应该调用API提交数据
-        setTimeout(() => {
-          loading.value = false
-          // 保存表单数据到localStorage，以便在答题页使用
-          localStorage.setItem('questionInputData', JSON.stringify(inputForm))
-          ElMessage.success('前提信息提交成功')
+        // 构造请求参数，映射到后端DTO字段
+        const requestData = {
+          direction: inputForm.techDirection,
+          targetSalary: parseInt(inputForm.expectedSalary),
+          identity: inputForm.identity || userStore.userInfo?.identity || '',
+          city: inputForm.city || userStore.userInfo?.city || '',
+          timeLimit: inputForm.timeLimit || 30
+        }
+        
+        // 调用生成题目接口
+        const response = await generateQuiz(requestData)
+        
+        console.log('生成题目响应:', response)
+        
+        if (response.code === 200) {
+          ElMessage.success('题目生成成功')
+          // 保存题目数据到localStorage
+          localStorage.setItem('currentQuestion', JSON.stringify(response.data))
+          console.log('跳转到答题页，题目数据:', response.data)
           router.push('/question/answer')
-        }, 1000)
+        } else {
+          ElMessage.error(response.msg || '题目生成失败')
+        }
       } catch (error) {
+        ElMessage.error(error.response?.data?.msg || '题目生成失败，请稍后重试')
+      } finally {
         loading.value = false
-        ElMessage.error('提交失败，请稍后重试')
       }
     }
   })

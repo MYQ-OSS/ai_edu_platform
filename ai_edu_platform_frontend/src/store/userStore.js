@@ -75,10 +75,13 @@ export const useUserStore = defineStore('user', {
       try {
         const response = await userApi.editUserInfo(data)
         if (response.code === 200) {
-          // 更新本地用户信息
-          if (data.identity) this.userInfo.identity = data.identity
-          if (data.salary) this.userInfo.salary = data.salary
-          if (data.experience) this.userInfo.experience = data.experience
+          // 更新本地用户信息（排除密码字段）
+          if (this.userInfo) {
+            if (data.identity !== undefined) this.userInfo.identity = data.identity
+            if (data.salary !== undefined) this.userInfo.salary = data.salary
+            if (data.experience !== undefined) this.userInfo.experience = data.experience
+            // 注意：password 不存储在本地
+          }
         }
         this.loading = false
         return response

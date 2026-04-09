@@ -5,7 +5,7 @@ spring:
   # 数据源配置（MySQL 数据库连接）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL 8.x 驱动类名
-    url: jdbc:mysql://localhost:3306/ai_edu_platform?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://mysql/ai_edu_platform?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=Asia/Shanghai
       # 数据库连接 URL 参数说明：
       # - useUnicode=true: 使用 Unicode 编码
       # - characterEncoding=utf-8: 字符集为 UTF-8

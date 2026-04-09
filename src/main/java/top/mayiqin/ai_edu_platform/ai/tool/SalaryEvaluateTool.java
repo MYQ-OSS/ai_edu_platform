@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 
 import java.io.IOException;
@@ -64,7 +65,7 @@ public class SalaryEvaluateTool {
             // e) 验证AI返回结果不为空
             if (aiResponse == null || aiResponse.isBlank()) {
                 log.error("AI返回内容为空");
-                throw new BusinessException(500, "AI薪资评估失败：返回内容为空");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_EMPTY);
             }
             
             log.info("AI薪资评估完成，返回内容长度: {}", aiResponse.length());
@@ -97,12 +98,12 @@ public class SalaryEvaluateTool {
             // b) 验证必填字段
             if (!jsonNode.has("salaryRange") || !jsonNode.has("aiSuggestion")) {
                 log.error("AI返回JSON缺少必填字段: {}", aiJson);
-                throw new BusinessException(500, "AI返回数据格式错误：缺少salaryRange或aiSuggestion字段");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_FORMAT_ERROR + "：缺少salaryRange或aiSuggestion字段");
             }
             
             if (jsonNode.get("salaryRange").asText().isEmpty() || jsonNode.get("aiSuggestion").asText().isEmpty()) {
                 log.error("AI返回JSON字段值为空: {}", aiJson);
-                throw new BusinessException(500, "AI返回数据格式错误：salaryRange或aiSuggestion为空");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_FORMAT_ERROR + "：salaryRange或aiSuggestion为空");
             }
             
             log.debug("AI返回JSON验证通过: salaryRange={}", jsonNode.get("salaryRange").asText());

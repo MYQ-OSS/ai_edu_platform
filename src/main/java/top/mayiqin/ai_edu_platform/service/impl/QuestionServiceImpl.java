@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import top.mayiqin.ai_edu_platform.ai.tool.QuestionGenerateTool;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.mapper.QuestionMapper;
 import top.mayiqin.ai_edu_platform.service.QuestionService;
@@ -38,7 +39,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
     public QuestionVO generateQuestion(QuestionGenerateDTO request) {
         // 参数校验
         if (request == null) {
-            throw new BusinessException(400, "请求参数不能为空");
+            throw new BusinessException(400, MessageConstant.REQUEST_PARAM_EMPTY);
         }
         
         try {
@@ -65,7 +66,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             boolean saved = this.save(question);
             if (!saved || question.getId() == null) {
                 log.error("题目保存失败: {}", question);
-                throw new BusinessException(500, "题目保存失败");
+                throw new BusinessException(500, MessageConstant.SAVE_QUESTION_FAILED);
             }
 
             log.info("题目生成并保存成功: questionId={}, questionName={}", question.getId(), question.getQuestionName());
@@ -116,7 +117,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
             if (result == null || result.isBlank()) {
                 log.error("AI返回内容为空");
-                throw new BusinessException(500, "AI返回内容为空");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_EMPTY);
             }
 
             log.debug("AI返回内容长度: {}", result.length());
@@ -130,7 +131,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
             log.error("AI 服务调用失败: {}", e.getMessage());
             log.error("请检查：1) API Key 是否有效 2) 网络连接是否正常 3) 模型名称是否正确");
             log.debug("详细异常信息", e);
-            throw new BusinessException(500, "AI 服务调用失败，请检查 API Key 和网络连接");
+            throw new BusinessException(500, MessageConstant.AI_SERVICE_CALL_FAILED);
         } catch (Exception e) {
             log.error("调用AI接口失败: {}", e.getMessage(), e);
             throw new BusinessException(500, "调用AI接口失败: " + e.getMessage());

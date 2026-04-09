@@ -42,7 +42,7 @@ const registerForm = reactive({
   username: '',
   password: '',
   identity: '',
-  salary: '',
+  salary: null,
   experience: ''
 })
 
@@ -66,12 +66,21 @@ const handleRegister = async () => {
         const response = await userStore.register(registerForm)
         if (response.code === 200) {
           ElMessage.success('注册成功')
-          router.push('/login')
+          // 如果返回了token，自动登录
+          if (response.data && response.data.token) {
+            userStore.token = response.data.token
+            userStore.isLoggedIn = true
+            localStorage.setItem('token', response.data.token)
+            router.push('/home')
+          } else {
+            // 否则跳转到登录页
+            router.push('/login')
+          }
         } else {
           ElMessage.error(response.msg)
         }
       } catch (error) {
-        ElMessage.error('注册失败，请稍后重试')
+        ElMessage.error(error.response?.data?.msg || '注册失败，请稍后重试')
       }
     }
   })

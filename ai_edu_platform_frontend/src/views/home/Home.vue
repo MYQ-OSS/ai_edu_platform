@@ -39,6 +39,9 @@
                 <el-button type="primary" @click="navigateTo('/personal/info')" class="edit-btn">
                   编辑信息
                 </el-button>
+                <el-button @click="handleLogout" class="logout-btn">
+                  退出登录
+                </el-button>
               </div>
             </el-card>
             <el-card shadow="hover" class="personal-info-card" v-else>
@@ -131,6 +134,13 @@ onMounted(async () => {
 
 const navigateTo = (path) => {
   router.push(path)
+}
+
+const handleLogout = () => {
+  userStore.logout()
+  isLoggedIn.value = false
+  userInfo.value = null
+  router.push('/login')
 }
 </script>
 
@@ -300,6 +310,14 @@ const navigateTo = (path) => {
   padding: 10px 0;
   font-size: 16px;
   font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.logout-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 10px 0;
+  font-size: 16px;
   transition: all 0.3s ease;
 }
 

@@ -49,6 +49,11 @@ const routes = [
     component: () => import("../views/personal/PersonalInfo.vue"),
   },
   {
+    path: "/personal/edit-info",
+    name: "EditInfo",
+    component: () => import("../views/personal/EditInfo.vue"),
+  },
+  {
     path: "/personal/answer-history",
     name: "AnswerHistory",
     component: () => import("../views/personal/AnswerHistory.vue"),

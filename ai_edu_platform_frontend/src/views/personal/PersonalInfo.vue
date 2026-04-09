@@ -12,9 +12,10 @@
         <h3>{{ userForm?.username || '未登录' }}</h3>
         <p>{{ userForm?.identity || '未设置' }}</p>
         <p>期望薪资：{{ userForm?.salary ? userForm.salary + '元' : '未设置' }}</p>
-        <p>答题次数：{{ userForm?.answer_times || 0 }} | 平均得分：{{ userForm?.average_score || 0 }}</p>
+        <p>答题次数：{{ userForm?.answerTimes || 0 }} | 平均得分：{{ userForm?.averageScore || 0 }}</p>
       </div>
       <el-button type="primary" @click="handleEditInfo" class="edit-btn">编辑信息</el-button>
+      <el-button @click="goBack" class="back-btn">返回首页</el-button>
     </div>
     
     <!-- 标签页切换 -->
@@ -23,9 +24,9 @@
         <div class="history-card">
           <el-table :data="answerHistoryList" style="width: 100%">
             <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="question_type" label="题目类型" width="120" />
+            <el-table-column prop="questionType" label="题目类型" width="120" />
             <el-table-column prop="score" label="得分" width="80" />
-            <el-table-column prop="created_at" label="答题时间" />
+            <el-table-column prop="createTime" label="答题时间" />
             <el-table-column label="操作">
               <template #default="scope">
                 <el-button type="primary" size="small" @click="viewAnswerDetail(scope.row.id)">查看详情</el-button>
@@ -42,10 +43,10 @@
         <div class="report-card">
           <el-table :data="salaryReportList" style="width: 100%">
             <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="position" label="职位" width="120" />
-            <el-table-column prop="salary" label="预估薪资" width="120" />
-            <el-table-column prop="industry" label="行业" width="120" />
-            <el-table-column prop="created_at" label="生成时间" />
+            <el-table-column prop="direction" label="技术方向" width="120" />
+            <el-table-column prop="salaryRange" label="预估薪资" width="120" />
+            <el-table-column prop="city" label="城市" width="120" />
+            <el-table-column prop="createTime" label="生成时间" />
             <el-table-column label="操作">
               <template #default="scope">
                 <el-button type="primary" size="small" @click="viewSalaryDetail(scope.row.id)">查看详情</el-button>
@@ -76,51 +77,21 @@ const userForm = reactive({
   id: '',
   username: '',
   identity: '',
-  salary: '',
+  salary: null,
   experience: '',
-  answer_times: '',
-  average_score: ''
+  answerTimes: 0,
+  averageScore: 0,
+  createTime: ''
 })
 
-// 模拟答题历史数据
-const answerHistoryList = ref([
-  {
-    id: 1,
-    question_type: '技术挑战题',
-    score: 85,
-    created_at: '2026-03-28 14:30:00'
-  },
-  {
-    id: 2,
-    question_type: '基础知识题',
-    score: 92,
-    created_at: '2026-03-25 10:15:00'
-  },
-  {
-    id: 3,
-    question_type: '技术挑战题',
-    score: 78,
-    created_at: '2026-03-20 16:45:00'
-  }
-])
+// 答题历史数据
+const answerHistoryList = ref([])
 
-// 模拟薪资报告数据
-const salaryReportList = ref([
-  {
-    id: 1,
-    position: '前端工程师',
-    salary: '15000-20000元',
-    industry: '互联网',
-    created_at: '2026-03-29 09:30:00'
-  },
-  {
-    id: 2,
-    position: '后端工程师',
-    salary: '18000-25000元',
-    industry: '互联网',
-    created_at: '2026-03-27 11:20:00'
-  }
-])
+// 薪资报告数据
+const salaryReportList = ref([])
+
+// 正确率趋势数据（用于图表）
+const accuracyTrendData = ref([])
 
 const rules = {
   identity: [
@@ -128,10 +99,11 @@ const rules = {
   ]
 }
 
-// 页面加载时获取个人信息
+// 页面加载时获取个人信息和学习足迹
 onMounted(async () => {
   if (userStore.isLoggedIn) {
     await loadUserInfo()
+    await loadLearningHistory()
   }
 })
 
@@ -149,6 +121,24 @@ const loadUserInfo = async () => {
   }
 }
 
+// 加载学习足迹
+const loadLearningHistory = async () => {
+  try {
+    const response = await userStore.getLearningHistory()
+    if (response.code === 200) {
+      const data = response.data
+      // 赋值答题记录
+      answerHistoryList.value = data.quizRecords || []
+      // 赋值薪资报告
+      salaryReportList.value = data.salaryReports || []
+      // 赋值正确率趋势
+      accuracyTrendData.value = data.accuracyTrend || []
+    }
+  } catch (error) {
+    ElMessage.error('获取学习足迹失败')
+  }
+}
+
 const handleUpdate = async () => {
   if (!userStore.isLoggedIn) {
     ElMessage.info('请先登录后再修改个人信息')
@@ -162,11 +152,13 @@ const handleUpdate = async () => {
         const response = await userStore.editUserInfo(userForm)
         if (response.code === 200) {
           ElMessage.success('个人信息更新成功')
+          // 重新获取用户信息以更新本地数据
+          await loadUserInfo()
         } else {
           ElMessage.error(response.msg)
         }
       } catch (error) {
-        ElMessage.error('更新失败，请稍后重试')
+        ElMessage.error(error.response?.data?.msg || '更新失败，请稍后重试')
       }
     }
   })
@@ -179,9 +171,12 @@ const handleEditInfo = () => {
     return
   }
   
-  // 由于我们已经移除了个人信息标签页，这里可以跳转到专门的个人信息编辑页面
-  // 或者显示一个提示信息
-  ElMessage.info('个人信息编辑功能已移至其他页面')
+  // 跳转到个人信息编辑页面
+  router.push('/personal/edit-info')
+}
+
+const goBack = () => {
+  router.push('/home')
 }
 
 const handleLogout = () => {
@@ -257,6 +252,12 @@ const viewSalaryDetail = (id) => {
   padding: 10px 20px;
   font-size: 16px;
   font-weight: bold;
+}
+
+.back-btn {
+  margin-left: 10px;
+  padding: 10px 20px;
+  font-size: 16px;
 }
 
 /* 标签页容器 */

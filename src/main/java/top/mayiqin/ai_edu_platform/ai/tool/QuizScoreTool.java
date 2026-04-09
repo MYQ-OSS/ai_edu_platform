@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class QuizScoreTool {
             return template;
         } catch (IOException e) {
             log.error("加载判分 Prompt 模板失败: {}", PROMPT_TEMPLATE_PATH, e);
-            throw new BusinessException(500, "系统初始化失败：无法加载判分 Prompt 模板");
+            throw new BusinessException(500, MessageConstant.AI_SERVICE_INIT_FAILED);
         }
     }
 
@@ -135,7 +136,7 @@ public class QuizScoreTool {
         try {
             if (aiJson == null || aiJson.isBlank()) {
                 log.error("AI返回内容为空");
-                throw new BusinessException(500, "AI返回内容为空");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_EMPTY);
             }
 
             // 去除可能的 Markdown 代码块标记
@@ -152,7 +153,7 @@ public class QuizScoreTool {
             throw e;
         } catch (Exception e) {
             log.error("JSON解析失败: {}", e.getMessage(), e);
-            throw new BusinessException(500, "AI判分返回数据格式错误");
+            throw new BusinessException(500, MessageConstant.AI_RESPONSE_FORMAT_ERROR);
         }
     }
 
@@ -174,26 +175,26 @@ public class QuizScoreTool {
         
         // 验证 score 是数字
         if (!root.get("score").isNumber()) {
-            throw new BusinessException(500, "AI判分结果格式错误：score必须是数字");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：score必须是数字");
         }
         
         // 验证 accuracy 是数字
         if (!root.get("accuracy").isNumber()) {
-            throw new BusinessException(500, "AI判分结果格式错误：accuracy必须是数字");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：accuracy必须是数字");
         }
         
         // 验证 trueOptions 是数组
         JsonNode trueOptionsNode = root.get("trueOptions");
         if (!trueOptionsNode.isArray()) {
-            throw new BusinessException(500, "AI判分结果格式错误：trueOptions必须是数组");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：trueOptions必须是数组");
         }
         
         // 验证文本字段不为空
         if (root.get("comment").asText().isBlank()) {
-            throw new BusinessException(500, "AI判分结果格式错误：comment为空");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：comment为空");
         }
         if (root.get("analysis").asText().isBlank()) {
-            throw new BusinessException(500, "AI判分结果格式错误：analysis为空");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：analysis为空");
         }
     }
 

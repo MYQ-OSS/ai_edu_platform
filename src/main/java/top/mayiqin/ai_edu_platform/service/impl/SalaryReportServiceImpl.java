@@ -11,6 +11,7 @@ import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryEvaluateVO;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.vo.SalaryReportVO;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.mapper.SalaryReportMapper;
 import top.mayiqin.ai_edu_platform.service.SalaryReportService;
@@ -85,7 +86,7 @@ public class SalaryReportServiceImpl extends ServiceImpl<SalaryReportMapper, Sal
             boolean saved = this.save(salaryReport);
             if (!saved) {
                 log.error("薪资报告保存失败: userId={}, direction={}", userId, direction);
-                throw new BusinessException(500, "薪资报告保存失败");
+                throw new BusinessException(500, MessageConstant.SAVE_SALARY_REPORT_FAILED);
             }
 
             log.info("薪资报告保存成功: reportId={}", salaryReport.getId());
@@ -126,7 +127,7 @@ public class SalaryReportServiceImpl extends ServiceImpl<SalaryReportMapper, Sal
         SalaryReport salaryReport = this.getById(reportId);
         if (salaryReport == null) {
             log.error("薪资评估报告不存在: reportId={}", reportId);
-            throw new BusinessException(404, "报告不存在");
+            throw new BusinessException(404, MessageConstant.REPORT_NOT_EXIST);
         }
         
         log.debug("查询到报告记录: userId={}, direction={}, salaryRange={}", 

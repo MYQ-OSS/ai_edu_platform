@@ -2,6 +2,9 @@ package top.mayiqin.ai_edu_platform.service;
 
 import top.mayiqin.ai_edu_platform.entity.po.DictData;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.mayiqin.ai_edu_platform.entity.vo.DictDataVO;
+
+import java.util.List;
 
 /**
 * @author m'y'q
@@ -10,4 +13,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 */
 public interface DictDataService extends IService<DictData> {
 
+    /**
+     * 获取技术方向字典数据
+     * @return 技术方向列表
+     */
+    List<DictDataVO> getTechDirections();
 }

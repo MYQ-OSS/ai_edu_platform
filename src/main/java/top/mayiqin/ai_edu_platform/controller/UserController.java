@@ -11,6 +11,7 @@ import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.Result;
 import top.mayiqin.ai_edu_platform.service.UserService;
 
@@ -43,7 +44,7 @@ public class UserController {
         Map<String, Object> responseData = userService.login(userLoginDTO);
         
         log.info("用户登录成功: username={}", userLoginDTO.getUsername());
-        return Result.success("登录成功", responseData);
+        return Result.success(MessageConstant.LOGIN_SUCCESS, responseData);
     }
 
     /**
@@ -61,7 +62,7 @@ public class UserController {
         Long userId = userService.register(userRegisterDTO);
 
         log.info("用户注册成功: username={}", userRegisterDTO.getUsername());
-        return Result.success("注册成功", userId);
+        return Result.success(MessageConstant.REGISTER_SUCCESS, userId);
     }
 
     /**
@@ -94,7 +95,7 @@ public class UserController {
         // 调用服务层更新用户信息
         userService.updateUserInfo(userUpdateDTO);
         
-        return Result.success("修改成功", null);
+        return Result.success(MessageConstant.UPDATE_SUCCESS, null);
     }
 
     /**
@@ -110,7 +111,7 @@ public class UserController {
         // 调用服务层获取学习足迹
         LearningHistoryVO learningHistory = userService.getLearningHistory();
         
-        return Result.success("获取学习足迹成功", learningHistory);
+        return Result.success(MessageConstant.GET_LEARNING_HISTORY_SUCCESS, learningHistory);
     }
 
 }

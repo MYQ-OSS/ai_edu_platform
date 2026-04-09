@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 
 import java.io.IOException;
@@ -56,7 +57,7 @@ public class QuestionGenerateTool {
             return template;
         } catch (IOException e) {
             log.error("加载 Prompt 模板失败: {}", PROMPT_TEMPLATE_PATH, e);
-            throw new BusinessException(500, "系统初始化失败：无法加载 Prompt 模板");
+            throw new BusinessException(500, MessageConstant.AI_SERVICE_INIT_FAILED);
         }
     }
 
@@ -125,7 +126,7 @@ public class QuestionGenerateTool {
         try {
             if (aiJson == null || aiJson.isBlank()) {
                 log.error("AI返回内容为空");
-                throw new BusinessException(500, "AI返回内容为空");
+                throw new BusinessException(500, MessageConstant.AI_RESPONSE_EMPTY);
             }
 
             // 去除可能的 Markdown 代码块标记
@@ -142,7 +143,7 @@ public class QuestionGenerateTool {
             throw e;
         } catch (Exception e) {
             log.error("JSON解析失败: {}", e.getMessage(), e);
-            throw new BusinessException(500, "AI返回数据格式错误");
+            throw new BusinessException(500, MessageConstant.AI_RESPONSE_FORMAT_ERROR);
         }
     }
 
@@ -164,16 +165,16 @@ public class QuestionGenerateTool {
         
         // 验证 questionName 和 questionDesc 不为空
         if (root.get("questionName").asText().isBlank()) {
-            throw new BusinessException(500, "AI生成的题目格式错误：questionName为空");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：questionName为空");
         }
         if (root.get("questionDesc").asText().isBlank()) {
-            throw new BusinessException(500, "AI生成的题目格式错误：questionDesc为空");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：questionDesc为空");
         }
         
         // 验证 options 是数组且不为空
         JsonNode optionsNode = root.get("options");
         if (!optionsNode.isArray() || optionsNode.isEmpty()) {
-            throw new BusinessException(500, "AI生成的题目格式错误：options必须是非空数组");
+            throw new BusinessException(500, MessageConstant.AI_GENERATED_CONTENT_INVALID + "：options必须是非空数组");
         }
     }
 

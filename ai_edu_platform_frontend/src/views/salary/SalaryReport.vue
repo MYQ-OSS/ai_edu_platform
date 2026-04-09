@@ -9,39 +9,33 @@
         <div class="salary-range">
           <span class="salary-number">{{ report.salaryRange }}</span>
         </div>
-        <div class="salary-level">
-          {{ report.salaryLevel }}
+        <div v-if="report.direction" class="report-info">
+          <p><strong>技术方向：</strong>{{ report.direction }}</p>
+          <p v-if="report.city"><strong>目标城市：</strong>{{ report.city }}</p>
         </div>
       </div>
       
       <!-- 报告内容 -->
       <div class="report-content">
-        <div class="analysis-section">
-          <h4>行业分析</h4>
-          <p>{{ report.industryAnalysis }}</p>
+        <div v-if="report.aiSuggestion" class="analysis-section">
+          <h4>AI评估建议</h4>
+          <p>{{ report.aiSuggestion }}</p>
         </div>
         
-        <div class="analysis-section">
-          <h4>技术栈分析</h4>
-          <p>{{ report.techAnalysis }}</p>
+        <div v-if="report.experience" class="analysis-section">
+          <h4>您的经历</h4>
+          <p>{{ report.experience }}</p>
         </div>
         
-        <div class="analysis-section">
-          <h4>市场趋势</h4>
-          <p>{{ report.marketTrend }}</p>
-        </div>
-        
-        <div class="analysis-section">
-          <h4>职业发展建议</h4>
-          <ul>
-            <li v-for="(suggestion, index) in report.suggestions" :key="index">{{ suggestion }}</li>
-          </ul>
+        <div v-if="report.createTime" class="analysis-section">
+          <h4>评估时间</h4>
+          <p>{{ report.createTime }}</p>
         </div>
       </div>
       
       <!-- 按钮区域 -->
       <div class="button-section">
-        <el-button type="primary" @click="handleRetry">重新评估</el-button>
+        <el-button type="primary" @click="handleRetry" :loading="loading">重新评估</el-button>
         <el-button @click="goBack">返回首页</el-button>
       </div>
     </div>
@@ -52,38 +46,57 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getSalaryReport } from '../../api/salaryApi'
 
 const router = useRouter()
+const loading = ref(false)
 
-// 模拟报告数据
+// 报告数据
 const report = reactive({
-  salaryRange: '18000-25000元',
-  salaryLevel: '中高级水平',
-  industryAnalysis: '根据您的技术方向和经验，当前互联网行业对前端开发工程师的需求较大，特别是掌握现代前端框架和TypeScript的开发者。一线城市的薪资水平普遍高于二三线城市，建议您关注一线城市的就业机会。',
-  techAnalysis: '您掌握的技术栈符合市场需求，Vue 3、TypeScript、React等技术都是当前前端开发的主流技术，具有较高的市场价值。建议您继续深入学习这些技术，并关注前端性能优化、微前端等新兴领域。',
-  marketTrend: '当前前端开发市场呈现稳定增长趋势，随着Web应用的复杂度不断提高，对前端开发者的要求也越来越高。掌握全栈开发能力、具有良好的代码质量和性能优化意识的开发者更受欢迎。',
-  suggestions: [
-    '建议继续深入学习前端框架的高级特性，如Vue 3的Composition API、React的Hooks等',
-    '关注前端性能优化，学习Web Vitals、Core Web Vitals等性能指标',
-    '考虑学习一些后端技术，如Node.js，提升全栈开发能力',
-    '参与开源项目或个人项目，丰富自己的项目经验',
-    '关注行业动态，了解前端领域的最新技术和趋势'
-  ]
+  id: null,
+  direction: '',
+  city: '',
+  experience: '',
+  salaryRange: '',
+  aiSuggestion: '',
+  createTime: ''
 })
 
-// 页面加载时检查是否有评估数据
-onMounted(() => {
-  const inputData = localStorage.getItem('salaryInputData')
-  if (!inputData) {
-    ElMessage.warning('请先填写评估信息')
+// 页面加载时获取薪资评估报告
+onMounted(async () => {
+  const reportId = localStorage.getItem('salaryReportId')
+  if (!reportId) {
+    ElMessage.warning('请先完成薪资评估')
     router.push('/salary/input')
+    return
   }
+  
+  await loadReport(reportId)
 })
+
+// 加载薪资评估报告
+const loadReport = async (reportId) => {
+  loading.value = true
+  try {
+    const response = await getSalaryReport(reportId)
+    if (response.code === 200) {
+      Object.assign(report, response.data)
+    } else {
+      ElMessage.error(response.msg || '获取报告失败')
+      router.push('/salary/input')
+    }
+  } catch (error) {
+    ElMessage.error(error.response?.data?.msg || '获取报告失败，请稍后重试')
+    router.push('/salary/input')
+  } finally {
+    loading.value = false
+  }
+}
 
 // 重新评估
 const handleRetry = () => {
   // 清除本地存储的数据
-  localStorage.removeItem('salaryInputData')
+  localStorage.removeItem('salaryReportId')
   router.push('/salary/input')
 }
 
@@ -123,6 +136,18 @@ const goBack = () => {
 .salary-range-section h3 {
   margin-bottom: 15px;
   color: #303133;
+}
+
+.report-info {
+  margin-top: 15px;
+  text-align: left;
+  padding: 0 20px;
+}
+
+.report-info p {
+  margin: 8px 0;
+  font-size: 16px;
+  color: #606266;
 }
 
 .salary-range {

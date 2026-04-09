@@ -6,6 +6,7 @@ import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.mayiqin.ai_edu_platform.ai.tool.QuizScoreTool;
+import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
@@ -59,7 +60,7 @@ public class QuizRecordServiceImpl extends ServiceImpl<QuizRecordMapper, QuizRec
             Question question = questionMapper.selectById(questionId);
             if (question == null) {
                 log.error("题目不存在: questionId={}", questionId);
-                throw new BusinessException(400, "题目不存在");
+                throw new BusinessException(400, MessageConstant.QUESTION_NOT_EXIST);
             }
             log.debug("查询到题目信息: questionName={}", question.getQuestionName());
 
@@ -83,7 +84,7 @@ public class QuizRecordServiceImpl extends ServiceImpl<QuizRecordMapper, QuizRec
 
             if (aiResponse == null || aiResponse.isBlank()) {
                 log.error("AI返回内容为空");
-                throw new BusinessException(500, "AI判分失败：返回内容为空");
+            throw new BusinessException(500, MessageConstant.AI_RESPONSE_EMPTY);
             }
 
             log.debug("AI返回的原始JSON: {}", aiResponse);
@@ -121,7 +122,7 @@ public class QuizRecordServiceImpl extends ServiceImpl<QuizRecordMapper, QuizRec
             boolean saved = this.save(quizRecord);
             if (!saved) {
                 log.error("答题记录保存失败: userId={}, questionId={}", userId, questionId);
-                throw new BusinessException(500, "答题记录保存失败");
+                throw new BusinessException(500, MessageConstant.OPERATION_FAILED);
             }
 
             log.info("答题记录保存成功: recordId={}", quizRecord.getId());
@@ -162,7 +163,7 @@ public class QuizRecordServiceImpl extends ServiceImpl<QuizRecordMapper, QuizRec
         QuizRecord quizRecord = this.getById(recordId);
         if (quizRecord == null) {
             log.error("答题记录不存在: recordId={}", recordId);
-            throw new BusinessException(404, "答题记录不存在");
+            throw new BusinessException(404, MessageConstant.DATA_NOT_FOUND);
         }
         
         log.debug("查询到答题记录: userId={}, questionId={}, score={}", 
