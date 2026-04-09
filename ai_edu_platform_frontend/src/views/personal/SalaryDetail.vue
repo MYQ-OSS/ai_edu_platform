@@ -3,38 +3,37 @@
   <div class="salary-detail-container">
     <h2>薪资报告详情</h2>
     <div class="detail-card">
-      <el-form :model="salaryDetail" label-width="120px">
-        <el-form-item label="报告ID">
-          <el-input v-model="salaryDetail.id" disabled />
-        </el-form-item>
-        <el-form-item label="职位">
-          <el-input v-model="salaryDetail.position" disabled />
-        </el-form-item>
-        <el-form-item label="预估薪资">
-          <el-input v-model="salaryDetail.salary" disabled />
-        </el-form-item>
-        <el-form-item label="行业">
-          <el-input v-model="salaryDetail.industry" disabled />
-        </el-form-item>
-        <el-form-item label="工作经验">
-          <el-input v-model="salaryDetail.experience" disabled />
-        </el-form-item>
-        <el-form-item label="学历要求">
-          <el-input v-model="salaryDetail.education" disabled />
-        </el-form-item>
-        <el-form-item label="技能要求">
-          <el-input v-model="salaryDetail.skills" type="textarea" :rows="3" disabled />
-        </el-form-item>
-        <el-form-item label="薪资趋势">
-          <el-input v-model="salaryDetail.trend" type="textarea" :rows="3" disabled />
-        </el-form-item>
-        <el-form-item label="生成时间">
-          <el-input v-model="salaryDetail.created_at" disabled />
-        </el-form-item>
-        <el-form-item>
-          <el-button @click="goBack">返回</el-button>
-        </el-form-item>
-      </el-form>
+      <div class="detail-section">
+        <div class="detail-row">
+          <div class="detail-item">
+            <label class="detail-label">技术方向：</label>
+            <span class="detail-value">{{ salaryDetail.direction }}</span>
+          </div>
+          <div class="detail-item" v-if="salaryDetail.city">
+            <label class="detail-label">目标城市：</label>
+            <span class="detail-value">{{ salaryDetail.city }}</span>
+          </div>
+          <div class="detail-item">
+            <label class="detail-label">生成时间：</label>
+            <span class="detail-value">{{ salaryDetail.createTime }}</span>
+          </div>
+        </div>
+        <div class="detail-item full-width">
+          <label class="detail-label">预估薪资：</label>
+          <span class="detail-value salary">{{ salaryDetail.salaryRange }}</span>
+        </div>
+        <div class="detail-item full-width" v-if="salaryDetail.experience">
+          <label class="detail-label">工作经验：</label>
+          <div class="detail-text">{{ salaryDetail.experience }}</div>
+        </div>
+        <div class="detail-item full-width" v-if="salaryDetail.aiSuggestion">
+          <label class="detail-label">AI建议：</label>
+          <div class="detail-text trend">{{ salaryDetail.aiSuggestion }}</div>
+        </div>
+      </div>
+      <div class="button-section">
+        <el-button @click="goBack">返回</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -43,6 +42,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { getSalaryReport } from '../../api/salaryApi'
 
 const router = useRouter()
 const route = useRoute()
@@ -50,15 +50,16 @@ const reportId = route.params.id
 
 const salaryDetail = reactive({
   id: '',
-  position: '',
-  salary: '',
-  industry: '',
+  userId: '',
+  direction: '',
+  city: '',
   experience: '',
-  education: '',
-  skills: '',
-  trend: '',
-  created_at: ''
+  salaryRange: '',
+  aiSuggestion: '',
+  createTime: ''
 })
+
+const loading = ref(false)
 
 // 页面加载时获取薪资报告详情
 onMounted(async () => {
@@ -66,41 +67,25 @@ onMounted(async () => {
 })
 
 const loadSalaryDetail = async () => {
+  if (!reportId) {
+    ElMessage.error('缺少薪资报告ID')
+    return
+  }
+  
+  loading.value = true
   try {
-    // 模拟获取薪资报告详情数据
-    // 实际项目中应该调用API获取真实数据
-    const mockData = {
-      1: {
-        id: '1',
-        position: '前端工程师',
-        salary: '15000-20000元',
-        industry: '互联网',
-        experience: '1-3年',
-        education: '本科及以上',
-        skills: 'Vue3, React, JavaScript, TypeScript, HTML/CSS',
-        trend: '前端工程师薪资呈上升趋势，特别是掌握现代前端框架和TypeScript的开发者薪资更高。',
-        created_at: '2026-03-29 09:30:00'
-      },
-      2: {
-        id: '2',
-        position: '后端工程师',
-        salary: '18000-25000元',
-        industry: '互联网',
-        experience: '3-5年',
-        education: '本科及以上',
-        skills: 'Java, Spring Boot, MySQL, Redis, Docker',
-        trend: '后端工程师薪资稳定增长，特别是具备微服务架构经验和云原生技术的开发者薪资更高。',
-        created_at: '2026-03-27 11:20:00'
-      }
-    }
-    
-    if (mockData[reportId]) {
-      Object.assign(salaryDetail, mockData[reportId])
+    const response = await getSalaryReport(reportId)
+    if (response.code === 200) {
+      Object.assign(salaryDetail, response.data)
     } else {
-      ElMessage.error('未找到薪资报告详情')
+      ElMessage.error(response.msg || '获取薪资报告详情失败')
+      router.push('/personal/info')
     }
   } catch (error) {
-    ElMessage.error('获取薪资报告详情失败')
+    ElMessage.error(error.response?.data?.msg || '获取薪资报告详情失败，请稍后重试')
+    router.push('/personal/info')
+  } finally {
+    loading.value = false
   }
 }
 
@@ -111,25 +96,98 @@ const goBack = () => {
 
 <style scoped>
 .salary-detail-container {
-  padding: 20px;
-  max-width: 800px;
+  padding: 30px 50px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .salary-detail-container h2 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #303133;
   text-align: center;
+  font-size: 28px;
+  font-weight: 600;
 }
 
 .detail-card {
   background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
 }
 
-.el-form-item {
-  margin-bottom: 15px;
+.detail-section {
+  margin-bottom: 30px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.detail-item.full-width {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.detail-row {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.detail-row .detail-item {
+  flex: 1;
+  min-width: 200px;
+  margin-bottom: 0;
+}
+
+.detail-label {
+  font-size: 16px;
+  font-weight: 600;
+  color: #606266;
+  min-width: 100px;
+  margin-right: 15px;
+  line-height: 1.8;
+}
+
+.detail-value {
+  font-size: 16px;
+  color: #303133;
+  line-height: 1.8;
+  flex: 1;
+}
+
+.detail-value.salary {
+  font-size: 20px;
+  font-weight: 600;
+  color: #409EFF;
+}
+
+.detail-text {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #303133;
+  width: 100%;
+  margin-top: 10px;
+  padding: 15px;
+  background-color: white;
+  border-radius: 6px;
+  border-left: 4px solid #409EFF;
+}
+
+.detail-text.trend {
+  border-left-color: #67c23a;
+}
+
+.button-section {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid #e4e7ed;
 }
 </style>

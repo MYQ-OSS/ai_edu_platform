@@ -5,56 +5,97 @@
     
     <!-- 顶部个人信息 -->
     <div class="top-info-card">
-      <el-avatar :size="80" class="avatar">
-        {{ userForm?.username?.charAt(0) || 'U' }}
-      </el-avatar>
-      <div class="user-basic-info">
-        <h3>{{ userForm?.username || '未登录' }}</h3>
-        <p>{{ userForm?.identity || '未设置' }}</p>
-        <p>期望薪资：{{ userForm?.salary ? userForm.salary + '元' : '未设置' }}</p>
-        <p>答题次数：{{ userForm?.answerTimes || 0 }} | 平均得分：{{ userForm?.averageScore || 0 }}</p>
+      <div class="avatar-section">
+        <el-avatar :size="100" class="avatar" :src="'/程序员.png'">
+          {{ userForm?.username?.charAt(0) || 'U' }}
+        </el-avatar>
       </div>
-      <el-button type="primary" @click="handleEditInfo" class="edit-btn">编辑信息</el-button>
-      <el-button @click="goBack" class="back-btn">返回首页</el-button>
+      <div class="user-basic-info">
+        <div class="info-row">
+          <label class="info-label">用户名：</label>
+          <span class="info-value username">{{ userForm?.username || '未登录' }}</span>
+        </div>
+        <div class="info-row">
+          <label class="info-label">身份：</label>
+          <span class="info-value">{{ userForm?.identity || '未设置' }}</span>
+        </div>
+        <div class="info-row">
+          <label class="info-label">期望薪资：</label>
+          <span class="info-value salary">{{ userForm?.salary ? userForm.salary + '元' : '未设置' }}</span>
+        </div>
+        <div class="info-row">
+          <label class="info-label">答题统计：</label>
+          <span class="info-value">答题次数：<strong>{{ userForm?.answerTimes || 0 }}</strong> | 平均得分：<strong class="score">{{ userForm?.averageScore || 0 }}</strong></span>
+        </div>
+      </div>
+      <div class="button-section">
+        <el-button type="primary" @click="handleEditInfo" class="edit-btn" size="large">
+          <el-icon><Edit /></el-icon>
+          编辑信息
+        </el-button>
+        <el-button @click="goBack" class="back-btn" size="large">
+          <el-icon><Back /></el-icon>
+          返回首页
+        </el-button>
+      </div>
     </div>
     
     <!-- 标签页切换 -->
     <el-tabs v-model="activeTab" class="tabs-container">
       <el-tab-pane label="答题历史" name="answer-history">
-        <div class="history-card">
-          <el-table :data="answerHistoryList" style="width: 100%">
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="questionType" label="题目类型" width="120" />
-            <el-table-column prop="score" label="得分" width="80" />
-            <el-table-column prop="createTime" label="答题时间" />
-            <el-table-column label="操作">
+        <div class="tab-content">
+          <el-table :data="answerHistoryList" style="width: 100%" stripe>
+            <el-table-column prop="score" label="得分" width="100" align="center">
               <template #default="scope">
-                <el-button type="primary" size="small" @click="viewAnswerDetail(scope.row.id)">查看详情</el-button>
+                <span class="score-badge">{{ scope.row.score }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="accuracy" label="正确率" width="100" align="center">
+              <template #default="scope">
+                <span class="accuracy-badge">{{ scope.row.accuracy }}%</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="comment" label="评价" min-width="250" show-overflow-tooltip align="center" />
+            <el-table-column prop="createTime" label="答题时间" min-width="180" align="center">
+              <template #default="scope">
+                {{ formatTime(scope.row.createTime) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="150" align="center" fixed="right">
+              <template #default="scope">
+                <el-button type="primary" size="default" @click="viewAnswerDetail(scope.row.recordId)">查看详情</el-button>
               </template>
             </el-table-column>
           </el-table>
           <div v-if="answerHistoryList.length === 0" class="empty-state">
-            暂无答题历史
+            <el-empty description="暂无答题历史" />
           </div>
         </div>
       </el-tab-pane>
       
       <el-tab-pane label="薪资报告" name="salary-report">
-        <div class="report-card">
-          <el-table :data="salaryReportList" style="width: 100%">
-            <el-table-column prop="id" label="ID" width="80" />
-            <el-table-column prop="direction" label="技术方向" width="120" />
-            <el-table-column prop="salaryRange" label="预估薪资" width="120" />
-            <el-table-column prop="city" label="城市" width="120" />
-            <el-table-column prop="createTime" label="生成时间" />
-            <el-table-column label="操作">
+        <div class="tab-content">
+          <el-table :data="salaryReportList" style="width: 100%" stripe>
+            <el-table-column prop="direction" label="技术方向" width="150" align="center" />
+            <el-table-column prop="salaryRange" label="预估薪资" width="150" align="center">
               <template #default="scope">
-                <el-button type="primary" size="small" @click="viewSalaryDetail(scope.row.id)">查看详情</el-button>
+                <span class="salary-badge">{{ scope.row.salaryRange }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="city" label="城市" width="120" align="center" />
+            <el-table-column prop="createTime" label="生成时间" min-width="200" align="center">
+              <template #default="scope">
+                {{ formatTime(scope.row.createTime) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="150" align="center" fixed="right">
+              <template #default="scope">
+                <el-button type="primary" size="default" @click="viewSalaryDetail(scope.row.id)">查看详情</el-button>
               </template>
             </el-table-column>
           </el-table>
           <div v-if="salaryReportList.length === 0" class="empty-state">
-            暂无薪资报告
+            <el-empty description="暂无薪资报告" />
           </div>
         </div>
       </el-tab-pane>
@@ -66,6 +107,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
+import { Edit, Back } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
@@ -196,125 +238,269 @@ const viewSalaryDetail = (id) => {
   // 跳转到薪资报告详情页
   router.push(`/personal/salary-detail/${id}`)
 }
+
+// 格式化时间
+const formatTime = (timeStr) => {
+  if (!timeStr) return '-'
+  try {
+    const date = new Date(timeStr)
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const hours = String(date.getHours()).padStart(2, '0')
+    const minutes = String(date.getMinutes()).padStart(2, '0')
+    const seconds = String(date.getSeconds()).padStart(2, '0')
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+  } catch (e) {
+    return timeStr
+  }
+}
 </script>
 
 <style scoped>
 .personal-center-container {
-  padding: 20px;
-  max-width: 1000px;
+  padding: 30px 50px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .personal-center-container h2 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #303133;
   text-align: center;
+  font-size: 28px;
+  font-weight: 600;
 }
 
 /* 顶部个人信息卡片 */
 .top-info-card {
   display: flex;
   align-items: center;
+  gap: 30px;
   background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  margin-bottom: 30px;
+}
+
+.avatar-section {
+  flex-shrink: 0;
 }
 
 .avatar {
-  margin-right: 30px;
-  background-color: #409EFF;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 36px;
+  font-size: 40px;
   font-weight: bold;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  object-fit: cover;
 }
 
 .user-basic-info {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-.user-basic-info h3 {
-  margin: 0 0 10px 0;
-  color: #303133;
-  font-size: 20px;
-  font-weight: bold;
+.info-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #fafafa;
+  border-radius: 8px;
 }
 
-.user-basic-info p {
-  margin: 5px 0;
+.info-label {
+  font-size: 16px;
+  font-weight: 600;
   color: #606266;
-  line-height: 1.5;
+  min-width: 100px;
+}
+
+.info-value {
+  font-size: 16px;
+  color: #303133;
+  line-height: 1.6;
+}
+
+.info-value.username {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+}
+
+.info-value.salary {
+  font-size: 18px;
+  font-weight: 600;
+  color: #409EFF;
+}
+
+.info-value strong {
+  font-weight: 600;
+  color: #303133;
+}
+
+.info-value .score {
+  color: #67c23a;
+  font-size: 18px;
+}
+
+.button-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.edit-btn,
+.back-btn {
+  min-width: 140px;
+  height: 44px;
+  font-size: 16px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
 .edit-btn {
-  margin-left: 20px;
-  padding: 10px 20px;
-  font-size: 16px;
-  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
 }
 
-.back-btn {
-  margin-left: 10px;
-  padding: 10px 20px;
-  font-size: 16px;
+.edit-btn:hover {
+  background: linear-gradient(135deg, #5568d3 0%, #653e8f 100%);
 }
 
 /* 标签页容器 */
 .tabs-container {
   background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
   overflow: hidden;
+  padding: 20px;
+  min-height: 400px;
 }
 
-/* 信息卡片 */
-.info-card {
-  padding: 30px;
+.tab-content {
+  min-height: 300px;
 }
 
 /* 历史记录卡片 */
 .history-card,
 .report-card {
-  padding: 20px;
+  /* 已移除，使用统一的 tab-content */
 }
 
 /* 空状态 */
 .empty-state {
   text-align: center;
   padding: 60px 0;
-  color: #909399;
-  font-size: 16px;
 }
 
 /* 表格样式 */
 .el-table {
-  margin-top: 20px;
+  margin-top: 10px;
+  font-size: 15px;
 }
 
-/* 表单样式 */
-.el-form-item {
-  margin-bottom: 15px;
+.el-table th {
+  background-color: #f5f7fa;
+  color: #606266;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.el-table td {
+  color: #303133;
+  font-size: 15px;
+}
+
+/* 分数徽章 */
+.score-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #ecf5ff;
+  color: #409EFF;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.accuracy-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #f0f9ff;
+  color: #67c23a;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* 薪资徽章 */
+.salary-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  background-color: #f0f9ff;
+  color: #67c23a;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+/* 按钮样式 */
+.el-button {
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.el-button--primary {
+  background-color: #409EFF;
+  border-color: #409EFF;
+}
+
+.el-button--primary:hover {
+  background-color: #66b1ff;
+  border-color: #66b1ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
 /* 响应式设计 */
 @media (max-width: 768px) {
+  .personal-center-container {
+    padding: 20px;
+  }
+  
   .top-info-card {
     flex-direction: column;
     text-align: center;
+    gap: 20px;
   }
   
-  .avatar {
-    margin-right: 0;
-    margin-bottom: 20px;
+  .avatar-section {
+    margin-bottom: 10px;
   }
   
   .user-basic-info {
-    margin-bottom: 20px;
+    width: 100%;
   }
   
-  .edit-btn {
-    margin-left: 0;
+  .info-row {
+    justify-content: center;
+  }
+  
+  .button-section {
+    flex-direction: row;
+    width: 100%;
+  }
+  
+  .edit-btn,
+  .back-btn {
+    flex: 1;
   }
 }
 </style>

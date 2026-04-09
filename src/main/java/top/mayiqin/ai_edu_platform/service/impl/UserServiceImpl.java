@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
 import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
@@ -19,6 +20,7 @@ import top.mayiqin.ai_edu_platform.properties.JwtProperties;
 import top.mayiqin.ai_edu_platform.service.QuizRecordService;
 import top.mayiqin.ai_edu_platform.service.SalaryReportService;
 import top.mayiqin.ai_edu_platform.service.UserService;
+import top.mayiqin.ai_edu_platform.mapper.QuestionMapper;
 import top.mayiqin.ai_edu_platform.mapper.UserMapper;
 import org.springframework.stereotype.Service;
 import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
@@ -55,6 +57,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     
     @Autowired
     private SalaryReportService salaryReportService;
+    
+    @Autowired
+    private QuestionMapper questionMapper;
 
     @Autowired
     private JwtProperties jwtProperties;
@@ -227,25 +232,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                    .orderByDesc(QuizRecord::getCreateTime);
         List<QuizRecord> quizRecords = quizRecordService.list(quizWrapper);
         
-        // 3. 计算正确率趋势（最近10次答题的正确率）
+        // 3. 转换为QuizReportVO，包含题目信息和AI判分结果
+        List<QuizReportVO> quizReportList = quizRecords.stream()
+                .map(record -> {
+                    // 构建QuizReportVO
+                    return QuizReportVO.builder()
+                            .recordId(record.getId())
+                            .userId(record.getUserId())
+                            .questionId(record.getQuestionId())
+                            .userOptions(record.getUserOptions())
+                            .userAnswer(record.getUserAnswer())
+                            .score(record.getScore())
+                            .comment(record.getComment())
+                            .suggest(record.getSuggest())
+                            .reason(record.getReason())
+                            .trueOptions(record.getTrueOptions())
+                            .analysis(record.getAnalysis())
+                            .accuracy(record.getAccuracy())
+                            .createTime(record.getCreateTime() != null ? 
+                                    record.getCreateTime().toString() : "")
+                            .build();
+                })
+                .collect(Collectors.toList());
+        
+        // 4. 计算正确率趋势（最近10次答题的正确率）
         List<BigDecimal> accuracyTrend = quizRecords.stream()
                 .limit(10)
                 .map(QuizRecord::getAccuracy)
                 .collect(Collectors.toList());
         Collections.reverse(accuracyTrend); // 反转，使时间早的在前
         
-        // 4. 查询薪资报告（按创建时间降序）
+        // 5. 查询薪资报告（按创建时间降序）
         LambdaQueryWrapper<SalaryReport> salaryWrapper = new LambdaQueryWrapper<>();
         salaryWrapper.eq(SalaryReport::getUserId, userId)
                      .orderByDesc(SalaryReport::getCreateTime);
         List<SalaryReport> salaryReports = salaryReportService.list(salaryWrapper);
         
         log.info("学习足迹获取成功: userId={}, 答题记录数={}, 薪资报告数={}", 
-                userId, quizRecords.size(), salaryReports.size());
+                userId, quizReportList.size(), salaryReports.size());
         
-        // 5. 构造返回数据
+        // 6. 构造返回数据
         return LearningHistoryVO.builder()
-                .quizRecords(quizRecords)
+                .quizRecords(quizReportList)
                 .accuracyTrend(accuracyTrend)
                 .salaryReports(salaryReports)
                 .build();

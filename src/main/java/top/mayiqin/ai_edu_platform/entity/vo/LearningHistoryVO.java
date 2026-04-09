@@ -24,11 +24,11 @@ import java.util.List;
 public class LearningHistoryVO {
     
     /**
-     * 答题记录列表
+     * 答题记录列表（包含题目信息和AI判分结果）
      */
-    @Schema(description = "答题记录列表")
+    @Schema(description = "答题记录列表（包含题目信息和AI判分结果）")
     @Builder.Default
-    private List<QuizRecord> quizRecords = new ArrayList<>();
+    private List<QuizReportVO> quizRecords = new ArrayList<>();
     
     /**
      * 正确率趋势（最近10次答题的正确率）

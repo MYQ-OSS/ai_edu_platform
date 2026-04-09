@@ -183,22 +183,24 @@ const getScoreClass = (score) => {
 
 <style scoped>
 .question-report-container {
-  padding: 20px;
-  max-width: 800px;
+  padding: 30px 50px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .question-report-container h2 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #303133;
   text-align: center;
+  font-size: 28px;
+  font-weight: 600;
 }
 
 .report-card {
   background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
 }
 
 .score-section {
