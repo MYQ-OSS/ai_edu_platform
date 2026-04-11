@@ -3,6 +3,7 @@ package top.mayiqin.ai_edu_platform.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import top.mayiqin.ai_edu_platform.entity.dto.UserListQueryDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.entity.vo.LearningStatisticsVO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
@@ -54,6 +55,13 @@ public interface UserService extends IService<User> {
      * @return 学习足迹数据
      */
     LearningHistoryVO getLearningHistory();
+
+    /**
+     * 获取学习统计信息
+     *
+     * @return 学习统计数据（包含趋势图数据）
+     */
+    LearningStatisticsVO getLearningStatistics();
 
     /**
      * 获取用户答题统计信息

@@ -31,6 +31,15 @@ public interface QuestionMapper extends BaseMapper<Question> {
     Question selectUnansweredQuestion(@Param("userId") Long userId,
                                       @Param("direction") String direction,
                                       @Param("targetSalary") Integer targetSalary);
+
+    /**
+     * 根据题目ID查询题目名称
+     *
+     * @param questionId 题目ID
+     * @return 题目名称
+     */
+    @Select("SELECT question_name FROM t_question WHERE id = #{questionId}")
+    String selectQuestionNameById(@Param("questionId") Long questionId);
 }
 
 

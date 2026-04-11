@@ -37,6 +37,12 @@ public interface DictDataService extends IService<DictData> {
     void updateDictData(DictDataUpdateDTO dto);
 
     /**
+     * 管理员删除字典数据
+     * @param id 字典ID
+     */
+    void deleteDictData(Long id);
+
+    /**
      * 分页查询字典列表
      * @param queryDTO 查询条件
      * @return 分页结果

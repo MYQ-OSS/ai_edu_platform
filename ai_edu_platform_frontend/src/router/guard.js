@@ -6,8 +6,20 @@ export const setupRouterGuard = (router) => {
     const userStore = useUserStore();
     const isLoggedIn = userStore.isLoggedIn;
 
-    // 需要登录的页面
+    // 需要登录的页面（除了首页和登录注册页）
     const requiresAuth = [
+      "/question/input",
+      "/question/answer",
+      "/question/report",
+      "/salary/input",
+      "/salary/report",
+      "/personal/info",
+      "/personal/edit-info",
+      "/personal/answer-history",
+      "/personal/salary-history",
+      "/personal/answer-detail",
+      "/personal/salary-detail",
+      "/personal/learning-statistics",
       "/admin/user-manage",
       "/admin/question-manage",
       "/admin/data-dict",

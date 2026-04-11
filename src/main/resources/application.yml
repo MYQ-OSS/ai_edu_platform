@@ -56,5 +56,15 @@ knife4j:
 
 # JWT配置
 jwt:
-  secret-key: DaiMaDouDui_Secure_Key_2026_For_JWT # JWT签名密钥（至少32字符/256位，生产环境建议使用环境变量注入更复杂的密钥）
+  secret-key: ${JWT_SECRET_KEY:DaiMaDouDui_Secure_Key_2026_For_JWT} # JWT签名密钥（生产环境请通过环境变量注入）
   expiration: 3600000 # Token过期时间（毫秒），默认1小时
+
+# Actuator 监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # 暴露健康检查和基本信息端点
+  endpoint:
+    health:
+      show-details: when-authorized  # 仅在授权时显示详细信息

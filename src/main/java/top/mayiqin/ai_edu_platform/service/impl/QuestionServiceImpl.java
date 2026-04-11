@@ -78,7 +78,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
 
             boolean saved = this.save(question);
             if (!saved || question.getId() == null) {
-                log.error("题目保存失败: {}", question);
+                log.error("AI生成题目保存失败: questionName={}, direction={}", question.getQuestionName(), question.getDirection());
                 throw new BusinessException(500, MessageConstant.SAVE_QUESTION_FAILED);
             }
 
@@ -225,7 +225,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         // 保存到数据库
         boolean saved = this.save(question);
         if (!saved || question.getId() == null) {
-            log.error("题目保存失败: {}", question);
+            log.error("管理员新增题目保存失败: questionName={}, direction={}", dto.getQuestionName(), dto.getDirection());
             throw new BusinessException(500, MessageConstant.SAVE_QUESTION_FAILED);
         }
         

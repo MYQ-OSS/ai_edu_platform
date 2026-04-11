@@ -74,6 +74,11 @@ const routes = [
     component: () => import("../views/personal/SalaryDetail.vue"),
   },
   {
+    path: "/personal/learning-statistics",
+    name: "LearningStatistics",
+    component: () => import("../views/personal/LearningStatistics.vue"),
+  },
+  {
     path: "/admin/user-manage",
     name: "UserManage",
     component: () => import("../views/admin/UserManage.vue"),

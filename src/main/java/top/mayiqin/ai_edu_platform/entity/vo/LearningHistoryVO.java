@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
 import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 
 import java.math.BigDecimal;

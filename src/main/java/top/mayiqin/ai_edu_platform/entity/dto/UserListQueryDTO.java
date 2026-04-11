@@ -24,6 +24,7 @@ public class UserListQueryDTO {
      */
     @Schema(description = "页码", example = "1", defaultValue = "1")
     @Min(value = 1, message = "页码不能小于1")
+    @Builder.Default
     private Integer pageNum = 1;
 
     /**
@@ -32,6 +33,7 @@ public class UserListQueryDTO {
     @Schema(description = "每页条数", example = "10", defaultValue = "10")
     @Min(value = 1, message = "每页条数不能小于1")
     @Max(value = 500, message = "每页条数不能超过500")
+    @Builder.Default
     private Integer pageSize = 10;
 
     /**
@@ -51,4 +53,16 @@ public class UserListQueryDTO {
      */
     @Schema(description = "用户角色（user-普通用户 admin-管理员）", example = "user", allowableValues = {"user", "admin"})
     private String role;
+
+    /**
+     * 排序字段（可选，默认id）
+     */
+    @Schema(description = "排序字段", example = "id")
+    private String orderByColumn;
+
+    /**
+     * 排序方式（可选，asc升序/desc降序，默认asc）
+     */
+    @Schema(description = "排序方式（asc升序/desc降序）", example = "asc", allowableValues = {"asc", "desc"})
+    private String isAsc;
 }

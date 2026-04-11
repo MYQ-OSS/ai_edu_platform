@@ -137,6 +137,27 @@ public class DictDataServiceImpl extends ServiceImpl<DictDataMapper, DictData>
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDictData(Long id) {
+        log.info("管理员删除字典数据: id={}", id);
+        
+        // 检查字典是否存在
+        DictData existDict = this.getById(id);
+        if (existDict == null) {
+            throw new BusinessException(404, "字典数据不存在");
+        }
+        
+        // 执行逻辑删除（MyBatis-Plus会自动处理isDeleted字段）
+        boolean deleted = this.removeById(id);
+        if (!deleted) {
+            log.error("字典数据删除失败: id={}", id);
+            throw new BusinessException(500, MessageConstant.OPERATION_FAILED);
+        }
+        
+        log.info("字典数据删除成功: id={}, dictCode={}", id, existDict.getDictCode());
+    }
+
+    @Override
     public Page<DictData> getDictList(DictListQueryDTO queryDTO) {
         log.info("查询字典列表: pageNum={}, pageSize={}, dictName={}",
                 queryDTO.getPageNum(), queryDTO.getPageSize(), queryDTO.getDictName());

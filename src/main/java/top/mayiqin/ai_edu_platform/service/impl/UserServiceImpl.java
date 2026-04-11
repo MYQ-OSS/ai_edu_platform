@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
 import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
+import top.mayiqin.ai_edu_platform.entity.vo.LearningStatisticsVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 import top.mayiqin.ai_edu_platform.entity.po.User;
@@ -33,10 +34,8 @@ import top.mayiqin.ai_edu_platform.utils.JwtUtil;
 import top.mayiqin.ai_edu_platform.utils.UserContext;
 
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.RoundingMode;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -121,7 +120,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new LoginFailedException("账号或密码错误");
         }
         
-        // 5. 生成 JWT 令牌（userId和role已嵌入Token中）
+        // 5. 检查用户状态（是否被禁用）
+        if ("1".equals(userCheck.getStatus())) {
+            throw new LoginFailedException("该账号已被禁用，请联系管理员");
+        }
+        
+        // 6. 生成 JWT 令牌（userId和role已嵌入Token中）
         // 注意：必须使用可变的HashMap，因为JJWT库需要修改claims Map
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userCheck.getId());
@@ -144,7 +148,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         
         log.debug("用户登录成功，已生成 JWT: userId={}, role={}", userCheck.getId(), role);
         
-        // 6. 构造登录结果并返回（返回token和refreshToken）
+        // 7. 构造登录结果并返回（返回token和refreshToken）
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
         result.put("refreshToken", refreshToken);
@@ -306,6 +310,100 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     @Override
+    public LearningStatisticsVO getLearningStatistics() {
+        // 1. 获取当前登录用户ID
+        Long userId = UserContext.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
+        }
+        
+        // 2. 查询答题记录（按时间升序）
+        LambdaQueryWrapper<QuizRecord> quizWrapper = new LambdaQueryWrapper<>();
+        quizWrapper.eq(QuizRecord::getUserId, userId)
+                   .orderByAsc(QuizRecord::getCreateTime);
+        List<QuizRecord> quizRecords = quizRecordService.list(quizWrapper);
+        
+        // 3. 计算统计数据
+        int totalQuizCount = quizRecords.size();
+        BigDecimal averageScore = BigDecimal.ZERO;
+        BigDecimal averageAccuracy = BigDecimal.ZERO;
+        int maxScore = 0;
+        int minScore = 100;
+        
+        if (totalQuizCount > 0) {
+            // 计算平均得分
+            int totalScore = quizRecords.stream()
+                    .mapToInt(QuizRecord::getScore)
+                    .sum();
+            averageScore = new BigDecimal(totalScore)
+                    .divide(new BigDecimal(totalQuizCount), 2, RoundingMode.HALF_UP);
+            
+            // 计算平均正确率
+            averageAccuracy = quizRecords.stream()
+                    .map(QuizRecord::getAccuracy)
+                    .filter(Objects::nonNull)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add)
+                    .divide(new BigDecimal(totalQuizCount), 2, RoundingMode.HALF_UP);
+            
+            // 计算最高和最低得分
+            maxScore = quizRecords.stream()
+                    .mapToInt(QuizRecord::getScore)
+                    .max()
+                    .orElse(0);
+            minScore = quizRecords.stream()
+                    .mapToInt(QuizRecord::getScore)
+                    .min()
+                    .orElse(0);
+        }
+        
+        // 4. 构建趋势数据
+        List<LearningStatisticsVO.ScoreTrendItem> scoreTrend = new ArrayList<>();
+        List<LearningStatisticsVO.AccuracyTrendItem> accuracyTrend = new ArrayList<>();
+        
+        for (QuizRecord record : quizRecords) {
+            // 获取题目名称
+            String questionName = questionMapper.selectQuestionNameById(record.getQuestionId());
+            if (questionName == null) {
+                questionName = "未知题目";
+            }
+            
+            // 格式化时间
+            String quizTime = record.getCreateTime() != null ? 
+                    new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm").format(record.getCreateTime()) : "";
+            
+            // 添加得分趋势项
+            scoreTrend.add(LearningStatisticsVO.ScoreTrendItem.builder()
+                    .quizTime(quizTime)
+                    .score(record.getScore())
+                    .questionName(questionName)
+                    .build());
+            
+            // 添加正确率趋势项
+            if (record.getAccuracy() != null) {
+                accuracyTrend.add(LearningStatisticsVO.AccuracyTrendItem.builder()
+                        .quizTime(quizTime)
+                        .accuracy(record.getAccuracy())
+                        .questionName(questionName)
+                        .build());
+            }
+        }
+        
+        log.info("学习统计信息获取成功: userId={}, totalQuizCount={}, averageScore={}, averageAccuracy={}",
+                userId, totalQuizCount, averageScore, averageAccuracy);
+        
+        // 5. 构造返回数据
+        return LearningStatisticsVO.builder()
+                .totalQuizCount(totalQuizCount)
+                .averageScore(averageScore)
+                .averageAccuracy(averageAccuracy)
+                .maxScore(maxScore)
+                .minScore(minScore)
+                .scoreTrend(scoreTrend)
+                .accuracyTrend(accuracyTrend)
+                .build();
+    }
+
+    @Override
     public Map<String, Object> getQuizStatistics() {
         // 1. 获取当前登录用户ID
         Long userId = UserContext.getCurrentUserId();
@@ -385,8 +483,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 wrapper.eq(User::getRole, queryDTO.getRole());
             }
             
-            // 按创建时间降序排序
-            wrapper.orderByDesc(User::getCreateTime);
+            // 排序处理（支持前端传入排序参数）
+            String orderByColumn = queryDTO.getOrderByColumn();
+            String isAsc = queryDTO.getIsAsc();
+            
+            if (StrUtil.isNotBlank(orderByColumn)) {
+                // 根据字段名动态排序
+                if ("id".equals(orderByColumn)) {
+                    if ("desc".equalsIgnoreCase(isAsc)) {
+                        wrapper.orderByDesc(User::getId);
+                    } else {
+                        wrapper.orderByAsc(User::getId);
+                    }
+                } else if ("createTime".equals(orderByColumn)) {
+                    if ("desc".equalsIgnoreCase(isAsc)) {
+                        wrapper.orderByDesc(User::getCreateTime);
+                    } else {
+                        wrapper.orderByAsc(User::getCreateTime);
+                    }
+                } else {
+                    // 默认按ID升序
+                    wrapper.orderByAsc(User::getId);
+                }
+            } else {
+                // 默认按ID升序
+                wrapper.orderByAsc(User::getId);
+            }
             
             // 3. 执行分页查询
             Page<User> page = new Page<>(pageNum, pageSize);

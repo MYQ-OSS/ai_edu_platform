@@ -1,33 +1,15 @@
-# 多阶段构建 Dockerfile
+# 单阶段构建 Dockerfile (用于 CI/CD 部署)
 # ====================================
 
-# 第一阶段：构建阶段
-FROM maven:3.9.6-eclipse-temurin-21 AS builder
-
-# 设置工作目录
-WORKDIR /build
-
-# 复制 Maven 配置文件（使用阿里云镜像加速）
-COPY settings.xml /root/.m2/settings.xml
-
-# 先复制 pom.xml 并下载依赖（利用 Docker 缓存层，依赖不变则不重新下载）
-COPY pom.xml .
-RUN mvn dependency:go-offline -B
-
-# 再复制源代码（代码变化不会导致依赖重新下载）
-COPY src ./src
-
-# 执行 Maven 打包（跳过测试）
-RUN mvn clean package -DskipTests -B
-
-# 第二阶段：运行阶段
 FROM eclipse-temurin:21-jre-alpine
 
 # 安装 wget（用于健康检查）
 RUN apk add --no-cache wget
 
 # 设置维护者信息
-LABEL maintainer="ai_edu_platform"
+LABEL maintainer="ai_edu_platform" \
+      version="0.0.1" \
+      description="AI Education Platform Backend"
 
 # 设置工作目录
 WORKDIR /app
@@ -35,8 +17,8 @@ WORKDIR /app
 # 创建非 root 用户运行应用（安全最佳实践）
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# 从构建阶段复制 JAR 包
-COPY --from=builder /build/target/*.jar app.jar
+# 复制上传的 JAR 包 (由 Gitee Go 流水线通过 SCP 传输)
+COPY app.jar app.jar
 
 # 修改文件所有者
 RUN chown -R appuser:appgroup /app
@@ -47,10 +29,14 @@ USER appuser
 # 暴露应用端口
 EXPOSE 8080
 
-# JVM 参数优化
-ENV JAVA_OPTS="-Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
+# JVM 参数优化（针对容器环境）
+ENV JAVA_OPTS="-Xms256m -Xmx512m \
+  -XX:+UseG1GC \
+  -XX:MaxGCPauseMillis=200 \
+  -XX:+UseContainerSupport \
+  -XX:MaxRAMPercentage=75.0"
 
-# 健康检查
+# 健康检查（使用 Actuator 健康端点）
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/actuator/health || exit 1
 

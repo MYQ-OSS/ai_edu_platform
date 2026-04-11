@@ -32,11 +32,9 @@ import java.util.stream.Collectors;
 public class SalaryReportServiceImpl extends ServiceImpl<SalaryReportMapper, SalaryReport>
     implements SalaryReportService{
 
-    private final ChatClient chatClient;
     private final SalaryEvaluateTool salaryEvaluateTool;
 
     public SalaryReportServiceImpl(ChatClient chatClient, SalaryEvaluateTool salaryEvaluateTool) {
-        this.chatClient = chatClient;
         this.salaryEvaluateTool = salaryEvaluateTool;
     }
 

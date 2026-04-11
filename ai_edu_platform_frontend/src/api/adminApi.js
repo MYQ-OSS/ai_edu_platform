@@ -150,6 +150,18 @@ export function updateDictData(data) {
 }
 
 /**
+ * 删除字典数据
+ * @param {number} id - 字典ID
+ * @returns {Promise}
+ */
+export function deleteDictData(id) {
+  return request({
+    url: `/admin/dict/delete/${id}`,
+    method: 'delete'
+  })
+}
+
+/**
  * 查询题目列表（分页）
  * @param {Object} params - 查询参数
  * @param {number} params.pageNum - 页码，默认1

@@ -132,12 +132,12 @@ VALUES ('tech_direction', 'java_backend', 'Java后端开发', 1),
 DROP TABLE IF EXISTS t_quiz_collect;
 CREATE TABLE t_quiz_collect
 (
-    id          BIGINT   NOT NULL AUTO_INCREMENT COMMENT '收藏记录唯一标识',
-    user_id     BIGINT   NOT NULL COMMENT '用户唯一ID',
-    question_id BIGINT   NOT NULL COMMENT '题目唯一ID',
-    is_collect  CHAR(1)  NOT NULL DEFAULT '1' COMMENT '是否收藏（1=收藏，0=取消）',
-    create_time DATETIME          DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
-    update_time DATETIME          DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    id          BIGINT  NOT NULL AUTO_INCREMENT COMMENT '收藏记录唯一标识',
+    user_id     BIGINT  NOT NULL COMMENT '用户唯一ID',
+    question_id BIGINT  NOT NULL COMMENT '题目唯一ID',
+    is_collect  CHAR(1) NOT NULL DEFAULT '1' COMMENT '是否收藏（1=收藏，0=取消）',
+    create_time DATETIME         DEFAULT CURRENT_TIMESTAMP COMMENT '收藏时间',
+    update_time DATETIME         DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),
     UNIQUE KEY uk_user_question (user_id, question_id) COMMENT '保证同一用户对同一题目只有一条收藏记录',
     INDEX idx_user_id (user_id) COMMENT '提升查询用户收藏列表的效率',
@@ -151,8 +151,10 @@ CREATE TABLE t_quiz_collect
 
 -- 插入管理员账号（密码：123456，BCrypt加密后的哈希值）
 INSERT INTO t_user (username, password, identity, salary, experience, status, role)
-VALUES ('admin_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '系统管理员', 30000, '5年开发经验', '0', 'admin');
+VALUES ('admin_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '系统管理员', 30000,
+        '5年开发经验', '0', 'admin');
 
 -- 插入普通用户（用于测试权限控制）
 INSERT INTO t_user (username, password, identity, salary, experience, status, role)
-VALUES ('user_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '张三', 15000, '2年开发经验', '0', 'user');
+VALUES ('user_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '张三', 15000, '2年开发经验', '0',
+        'user');

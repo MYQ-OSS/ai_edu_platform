@@ -69,8 +69,6 @@
         stripe
         style="width: 100%"
       >
-        <el-table-column prop="id" label="ID" width="80" align="center" />
-        
         <el-table-column prop="questionName" label="题目名称" min-width="200" show-overflow-tooltip />
         
         <el-table-column prop="direction" label="技术方向" width="150" align="center" />
@@ -351,6 +349,8 @@ const loadQuestionList = async () => {
     const params = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
+      orderByColumn: 'id',
+      isAsc: 'asc',
       ...searchForm
     }
     const res = await getQuestionList(params)

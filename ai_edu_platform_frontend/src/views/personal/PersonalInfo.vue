@@ -140,6 +140,19 @@
           </div>
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="学习统计" name="learning-statistics">
+        <div class="tab-content">
+          <div class="statistics-hint">
+            <el-icon class="hint-icon"><TrendCharts /></el-icon>
+            <p>查看详细的学习统计图表，包括得分趋势和正确率分析</p>
+            <el-button type="primary" @click="goToLearningStatistics" size="large">
+              <el-icon><DataAnalysis /></el-icon>
+              查看学习统计
+            </el-button>
+          </div>
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -148,7 +161,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Edit, Back } from '@element-plus/icons-vue'
+import { Edit, Back, TrendCharts, DataAnalysis } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store/userStore'
 import { getCollectList, toggleCollect } from '../../api/questionApi'
 
@@ -162,6 +175,7 @@ const getDefaultTab = () => {
   const tab = route.query.tab
   if (tab === 'salary-report') return 'salary-report'
   if (tab === 'my-collect') return 'my-collect'
+  if (tab === 'learning-statistics') return 'learning-statistics'
   return 'answer-history' // 默认显示答题历史
 }
 
@@ -380,6 +394,11 @@ const cancelCollect = async (questionId) => {
   } finally {
     collectLoading.value = false
   }
+}
+
+// 跳转到学习统计页面
+const goToLearningStatistics = () => {
+  router.push('/personal/learning-statistics')
 }
 
 // 格式化时间
@@ -628,6 +647,24 @@ const formatTime = (timeStr) => {
   gap: 10px;
   justify-content: center;
   align-items: center;
+}
+
+/* 学习统计提示 */
+.statistics-hint {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.hint-icon {
+  font-size: 64px;
+  color: #409EFF;
+  margin-bottom: 20px;
+}
+
+.statistics-hint p {
+  font-size: 16px;
+  color: #606266;
+  margin-bottom: 30px;
 }
 
 /* 响应式设计 */

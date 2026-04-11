@@ -29,7 +29,6 @@
     <!-- 字典列表表格 -->
     <el-card shadow="hover" class="table-card">
       <el-table :data="dictList" border stripe v-loading="loading" style="width: 100%;">
-        <el-table-column prop="id" label="ID" width="80" align="center" />
         <el-table-column prop="dictCode" label="字典编码" width="200" align="center" />
         <el-table-column prop="dictName" label="字典名称" min-width="150" align="center" />
         <el-table-column prop="sort" label="排序号" width="100" align="center" />
@@ -42,16 +41,18 @@
         </el-table-column>
         <el-table-column prop="createTime" label="创建时间" width="180" align="center" />
         <el-table-column prop="updateTime" label="更新时间" width="180" align="center" />
-        <el-table-column label="操作" width="150" align="center" fixed="right">
+        <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button link type="primary" size="small" @click="handleEdit(row)">
-              <el-icon><Edit /></el-icon>
-              编辑
-            </el-button>
-            <el-button link type="danger" size="small" @click="handleDelete(row)">
-              <el-icon><Delete /></el-icon>
-              删除
-            </el-button>
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <el-button type="primary" size="small" @click="handleEdit(row)">
+                <el-icon><Edit /></el-icon>
+                编辑
+              </el-button>
+              <el-button type="danger" size="small" @click="handleDelete(row)">
+                <el-icon><Delete /></el-icon>
+                删除
+              </el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -113,7 +114,7 @@
     
     <!-- 返回按钮 -->
     <div class="back-button-section">
-      <el-button @click="goBack">
+      <el-button @click="goBack" size="large">
         <el-icon><Back /></el-icon>
         返回首页
       </el-button>
@@ -126,7 +127,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Search, Refresh, Plus, Edit, Delete, Back } from '@element-plus/icons-vue'
-import { getDictList, addDictData, updateDictData } from '../../api/adminApi'
+import { getDictList, addDictData, updateDictData, deleteDictData } from '../../api/adminApi'
 
 const router = useRouter()
 
@@ -187,6 +188,8 @@ const loadDictList = async () => {
     const params = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
+      orderByColumn: 'id',
+      isAsc: 'asc',
       ...searchForm
     }
     const res = await getDictList(params)
@@ -257,16 +260,13 @@ const handleDelete = async (row) => {
       }
     )
     
-    // TODO: 调用后端接口删除
-    // const res = await deleteDictData(row.id)
-    // if (res.code === 200) {
-    //   ElMessage.success('删除成功')
-    //   loadDictList()
-    // } else {
-    //   ElMessage.error(res.msg || '删除失败')
-    // }
-    
-    ElMessage.info('删除功能待实现')
+    const res = await deleteDictData(row.id)
+    if (res.code === 200) {
+      ElMessage.success('删除成功')
+      loadDictList()
+    } else {
+      ElMessage.error(res.msg || '删除失败')
+    }
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除字典失败:', error)

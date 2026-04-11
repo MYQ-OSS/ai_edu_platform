@@ -18,6 +18,7 @@ import top.mayiqin.ai_edu_platform.utils.UserContext;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -78,7 +79,7 @@ public class QuizCollectServiceImpl extends ServiceImpl<QuizCollectMapper, QuizC
                     .options(question.getOptions())
                     .collectTime(formatDate(collect.getCreateTime()))
                     .build();
-        }).filter(vo -> vo != null).collect(Collectors.toList());
+        }).filter(Objects::nonNull).collect(Collectors.toList());
 
         log.info("获取收藏列表成功: userId={}, count={}", userId, result.size());
 

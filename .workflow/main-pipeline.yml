@@ -2,46 +2,38 @@ version: '1.0'
 name: main-pipeline
 displayName: MainPipeline
 stages:
-  - stage: 
+  - stage:
     name: compile
-    displayName: 编译
+    displayName: 后端编译
     steps:
       - step: build@maven
         name: build_maven
         displayName: Maven 构建
-        # Java 21
         jdkVersion: 21
-        # Maven 3.6.3
         mavenVersion: 3.6.3
-        # 构建命令
         commands:
           - mvn -B clean package -Dmaven.test.skip=true
-        # 非必填字段，开启后表示将构建产物暂存，但不会上传到制品库中，7天后自动清除
         artifacts:
-            # 构建产物名字，作为产物的唯一标识可向下传递，支持自定义，默认为BUILD_ARTIFACT。在下游可以通过${BUILD_ARTIFACT}方式引用来获取构建物地址
           - name: BUILD_ARTIFACT
-            # 构建产物获取路径，是指代码编译完毕之后构建物的所在路径，如通常jar包在target目录下。当前目录为代码库根目录
             path:
               - ./target
       - step: publish@general_artifacts
         name: publish_general_artifacts
-        displayName: 上传制品
-        # 上游构建任务定义的产物名，默认BUILD_ARTIFACT
+        displayName: 上传后端制品
         dependArtifact: BUILD_ARTIFACT
-        # 上传到制品库时的制品命名，默认output
-        artifactName: output
+        artifactName: ai-edu-backend
         dependsOn: build_maven
-  - stage: 
+  - stage:
     name: frontend-build
-    displayName: 前端构建
+    displayName: 前端编译
     steps:
       - step: build@nodejs
         name: build_frontend
         displayName: Node.js 构建
-        nodeVersion: 18.20.0
+        nodeVersion: 20.10.0
         commands:
           - cd ai_edu_platform_frontend
-          - npm install
+          - npm install --legacy-peer-deps
           - npm run build
         artifacts:
           - name: FRONTEND_ARTIFACT
@@ -51,24 +43,62 @@ stages:
         name: publish_frontend_artifacts
         displayName: 上传前端制品
         dependArtifact: FRONTEND_ARTIFACT
-        artifactName: frontend-output
+        artifactName: ai-edu-frontend
         dependsOn: build_frontend
-  - stage: 
+  - stage:
     name: release
     displayName: 发布制品
     steps:
       - step: publish@release_artifacts
         name: publish_release_artifacts
         displayName: '发布后端制品'
-        dependArtifact: output
+        dependArtifact: ai-edu-backend
         version: '1.0.0.0'
         autoIncrement: true
       - step: publish@release_artifacts
         name: publish_frontend_release
         displayName: '发布前端制品'
-        dependArtifact: frontend-output
+        dependArtifact: ai-edu-frontend
         version: '1.0.0.0'
         autoIncrement: true
+  - stage:
+    name: deploy
+    displayName: 远程部署到服务器
+    steps:
+      # 0. 连接性测试
+      - step: deploy@agent
+        name: test_connection
+        displayName: 测试 SSH 连接
+        agentPool: public
+        script: 
+          - yum install -y sshpass || apt-get update && apt-get install -y sshpass
+          - echo "正在测试连接到 ${SERVER_IP} ..."
+          - sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "echo '连接成功！' && date"
+
+      # 1. 部署后端 (传输 JAR + Dockerfile)
+      - step: deploy@agent
+        name: deploy_backend
+        displayName: 部署后端
+        agentPool: public
+        dependArtifact: BUILD_ARTIFACT
+        script:
+          - yum install -y sshpass || apt-get update && apt-get install -y sshpass
+          - sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "mkdir -p /opt/ai_edu_deploy/backend"
+          - sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no ./target/*.jar root@${SERVER_IP}:/opt/ai_edu_deploy/backend/app.jar
+          - sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no ./Dockerfile root@${SERVER_IP}:/opt/ai_edu_deploy/backend/Dockerfile
+          - sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "bash /opt/ai_edu_deploy/backend/deploy_backend.sh"
+
+      # 2. 部署前端
+      - step: deploy@agent
+        name: deploy_frontend
+        displayName: 部署前端
+        agentPool: public
+        script:
+          - yum install -y sshpass || apt-get update && apt-get install -y sshpass
+          - sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "mkdir -p /opt/ai_edu_deploy/frontend/dist"
+          - sshpass -p "${SERVER_PASSWORD}" scp -o StrictHostKeyChecking=no -r ./ai_edu_platform_frontend/dist/* root@${SERVER_IP}:/opt/ai_edu_deploy/frontend/dist
+          - sshpass -p "${SERVER_PASSWORD}" ssh -o StrictHostKeyChecking=no root@${SERVER_IP} "bash /opt/ai_edu_deploy/frontend/deploy_frontend.sh"
+
 triggers:
   push:
     branches:

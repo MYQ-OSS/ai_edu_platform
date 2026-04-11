@@ -168,36 +168,6 @@
                 <el-card shadow="hover" class="feature-card recommend-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">📊</span>
-                      <span>学习统计</span>
-                    </div>
-                  </template>
-                  <div class="card-content">
-                    <p>查看你的答题记录和正确率趋势。</p>
-                    <el-button type="success" @click="navigateTo('/personal/info')" class="feature-btn">查看详情
-                    </el-button>
-                  </div>
-                </el-card>
-              </el-col>
-              <el-col :span="8">
-                <el-card shadow="hover" class="feature-card recommend-card">
-                  <template #header>
-                    <div class="card-header center-header">
-                      <span class="card-icon">⭐</span>
-                      <span>我的收藏</span>
-                    </div>
-                  </template>
-                  <div class="card-content">
-                    <p>回顾收藏的题目，巩固知识点。</p>
-                    <el-button type="success" @click="navigateTo('/personal/info?tab=my-collect')" class="feature-btn">查看收藏
-                    </el-button>
-                  </div>
-                </el-card>
-              </el-col>
-              <el-col :span="8">
-                <el-card shadow="hover" class="feature-card recommend-card">
-                  <template #header>
-                    <div class="card-header center-header">
                       <span class="card-icon">🏆</span>
                       <span>薪资报告</span>
                     </div>
@@ -209,6 +179,36 @@
                   </div>
                 </el-card>
               </el-col>
+              <el-col :span="8">
+              <el-card shadow="hover" class="feature-card recommend-card">
+                <template #header>
+                  <div class="card-header center-header">
+                    <span class="card-icon">⭐</span>
+                    <span>我的收藏</span>
+                  </div>
+                </template>
+                <div class="card-content">
+                  <p>回顾收藏的题目，巩固知识点。</p>
+                  <el-button type="success" @click="navigateTo('/personal/info?tab=my-collect')" class="feature-btn">查看收藏
+                  </el-button>
+                </div>
+              </el-card>
+            </el-col>
+              <el-col :span="8">
+              <el-card shadow="hover" class="feature-card recommend-card">
+                <template #header>
+                  <div class="card-header center-header">
+                    <span class="card-icon">📊</span>
+                    <span>学习统计</span>
+                  </div>
+                </template>
+                <div class="card-content">
+                  <p>查看你的答题记录和正确率趋势。</p>
+                  <el-button type="success" @click="navigateTo('/personal/learning-statistics')" class="feature-btn">查看详情
+                  </el-button>
+                </div>
+              </el-card>
+            </el-col>
             </el-row>
           </el-col>
         </el-row>

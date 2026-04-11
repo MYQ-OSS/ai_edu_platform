@@ -61,8 +61,6 @@
         stripe
         style="width: 100%"
       >
-        <el-table-column prop="id" label="ID" width="80" align="center" />
-        
         <el-table-column prop="username" label="用户名" min-width="120" />
         
         <el-table-column prop="identity" label="身份" min-width="100" />
@@ -99,21 +97,13 @@
         
         <el-table-column label="操作" width="200" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button
-              link
-              type="primary"
-              size="small"
-              @click="handleToggleStatus(row)"
-            >
+            <el-button type="primary" size="small" @click="handleToggleStatus(row)">
+              <el-icon><Switch /></el-icon>
               {{ row.status === '0' ? '禁用' : '启用' }}
             </el-button>
             
-            <el-button
-              link
-              type="warning"
-              size="small"
-              @click="handleResetPassword(row)"
-            >
+            <el-button type="warning" size="small" @click="handleResetPassword(row)">
+              <el-icon><RefreshRight /></el-icon>
               重置密码
             </el-button>
           </template>
@@ -148,7 +138,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Back } from '@element-plus/icons-vue'
+import { Search, Refresh, Back, Switch, RefreshRight } from '@element-plus/icons-vue'
 import { getUserList, updateUserStatus, resetUserPassword } from '../../api/adminApi'
 import { useUserStore } from '../../store/userStore'
 
@@ -182,6 +172,8 @@ const loadUserList = async () => {
     const params = {
       pageNum: pagination.pageNum,
       pageSize: pagination.pageSize,
+      orderByColumn: 'id',
+      isAsc: 'asc',
       ...searchForm
     }
     
