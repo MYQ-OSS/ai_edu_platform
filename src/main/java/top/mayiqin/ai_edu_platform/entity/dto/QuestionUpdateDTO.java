@@ -6,11 +6,17 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * 管理员新增题目DTO
+ * 管理员编辑题目DTO
  * @author m'y'q
  */
 @Data
-public class QuestionAddDTO {
+public class QuestionUpdateDTO {
+
+    /**
+     * 题目ID
+     */
+    @NotNull(message = "题目ID不能为空")
+    private Long id;
 
     /**
      * 题目名称

@@ -129,4 +129,28 @@ public class JwtUtil {
             return false;
         }
     }
+    
+    /**
+     * 生成Refresh Token
+     *
+     * @param secretKey JWT签名密钥
+     * @param ttlMillis Refresh Token过期时间(毫秒)
+     * @param claims    自定义声明（如userId等）
+     * @return Refresh Token字符串
+     */
+    public static String createRefreshJWT(String secretKey, long ttlMillis, Map<String, Object> claims) {
+        // 计算过期时间
+        long expMillis = System.currentTimeMillis() + ttlMillis;
+        Date exp = new Date(expMillis);
+
+        // 将字符串密钥转换为 SecretKey
+        SecretKey key = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
+
+        // 构建Refresh Token
+        return Jwts.builder()
+                .claims(claims)
+                .expiration(exp)
+                .signWith(key)
+                .compact();
+    }
 }

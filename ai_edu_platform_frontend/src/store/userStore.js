@@ -5,6 +5,7 @@ export const useUserStore = defineStore('user', {
   state: () => ({
     userInfo: null,
     token: localStorage.getItem('token') || null,
+    refreshToken: localStorage.getItem('refreshToken') || null,
     isLoggedIn: !!localStorage.getItem('token'),
     loading: false,
     error: null
@@ -49,8 +50,10 @@ export const useUserStore = defineStore('user', {
         const response = await userApi.login(data)
         if (response.code === 200) {
           this.token = response.data.token
+          this.refreshToken = response.data.refreshToken
           this.isLoggedIn = true
           localStorage.setItem('token', response.data.token)
+          localStorage.setItem('refreshToken', response.data.refreshToken)
         }
         this.loading = false
         return response
@@ -142,8 +145,10 @@ export const useUserStore = defineStore('user', {
     logout() {
       this.userInfo = null
       this.token = null
+      this.refreshToken = null
       this.isLoggedIn = false
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
       localStorage.removeItem('userInfo')
     },
     
@@ -159,6 +164,30 @@ export const useUserStore = defineStore('user', {
         }
       } catch (error) {
         console.error('刷新用户信息失败:', error)
+      }
+    },
+    
+    // 刷新Token
+    async refreshTokenAction() {
+      if (!this.refreshToken) {
+        throw new Error('没有Refresh Token')
+      }
+      
+      try {
+        const response = await userApi.refreshToken(this.refreshToken)
+        if (response.code === 200) {
+          // 更新token和refreshToken
+          this.token = response.data.token
+          this.refreshToken = response.data.refreshToken
+          localStorage.setItem('token', response.data.token)
+          localStorage.setItem('refreshToken', response.data.refreshToken)
+          return response.data.token
+        }
+      } catch (error) {
+        console.error('刷新Token失败:', error)
+        // 刷新失败，清除登录状态
+        this.logout()
+        throw error
       }
     }
   }

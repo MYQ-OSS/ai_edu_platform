@@ -23,6 +23,8 @@ public class MessageConstant {
     public static final String PERMISSION_DENIED = "权限不足";
     public static final String ADMIN_PERMISSION_DENIED = "权限不足，仅管理员可操作";
     public static final String GET_TECH_DIRECTIONS_SUCCESS = "获取技术方向成功";
+    public static final String SAVE_FAILED = "保存失败";
+    public static final String DICT_ADD_SUCCESS = "字典数据添加成功";
 
     // --- 用户模块 ---
     public static final String LOGIN_SUCCESS = "登录成功";

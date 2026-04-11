@@ -196,6 +196,18 @@
             placeholder='请输入JSON格式，例如：[{"label":"SpringBoot","value":"springboot"},{"label":"MyBatis","value":"mybatis"}]'
           />
           <div class="form-tip">JSON数组格式，包含label和value字段</div>
+          <el-button 
+            size="small" 
+            type="primary" 
+            plain
+            @click="formatOptions" 
+            :disabled="!formData.options"
+            title="格式化JSON选项"
+            class="format-json-btn"
+          >
+            <el-icon><MagicStick /></el-icon>
+            格式化JSON
+          </el-button>
         </el-form-item>
         
         <el-form-item label="题目解析" prop="analysis">
@@ -222,9 +234,9 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Search, Refresh, Plus, Edit, Delete, Back } from '@element-plus/icons-vue'
+import { Search, Refresh, Plus, Edit, Delete, Back, MagicStick } from '@element-plus/icons-vue'
 import { getTechDirections } from '../../api/questionApi'
-import { getQuestionList, addQuestion } from '../../api/adminApi'
+import { getQuestionList, addQuestion, updateQuestion, deleteQuestion } from '../../api/adminApi'
 
 const router = useRouter()
 
@@ -415,21 +427,36 @@ const handleDelete = async (row) => {
       }
     )
     
-    // TODO: 调用后端接口删除题目
-    // const res = await deleteQuestion(row.id)
-    // if (res.code === 200) {
-    //   ElMessage.success('删除成功')
-    //   loadQuestionList()
-    // } else {
-    //   ElMessage.error(res.msg || '删除失败')
-    // }
-    
-    ElMessage.info('删除功能待实现')
+    const res = await deleteQuestion(row.id)
+    if (res.code === 200) {
+      ElMessage.success('删除成功')
+      loadQuestionList()
+    } else {
+      ElMessage.error(res.msg || '删除失败')
+    }
   } catch (error) {
     if (error !== 'cancel') {
       console.error('删除题目失败:', error)
       ElMessage.error('删除失败')
     }
+  }
+}
+
+/**
+ * 格式化JSON选项
+ */
+const formatOptions = () => {
+  if (!formData.options) {
+    ElMessage.warning('请先输入JSON内容')
+    return
+  }
+  
+  try {
+    const parsed = JSON.parse(formData.options)
+    formData.options = JSON.stringify(parsed, null, 2)
+    ElMessage.success('格式化成功')
+  } catch (e) {
+    ElMessage.error('JSON格式错误，请检查输入')
   }
 }
 
@@ -444,10 +471,18 @@ const handleSubmit = async () => {
       submitLoading.value = true
       try {
         const data = { ...formData }
-        const res = await addQuestion(data)
+        let res
+        
+        if (formData.id) {
+          // 编辑模式
+          res = await updateQuestion(data)
+        } else {
+          // 新增模式
+          res = await addQuestion(data)
+        }
         
         if (res.code === 200) {
-          ElMessage.success('新增成功')
+          ElMessage.success(formData.id ? '编辑成功' : '新增成功')
           dialogVisible.value = false
           loadQuestionList()
         } else {
@@ -569,6 +604,10 @@ onMounted(() => {
   color: #909399;
   margin-top: 5px;
   line-height: 1.5;
+}
+
+.format-json-btn {
+  margin-top: 8px;
 }
 
 /* 响应式设计 */

@@ -119,13 +119,43 @@
                 <el-card shadow="hover" class="feature-card admin-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">⚙️</span>
-                      <span>后台管理</span>
+                      <span class="card-icon">👥</span>
+                      <span>用户管理</span>
                     </div>
                   </template>
                   <div class="card-content">
-                    <p>管理系统用户、题库和数据字典。</p>
+                    <p>管理系统用户账号和权限。</p>
                     <el-button type="warning" @click="navigateTo('/admin/user-manage')" class="feature-btn">用户管理
+                    </el-button>
+                  </div>
+                </el-card>
+              </el-col>
+              <el-col :span="8">
+                <el-card shadow="hover" class="feature-card admin-card">
+                  <template #header>
+                    <div class="card-header center-header">
+                      <span class="card-icon">📚</span>
+                      <span>题库管理</span>
+                    </div>
+                  </template>
+                  <div class="card-content">
+                    <p>管理题目库，新增、编辑和删除题目。</p>
+                    <el-button type="warning" @click="navigateTo('/admin/question-manage')" class="feature-btn">题库管理
+                    </el-button>
+                  </div>
+                </el-card>
+              </el-col>
+              <el-col :span="8">
+                <el-card shadow="hover" class="feature-card admin-card">
+                  <template #header>
+                    <div class="card-header center-header">
+                      <span class="card-icon">📋</span>
+                      <span>字典管理</span>
+                    </div>
+                  </template>
+                  <div class="card-content">
+                    <p>管理系统基础配置数据。</p>
+                    <el-button type="warning" @click="navigateTo('/admin/data-dict')" class="feature-btn">字典管理
                     </el-button>
                   </div>
                 </el-card>

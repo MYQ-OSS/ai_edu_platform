@@ -82,6 +82,13 @@ public interface UserService extends IService<User> {
      * @param userId 用户ID
      */
     void resetUserPassword(Long userId);
+
+    /**
+     * 刷新Token
+     * @param refreshToken 刷新令牌
+     * @return 新的token和refreshToken
+     */
+    Map<String, Object> refreshToken(String refreshToken);
 }
 
 

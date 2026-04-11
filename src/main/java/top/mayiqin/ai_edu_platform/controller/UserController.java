@@ -131,4 +131,23 @@ public class UserController {
         return Result.success("获取成功", statistics);
     }
 
+    /**
+     * 刷新Token
+     * 当Access Token过期时，使用Refresh Token获取新的Token
+     *
+     * @param request 包含refreshToken的请求体
+     * @return 新的token和refreshToken
+     */
+    @Operation(summary = "刷新Token")
+    @PostMapping("/refresh-token")
+    public Result<Map<String, Object>> refreshToken(@RequestBody Map<String, String> request) {
+        String refreshToken = request.get("refreshToken");
+        log.info("刷新Token请求");
+        
+        // 调用服务层刷新Token
+        Map<String, Object> tokens = userService.refreshToken(refreshToken);
+        
+        return Result.success("Token刷新成功", tokens);
+    }
+
 }

@@ -134,11 +134,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             jwtProperties.getExpiration(),
             claims
         );
+        
+        // 生成Refresh Token（有效期更长）
+        String refreshToken = JwtUtil.createRefreshJWT(
+            jwtProperties.getSecretKey(),
+            jwtProperties.getRefreshExpiration(),
+            claims
+        );
+        
         log.debug("用户登录成功，已生成 JWT: userId={}, role={}", userCheck.getId(), role);
         
-        // 6. 构造登录结果并返回（只返回token）
+        // 6. 构造登录结果并返回（返回token和refreshToken）
         Map<String, Object> result = new HashMap<>();
         result.put("token", token);
+        result.put("refreshToken", refreshToken);
         return result;
     }
 
@@ -404,7 +413,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             resultPage.setCurrent(userPage.getCurrent());
             resultPage.setSize(userPage.getSize());
             resultPage.setTotal(userPage.getTotal());
-            resultPage.setPages(userPage.getPages());
             resultPage.setRecords(voList);
             
             log.info("后台查询用户列表成功: total={}, pageNum={}, pageSize={}",
@@ -493,6 +501,72 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         
         log.info("后台重置用户密码成功: userId={}, username={}", userId, targetUser.getUsername());
+    }
+
+    @Override
+    public Map<String, Object> refreshToken(String refreshToken) {
+        log.info("刷新Token请求");
+        
+        // 1. 验证Refresh Token是否为空
+        if (StrUtil.isBlank(refreshToken)) {
+            throw new BusinessException(400, "Refresh Token不能为空");
+        }
+        
+        // 2. 解析并验证Refresh Token
+        Map<String, Object> claims;
+        try {
+            claims = JwtUtil.parseJWT(jwtProperties.getSecretKey(), refreshToken);
+        } catch (Exception e) {
+            log.warn("Refresh Token无效或已过期: {}", e.getMessage());
+            throw new BusinessException(401, "Refresh Token无效或已过期，请重新登录");
+        }
+        
+        // 3. 从claims中获取userId和role
+        Object userIdObj = claims.get("userId");
+        Object roleObj = claims.get("role");
+        
+        if (userIdObj == null || roleObj == null) {
+            throw new BusinessException(401, "Refresh Token格式错误");
+        }
+        
+        Long userId = Long.valueOf(userIdObj.toString());
+        String role = roleObj.toString();
+        
+        // 4. 检查用户是否存在且状态正常
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(404, "用户不存在");
+        }
+        
+        if ("1".equals(user.getStatus())) {
+            throw new BusinessException(403, "账号已被禁用，请联系管理员");
+        }
+        
+        // 5. 生成新的Access Token（短期有效）
+        Map<String, Object> newClaims = new HashMap<>();
+        newClaims.put("userId", userId);
+        newClaims.put("role", role);
+        
+        String newToken = JwtUtil.createJWT(
+            jwtProperties.getSecretKey(),
+            jwtProperties.getExpiration(),
+            newClaims
+        );
+        
+        // 6. 生成新的Refresh Token（长期有效，支持连续刷新）
+        String newRefreshToken = JwtUtil.createRefreshJWT(
+            jwtProperties.getSecretKey(),
+            jwtProperties.getRefreshExpiration(),
+            newClaims
+        );
+        
+        log.info("Token刷新成功: userId={}, role={}", userId, role);
+        
+        // 7. 返回新的token和refreshToken
+        Map<String, Object> result = new HashMap<>();
+        result.put("token", newToken);
+        result.put("refreshToken", newRefreshToken);
+        return result;
     }
 
 

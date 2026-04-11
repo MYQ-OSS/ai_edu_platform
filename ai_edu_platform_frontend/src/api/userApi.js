@@ -50,3 +50,12 @@ export const getQuizStatistics = () => {
     method: "GET",
   });
 };
+
+// 刷新Token
+export const refreshToken = (refreshToken) => {
+  return request({
+    url: "/user/refresh-token",
+    method: "POST",
+    data: { refreshToken },
+  });
+};

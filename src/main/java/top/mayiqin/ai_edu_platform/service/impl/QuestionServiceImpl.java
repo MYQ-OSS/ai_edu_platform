@@ -13,6 +13,7 @@ import top.mayiqin.ai_edu_platform.ai.tool.QuestionGenerateTool;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionAddDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionListQueryDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
@@ -230,6 +231,62 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question> i
         
         log.info("题目新增成功: questionId={}, name={}", question.getId(), question.getQuestionName());
         return question.getId();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void updateQuestion(QuestionUpdateDTO dto) {
+        log.info("管理员编辑题目: id={}, direction={}", dto.getId(), dto.getDirection());
+        
+        // 查询题目是否存在
+        Question existQuestion = this.getById(dto.getId());
+        if (existQuestion == null || "1".equals(existQuestion.getIsDeleted())) {
+            throw new BusinessException(404, MessageConstant.QUESTION_NOT_EXIST);
+        }
+        
+        // 更新题目信息
+        Question question = Question.builder()
+                .id(dto.getId())
+                .questionName(dto.getQuestionName())
+                .questionDesc(dto.getQuestionDesc())
+                .options(dto.getOptions())
+                .targetSalary(dto.getTargetSalary())
+                .direction(dto.getDirection())
+                .analysis(dto.getAnalysis())
+                .isDeleted(existQuestion.getIsDeleted())
+                .createTime(existQuestion.getCreateTime())
+                .updateTime(new Date())
+                .build();
+        
+        // 执行更新
+        boolean updated = this.updateById(question);
+        if (!updated) {
+            log.error("题目更新失败: id={}", dto.getId());
+            throw new BusinessException(500, "题目更新失败");
+        }
+        
+        log.info("题目更新成功: id={}, name={}", question.getId(), question.getQuestionName());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteQuestion(Long questionId) {
+        log.info("管理员删除题目: id={}", questionId);
+        
+        // 查询题目是否存在
+        Question existQuestion = this.getById(questionId);
+        if (existQuestion == null || "1".equals(existQuestion.getIsDeleted())) {
+            throw new BusinessException(404, MessageConstant.QUESTION_NOT_EXIST);
+        }
+        
+        // 使用MyBatis-Plus的逻辑删除功能（自动设置 is_deleted='1'）
+        boolean deleted = this.removeById(questionId);
+        if (!deleted) {
+            log.error("题目删除失败: id={}", questionId);
+            throw new BusinessException(500, "题目删除失败");
+        }
+        
+        log.info("题目删除成功: id={}", questionId);
     }
 
     @Override

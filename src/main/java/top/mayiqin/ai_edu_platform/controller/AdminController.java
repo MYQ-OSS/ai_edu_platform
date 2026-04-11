@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,13 +16,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import top.mayiqin.ai_edu_platform.annotation.RequireAdmin;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
+import top.mayiqin.ai_edu_platform.entity.dto.DictDataAddDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.DictDataUpdateDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.DictListQueryDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionAddDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionListQueryDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserListQueryDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserStatusUpdateDTO;
+import top.mayiqin.ai_edu_platform.entity.po.DictData;
 import top.mayiqin.ai_edu_platform.entity.vo.QuestionListVO;
 import top.mayiqin.ai_edu_platform.entity.vo.UserListVO;
 import top.mayiqin.ai_edu_platform.exception.Result;
+import top.mayiqin.ai_edu_platform.service.DictDataService;
 import top.mayiqin.ai_edu_platform.service.QuestionService;
 import top.mayiqin.ai_edu_platform.service.UserService;
 
@@ -40,6 +47,9 @@ public class AdminController {
 
     @Autowired
     private QuestionService questionService;
+
+    @Autowired
+    private DictDataService dictDataService;
 
     /**
      * 查询用户列表（分页）
@@ -143,6 +153,54 @@ public class AdminController {
     }
 
     /**
+     * 编辑题目
+     *
+     * @param dto 题目信息
+     * @return 操作结果
+     */
+    @Operation(
+        summary = "编辑题目",
+        description = "管理员编辑已有题目信息。需要管理员权限。"
+    )
+    @PutMapping("/question/update")
+    @RequireAdmin("编辑题目")
+    public Result<Void> updateQuestion(@Valid @RequestBody QuestionUpdateDTO dto) {
+        log.info("后台编辑题目请求: id={}, direction={}", dto.getId(), dto.getDirection());
+        
+        try {
+            questionService.updateQuestion(dto);
+            return Result.success(MessageConstant.QUESTION_UPDATE_SUCCESS, null);
+        } catch (Exception e) {
+            log.error("编辑题目失败: {}", e.getMessage(), e);
+            return Result.error(500, "编辑题目失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 删除题目
+     *
+     * @param questionId 题目ID
+     * @return 操作结果
+     */
+    @Operation(
+        summary = "删除题目",
+        description = "管理员删除指定题目（逻辑删除）。需要管理员权限。"
+    )
+    @DeleteMapping("/question/delete/{questionId}")
+    @RequireAdmin("删除题目")
+    public Result<Void> deleteQuestion(@PathVariable Long questionId) {
+        log.info("后台删除题目请求: questionId={}", questionId);
+        
+        try {
+            questionService.deleteQuestion(questionId);
+            return Result.success(MessageConstant.QUESTION_DELETE_SUCCESS, null);
+        } catch (Exception e) {
+            log.error("删除题目失败: {}", e.getMessage(), e);
+            return Result.error(500, "删除题目失败: " + e.getMessage());
+        }
+    }
+
+    /**
      * 查询题目列表（分页）
      *
      * @param queryDTO 查询条件（页码、每页条数、题目名称、技术方向、目标薪资）
@@ -163,6 +221,78 @@ public class AdminController {
         } catch (Exception e) {
             log.error("查询题目列表失败: {}", e.getMessage(), e);
             return Result.error(500, "查询题目列表失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 新增字典数据
+     *
+     * @param dto 字典数据信息
+     * @return 字典数据ID
+     */
+    @Operation(
+        summary = "新增字典数据",
+        description = "管理员新增数据字典项（技术方向/学历/身份等）。需要管理员权限。"
+    )
+    @PostMapping("/dict/add")
+    @RequireAdmin("新增字典数据")
+    public Result<Long> addDictData(@Valid @RequestBody DictDataAddDTO dto) {
+        log.info("后台新增字典数据请求: dictType={}, dictCode={}", dto.getDictType(), dto.getDictCode());
+        
+        try {
+            Long dictId = dictDataService.addDictData(dto);
+            return Result.success(MessageConstant.DICT_ADD_SUCCESS, dictId);
+        } catch (Exception e) {
+            log.error("新增字典数据失败: {}", e.getMessage(), e);
+            return Result.error(500, "新增字典数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新字典数据
+     *
+     * @param dto 字典数据信息
+     * @return 操作结果
+     */
+    @Operation(
+        summary = "更新字典数据",
+        description = "管理员更新数据字典项信息。需要管理员权限。"
+    )
+    @PutMapping("/dict/update")
+    @RequireAdmin("更新字典数据")
+    public Result<Void> updateDictData(@Valid @RequestBody DictDataUpdateDTO dto) {
+        log.info("后台更新字典数据请求: id={}, dictCode={}", dto.getId(), dto.getDictCode());
+        
+        try {
+            dictDataService.updateDictData(dto);
+            return Result.success(MessageConstant.OPERATION_SUCCESS, null);
+        } catch (Exception e) {
+            log.error("更新字典数据失败: {}", e.getMessage(), e);
+            return Result.error(500, "更新字典数据失败: " + e.getMessage());
+        }
+    }
+
+    /**
+     * 查询字典列表（分页）
+     *
+     * @param queryDTO 查询条件（页码、每页条数、字典名称）
+     * @return 分页字典列表
+     */
+    @Operation(
+        summary = "查询字典列表",
+        description = "后台管理员查询字典列表，支持分页和条件筛选。需要管理员权限。"
+    )
+    @GetMapping("/dict/list")
+    @RequireAdmin("查询字典列表")
+    public Result<Page<DictData>> getDictList(@Valid DictListQueryDTO queryDTO) {
+        log.info("后台查询字典列表请求: pageNum={}, pageSize={}", queryDTO.getPageNum(), queryDTO.getPageSize());
+        
+        try {
+            Page<DictData> page = dictDataService.getDictList(queryDTO);
+            return Result.success(MessageConstant.OPERATION_SUCCESS, page);
+        } catch (Exception e) {
+            log.error("查询字典列表失败: {}", e.getMessage(), e);
+            return Result.error(500, "查询字典列表失败: " + e.getMessage());
         }
     }
 }

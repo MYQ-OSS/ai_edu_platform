@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionAddDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionListQueryDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuestionListVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuestionVO;
 
@@ -24,6 +25,18 @@ public interface QuestionService extends IService<Question> {
      * @return 题目ID
      */
     Long addQuestion(QuestionAddDTO dto);
+
+    /**
+     * 管理员编辑题目
+     * @param dto 题目信息
+     */
+    void updateQuestion(QuestionUpdateDTO dto);
+
+    /**
+     * 管理员删除题目（逻辑删除）
+     * @param questionId 题目ID
+     */
+    void deleteQuestion(Long questionId);
 
     /**
      * 分页查询题目列表

@@ -1,6 +1,8 @@
 package top.mayiqin.ai_edu_platform.interceptor;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -70,9 +72,30 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
             UserContext.setCurrentUserId(userId);
             UserContext.setCurrentUserRole(role);
             log.info("✅ Token验证成功 - URI: {}, userId: {}, role: {}", request.getRequestURI(), userId, role);
+        } catch (ExpiredJwtException e) {
+            // Token已过期，返回401状态码
+            log.warn("❌ Token已过期 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_INVALID));
+            return false;
+        } catch (JwtException e) {
+            // JWT验证失败（签名错误、格式错误等），返回401状态码
+            log.warn("❌ JWT验证失败 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_INVALID));
+            return false;
         } catch (IllegalArgumentException e) {
-            // token无效或过期，返回401状态码
-            log.warn("❌ Token验证失败 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
+            // Token格式错误或参数非法，返回401状态码
+            log.warn("❌ Token格式错误 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_INVALID));
+            return false;
+        } catch (Exception e) {
+            // 其他未知异常，也返回401而不是500
+            log.error("❌ Token验证未知异常 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage(), e);
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", MessageConstant.TOKEN_INVALID));

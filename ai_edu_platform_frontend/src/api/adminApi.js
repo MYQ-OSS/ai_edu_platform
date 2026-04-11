@@ -65,6 +65,91 @@ export function addQuestion(data) {
 }
 
 /**
+ * 编辑题目
+ * @param {Object} data - 题目数据
+ * @param {number} data.id - 题目ID
+ * @param {string} data.questionName - 题目名称
+ * @param {string} data.questionDesc - 题目描述
+ * @param {string} data.options - 选项JSON字符串
+ * @param {number} data.targetSalary - 目标薪资
+ * @param {string} data.direction - 技术方向
+ * @param {string} [data.analysis] - 题目解析（可选）
+ * @returns {Promise}
+ */
+export function updateQuestion(data) {
+  return request({
+    url: '/admin/question/update',
+    method: 'put',
+    data
+  })
+}
+
+/**
+ * 删除题目
+ * @param {number} questionId - 题目ID
+ * @returns {Promise}
+ */
+export function deleteQuestion(questionId) {
+  return request({
+    url: `/admin/question/delete/${questionId}`,
+    method: 'delete'
+  })
+}
+
+/**
+ * 查询字典列表（分页）
+ * @param {Object} params - 查询参数
+ * @param {number} params.pageNum - 页码，默认1
+ * @param {number} params.pageSize - 每页条数，默认10
+ * @param {string} params.dictName - 字典名称模糊查询（可选）
+ * @returns {Promise} 返回分页字典列表
+ */
+export function getDictList(params) {
+  return request({
+    url: '/admin/dict/list',
+    method: 'get',
+    params
+  })
+}
+
+/**
+ * 新增字典数据
+ * @param {Object} data - 字典数据
+ * @param {string} data.dictType - 字典类型
+ * @param {string} data.dictCode - 字典编码
+ * @param {string} data.dictName - 字典名称
+ * @param {number} data.sort - 排序号
+ * @param {string} [data.status] - 状态（0-正常 1-禁用），默认0
+ * @returns {Promise}
+ */
+export function addDictData(data) {
+  return request({
+    url: '/admin/dict/add',
+    method: 'post',
+    data
+  })
+}
+
+/**
+ * 更新字典数据
+ * @param {Object} data - 字典数据
+ * @param {number} data.id - 字典ID
+ * @param {string} data.dictType - 字典类型
+ * @param {string} data.dictCode - 字典编码
+ * @param {string} data.dictName - 字典名称
+ * @param {number} data.sort - 排序号
+ * @param {string} data.status - 状态（0-正常 1-禁用）
+ * @returns {Promise}
+ */
+export function updateDictData(data) {
+  return request({
+    url: '/admin/dict/update',
+    method: 'put',
+    data
+  })
+}
+
+/**
  * 查询题目列表（分页）
  * @param {Object} params - 查询参数
  * @param {number} params.pageNum - 页码，默认1

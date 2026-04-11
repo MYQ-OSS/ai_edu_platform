@@ -40,7 +40,7 @@
 
       <el-menu-item index="/admin/data-dict">
         <el-icon><Collection /></el-icon>
-        <span>数据字典</span>
+        <span>字典管理</span>
       </el-menu-item>
     </el-sub-menu>
 
