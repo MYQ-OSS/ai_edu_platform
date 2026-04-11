@@ -1,6 +1,7 @@
 package top.mayiqin.ai_edu_platform.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.po.SalaryReport;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
+import top.mayiqin.ai_edu_platform.entity.vo.UserListVO;
 import top.mayiqin.ai_edu_platform.exception.AccountAlreadyExistsException;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.exception.LoginFailedException;
@@ -26,6 +28,7 @@ import org.springframework.stereotype.Service;
 import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.UserListQueryDTO;
 import top.mayiqin.ai_edu_platform.utils.JwtUtil;
 import top.mayiqin.ai_edu_platform.utils.UserContext;
 
@@ -118,17 +121,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new LoginFailedException("账号或密码错误");
         }
         
-        // 5. 生成 JWT 令牌（userId已嵌入Token中）
+        // 5. 生成 JWT 令牌（userId和role已嵌入Token中）
         // 注意：必须使用可变的HashMap，因为JJWT库需要修改claims Map
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userCheck.getId());
+        // 添加角色信息，默认为user
+        String role = userCheck.getRole() != null ? userCheck.getRole() : "user";
+        claims.put("role", role);
         
         String token = JwtUtil.createJWT(
             jwtProperties.getSecretKey(),
             jwtProperties.getExpiration(),
             claims
         );
-        log.debug("用户登录成功，已生成 JWT: userId={}", userCheck.getId());
+        log.debug("用户登录成功，已生成 JWT: userId={}, role={}", userCheck.getId(), role);
         
         // 6. 构造登录结果并返回（只返回token）
         Map<String, Object> result = new HashMap<>();
@@ -160,6 +166,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .experience(user.getExperience())
                 .answerTimes(user.getAnswerTimes())
                 .averageScore(user.getAverageScore())
+                .status(user.getStatus())
+                .role(user.getRole())
                 .createTime(user.getCreateTime())
                 .build();
     }
@@ -175,8 +183,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         
         // 2. 检查用户是否存在
-        User existUser = userMapper.selectById(userId);
-        if (existUser == null) {
+        User currentUser = userMapper.selectById(userId);
+        if (currentUser == null) {
             throw new BusinessException(404, MessageConstant.ACCOUNT_NOT_FOUND);
         }
         
@@ -185,6 +193,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         updateUser.setId(userId);
         
         // 只允许更新以下字段
+        if (StrUtil.isNotBlank(userUpdateDTO.getUsername())) {
+            // 检查用户名是否已被其他用户使用
+            User existUser = userMapper.getByUsername(userUpdateDTO.getUsername());
+            if (existUser != null && !existUser.getId().equals(userId)) {
+                throw new BusinessException(400, "该用户名已被使用");
+            }
+            updateUser.setUsername(userUpdateDTO.getUsername());
+        }
+        
         if (StrUtil.isNotBlank(userUpdateDTO.getIdentity())) {
             // 身份字段长度校验
             if (userUpdateDTO.getIdentity().length() > 23) {
@@ -277,6 +294,205 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
                 .accuracyTrend(accuracyTrend)
                 .salaryReports(salaryReports)
                 .build();
+    }
+
+    @Override
+    public Map<String, Object> getQuizStatistics() {
+        // 1. 获取当前登录用户ID
+        Long userId = UserContext.getCurrentUserId();
+        if (userId == null) {
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
+        }
+        
+        // 2. 查询用户的答题记录
+        LambdaQueryWrapper<QuizRecord> quizWrapper = new LambdaQueryWrapper<>();
+        quizWrapper.eq(QuizRecord::getUserId, userId);
+        List<QuizRecord> quizRecords = quizRecordService.list(quizWrapper);
+        
+        // 3. 计算答题数量和平均分数
+        int answerTimes = quizRecords.size();
+        double averageScore = 0.0;
+        
+        if (answerTimes > 0) {
+            // 计算总分
+            int totalScore = quizRecords.stream()
+                    .mapToInt(QuizRecord::getScore)
+                    .sum();
+            // 计算平均分（保留一位小数）
+            averageScore = Math.round((double) totalScore / answerTimes * 10.0) / 10.0;
+        }
+        
+        // 4. 更新用户表中的统计信息
+        User updateUser = new User();
+        updateUser.setId(userId);
+        updateUser.setAnswerTimes(answerTimes);
+        updateUser.setAverageScore((int) averageScore);
+        userMapper.updateById(updateUser);
+        
+        log.info("用户答题统计信息获取成功: userId={}, answerTimes={}, averageScore={}", 
+                userId, answerTimes, averageScore);
+        
+        // 5. 构造返回数据
+        Map<String, Object> result = new HashMap<>();
+        result.put("answerTimes", answerTimes);
+        result.put("averageScore", averageScore);
+        
+        return result;
+    }
+
+    @Override
+    public Page<UserListVO> getUserList(UserListQueryDTO queryDTO) {
+        log.info("后台查询用户列表请求: pageNum={}, pageSize={}, username={}, status={}, role={}",
+                queryDTO.getPageNum(), queryDTO.getPageSize(), queryDTO.getUsername(), 
+                queryDTO.getStatus(), queryDTO.getRole());
+        
+        try {
+            // 1. 参数校验和默认值处理
+            int pageNum = queryDTO.getPageNum() != null ? queryDTO.getPageNum() : 1;
+            int pageSize = queryDTO.getPageSize() != null ? queryDTO.getPageSize() : 10;
+            
+            // 限制 pageSize 范围
+            if (pageSize < 1) {
+                pageSize = 1;
+            } else if (pageSize > 500) {
+                pageSize = 500;
+            }
+            
+            // 2. 构建查询条件
+            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+            
+            // 用户名模糊查询
+            if (StrUtil.isNotBlank(queryDTO.getUsername())) {
+                wrapper.like(User::getUsername, queryDTO.getUsername());
+            }
+            
+            // 状态精确匹配
+            if (StrUtil.isNotBlank(queryDTO.getStatus())) {
+                wrapper.eq(User::getStatus, queryDTO.getStatus());
+            }
+            
+            // 角色精确匹配
+            if (StrUtil.isNotBlank(queryDTO.getRole())) {
+                wrapper.eq(User::getRole, queryDTO.getRole());
+            }
+            
+            // 按创建时间降序排序
+            wrapper.orderByDesc(User::getCreateTime);
+            
+            // 3. 执行分页查询
+            Page<User> page = new Page<>(pageNum, pageSize);
+            Page<User> userPage = userMapper.selectPage(page, wrapper);
+            
+            // 4. 数据转换：User -> UserListVO
+            List<UserListVO> voList = userPage.getRecords().stream()
+                    .map(user -> UserListVO.builder()
+                            .id(user.getId())
+                            .username(user.getUsername())
+                            .identity(user.getIdentity())
+                            .salary(user.getSalary())
+                            .answerTimes(user.getAnswerTimes())
+                            .averageScore(user.getAverageScore())
+                            .status(user.getStatus())
+                            .role(user.getRole())
+                            .createTime(user.getCreateTime())
+                            .updateTime(user.getUpdateTime())
+                            .build())
+                    .collect(Collectors.toList());
+            
+            // 5. 构造返回结果
+            Page<UserListVO> resultPage = new Page<>();
+            resultPage.setCurrent(userPage.getCurrent());
+            resultPage.setSize(userPage.getSize());
+            resultPage.setTotal(userPage.getTotal());
+            resultPage.setPages(userPage.getPages());
+            resultPage.setRecords(voList);
+            
+            log.info("后台查询用户列表成功: total={}, pageNum={}, pageSize={}",
+                    resultPage.getTotal(), resultPage.getCurrent(), resultPage.getSize());
+            
+            return resultPage;
+        } catch (Exception e) {
+            log.error("后台查询用户列表失败: {}", e.getMessage(), e);
+            throw new BusinessException(500, "查询用户列表失败: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateUserStatus(Long userId, String status) {
+        log.info("后台修改用户状态请求: userId={}, status={}", userId, status);
+        
+        // 1. 获取当前管理员ID
+        Long adminId = UserContext.getCurrentUserId();
+        if (adminId == null) {
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
+        }
+        
+        // 2. 不能操作自己的账号
+        if (adminId.equals(userId)) {
+            throw new BusinessException(403, "不能操作自己的账号");
+        }
+        
+        // 3. 检查用户是否存在
+        User targetUser = userMapper.selectById(userId);
+        if (targetUser == null) {
+            throw new BusinessException(404, MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+        
+        // 4. 检查状态是否相同
+        if (targetUser.getStatus().equals(status)) {
+            String statusText = "0".equals(status) ? "启用" : "禁用";
+            throw new BusinessException(400, "用户已处于" + statusText + "状态");
+        }
+        
+        // 5. 更新状态
+        User updateUser = new User();
+        updateUser.setId(userId);
+        updateUser.setStatus(status);
+        
+        int rows = userMapper.updateById(updateUser);
+        if (rows <= 0) {
+            throw new BusinessException(500, "更新用户状态失败");
+        }
+        
+        log.info("后台修改用户状态成功: userId={}, oldStatus={}, newStatus={}", 
+                userId, targetUser.getStatus(), status);
+    }
+
+    @Override
+    public void resetUserPassword(Long userId) {
+        log.info("后台重置用户密码请求: userId={}", userId);
+        
+        // 1. 获取当前管理员ID
+        Long adminId = UserContext.getCurrentUserId();
+        if (adminId == null) {
+            throw new BusinessException(401, MessageConstant.USER_NOT_LOGIN);
+        }
+        
+        // 2. 不能重置自己的密码
+        if (adminId.equals(userId)) {
+            throw new BusinessException(403, "不能重置自己的密码");
+        }
+        
+        // 3. 检查用户是否存在
+        User targetUser = userMapper.selectById(userId);
+        if (targetUser == null) {
+            throw new BusinessException(404, MessageConstant.ACCOUNT_NOT_FOUND);
+        }
+        
+        // 4. 重置为默认密码 123456（BCrypt加密）
+        String defaultPassword = "123456";
+        String encodedPassword = PASSWORD_ENCODER.encode(defaultPassword);
+        
+        User updateUser = new User();
+        updateUser.setId(userId);
+        updateUser.setPassword(encodedPassword);
+        
+        int rows = userMapper.updateById(updateUser);
+        if (rows <= 0) {
+            throw new BusinessException(500, "重置密码失败");
+        }
+        
+        log.info("后台重置用户密码成功: userId={}, username={}", userId, targetUser.getUsername());
     }
 
 

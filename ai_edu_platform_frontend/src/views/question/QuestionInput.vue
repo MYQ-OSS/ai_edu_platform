@@ -1,16 +1,16 @@
 <!-- 技术挑战输入前提信息页 -->
 <template>
   <div class="question-input-container">
-    <h2>技术挑战 - 输入前提信息</h2>
+    <h2>技术挑战</h2>
     <div class="input-card">
-      <el-form :model="inputForm" :rules="rules" ref="inputFormRef" label-width="120px">
+      <el-form :model="inputForm" :rules="rules" ref="inputFormRef" label-width="140px">
         <!-- 必填项 -->
-        <el-form-item label="身份" prop="identity" required>
-          <el-input v-model="inputForm.identity" placeholder="请输入您的身份（如：学生、前端工程师等）" />
+        <el-form-item label="身份定位" prop="identity" required>
+          <el-input v-model="inputForm.identity" placeholder="请输入您的身份（如：学生）" size="large" />
         </el-form-item>
         
         <el-form-item label="技术方向" prop="techDirection" required>
-          <el-select v-model="inputForm.techDirection" placeholder="请选择技术方向">
+          <el-select v-model="inputForm.techDirection" placeholder="请选择技术方向" size="large">
             <el-option 
               v-for="item in techDirections" 
               :key="item.dictCode" 
@@ -21,21 +21,21 @@
         </el-form-item>
         
         <el-form-item label="期望薪资" prop="expectedSalary" required>
-          <el-input v-model.number="inputForm.expectedSalary" type="number" placeholder="请输入期望薪资（元）" />
+          <el-input v-model.number="inputForm.expectedSalary" type="number" placeholder="请输入期望薪资（元/月）" size="large" />
         </el-form-item>
         
         <!-- 非必填项 -->
-        <el-form-item label="限定时间">
-          <el-input v-model.number="inputForm.timeLimit" type="number" placeholder="请输入限定时间（分钟）" />
+        <el-form-item label="答题时间限制">
+          <el-input v-model.number="inputForm.timeLimit" type="number" placeholder="请输入限定时间（分钟，默认30分钟）" size="large" />
         </el-form-item>
         
-        <el-form-item label="就业城市">
-          <el-input v-model="inputForm.city" placeholder="请输入就业城市" />
+        <el-form-item label="目标就业城市">
+          <el-input v-model="inputForm.city" placeholder="请输入您期望就业的城市" size="large" />
         </el-form-item>
         
-        <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="loading">开始挑战</el-button>
-          <el-button @click="goBack">返回首页</el-button>
+        <el-form-item class="button-group">
+          <el-button type="primary" @click="handleSubmit" :loading="loading" size="large">开始挑战</el-button>
+          <el-button @click="goBack" size="large">返回首页</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -122,9 +122,20 @@ const handleSubmit = async () => {
         console.log('生成题目响应:', response)
         
         if (response.code === 200) {
-          ElMessage.success('题目生成成功')
+          // 检查是否来自降级方案
+          const msg = response.msg || ''
+          if (msg.includes('已自动从题库中找到')) {
+            ElMessage.warning(msg)
+          } else {
+            ElMessage.success(msg || '题目生成成功')
+          }
+          
           // 保存题目数据到localStorage
-          localStorage.setItem('currentQuestion', JSON.stringify(response.data))
+          const questionData = {
+            ...response.data,
+            timeLimit: inputForm.timeLimit || 0 // 添加限时时间（分钟转秒）
+          }
+          localStorage.setItem('currentQuestion', JSON.stringify(questionData))
           console.log('跳转到答题页，题目数据:', response.data)
           router.push('/question/answer')
         } else {
@@ -146,25 +157,34 @@ const goBack = () => {
 
 <style scoped>
 .question-input-container {
-  padding: 20px;
-  max-width: 800px;
+  padding: 40px;
+  max-width: 900px;
   margin: 0 auto;
 }
 
 .question-input-container h2 {
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   color: #303133;
   text-align: center;
+  font-size: 32px;
+  font-weight: 600;
 }
 
 .input-card {
   background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  padding: 50px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
 }
 
 .el-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 30px;
+}
+
+.button-group {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
 }
 </style>

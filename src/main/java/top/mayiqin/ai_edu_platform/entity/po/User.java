@@ -71,10 +71,28 @@ public class User {
     private Integer averageScore;
 
     /**
+     * 状态（0-正常 1-禁用）
+     */
+    @TableField(value = "status")
+    private String status;
+
+    /**
+     * 角色（user-普通用户 admin-管理员）
+     */
+    @TableField(value = "role")
+    private String role;
+
+    /**
      * 注册时间
      */
     @TableField(value = "create_time")
     private Date createTime;
+
+    /**
+     * 更新时间
+     */
+    @TableField(value = "update_time")
+    private Date updateTime;
 
     /**
      * 存储JWT令牌，仅用于前端返回

@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  # 后端应用服务
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_edu_backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      # 数据库配置（连接到外部 MySQL）
+      SPRING_DATASOURCE_URL: jdbc:mysql://host.docker.internal:3306/ai_edu_platform_test?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: MYQ1234567
+      # AI 配置（从环境变量读取）
+      AI_DASHSCOPE_API_KEY: ${AI_DASHSCOPE_API_KEY:-sk-f4dffa83276644ecae2f7bd1ad283705}
+      AI_DASHSCOPE_MODEL: ${AI_DASHSCOPE_MODEL:-qwen-plus}
+      AI_DASHSCOPE_TEMPERATURE: ${AI_DASHSCOPE_TEMPERATURE:-0.3}
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: prod
+      # JVM 参数
+      JAVA_OPTS: -Xms256m -Xmx512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
+    networks:
+      - myapp
+    volumes:
+      - backend_logs:/app/logs
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  backend_logs:
+    driver: local
+
+networks:
+  myapp:
+    external: true

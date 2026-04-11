@@ -12,11 +12,13 @@
             <result property="targetSalary" column="target_salary" />
             <result property="direction" column="direction" />
             <result property="analysis" column="analysis" />
+            <result property="isDeleted" column="is_deleted" />
             <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,question_name,question_desc,options,target_salary,direction,
-        analysis,create_time
+        analysis,is_deleted,create_time,update_time
     </sql>
 </mapper>

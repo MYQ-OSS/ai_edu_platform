@@ -63,6 +63,18 @@ public class UserInfoVO {
     private Integer averageScore;
 
     /**
+     * 用户状态（0-正常 1-禁用）
+     */
+    @Schema(description = "用户状态", example = "0")
+    private String status;
+
+    /**
+     * 用户角色（user-普通用户 admin-管理员）
+     */
+    @Schema(description = "用户角色", example = "admin")
+    private String role;
+
+    /**
      * 注册时间
      */
     @Schema(description = "注册时间", example = "2026-04-07 10:30:00")

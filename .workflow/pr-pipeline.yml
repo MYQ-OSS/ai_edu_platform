@@ -9,10 +9,10 @@ stages:
       - step: build@maven
         name: build_maven
         displayName: Maven 构建
-        # 支持6、7、8、9、10、11六个版本
-        jdkVersion: 8
-        # 支持2.2.1、3.2.5、3.3.9、3.5.2、3.5.3、3.5.4、3.6.1、3.6.3八个版本
-        mavenVersion: 3.3.9
+        # Java 21
+        jdkVersion: 21
+        # Maven 3.6.3
+        mavenVersion: 3.6.3
         # 构建命令
         commands:
           - mvn -B clean package -Dmaven.test.skip=true
@@ -26,15 +26,35 @@ stages:
       - step: publish@general_artifacts
         name: publish_general_artifacts
         displayName: 上传制品
-        # 上游构建任务定义的产物名，默认BUILD_ARTIFACT
+        # 上游构建任务定义的产物名,默认BUILD_ARTIFACT
         dependArtifact: BUILD_ARTIFACT
-        # 构建产物制品库，默认default，系统默认创建
-        artifactRepository: default
-        # 上传到制品库时的制品命名，默认output
+        # 上传到制品库时的制品命名,默认output
         artifactName: output
         dependsOn: build_maven
+  - stage: 
+    name: frontend-build
+    displayName: 前端构建
+    steps:
+      - step: build@nodejs
+        name: build_frontend
+        displayName: Node.js 构建
+        nodeVersion: 18.20.0
+        commands:
+          - cd ai_edu_platform_frontend
+          - npm install
+          - npm run build
+        artifacts:
+          - name: FRONTEND_ARTIFACT
+            path:
+              - ./ai_edu_platform_frontend/dist
+      - step: publish@general_artifacts
+        name: publish_frontend_artifacts
+        displayName: 上传前端制品
+        dependArtifact: FRONTEND_ARTIFACT
+        artifactName: frontend-output
+        dependsOn: build_frontend
 triggers:
   pr:
     branches:
       include:
-        - master
+        - main

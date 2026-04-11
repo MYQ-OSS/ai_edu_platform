@@ -20,9 +20,14 @@ CREATE TABLE t_user
     experience    TEXT        DEFAULT NULL COMMENT '项目/工作经历',
     answer_times  INT         DEFAULT NULL COMMENT '答题数量',
     average_score INT         DEFAULT NULL COMMENT '答题平均分',
+    status        CHAR(1)     DEFAULT '0' COMMENT '状态（0-正常 1-禁用）',
+    role          VARCHAR(20) DEFAULT 'user' COMMENT '角色（user-普通用户 admin-管理员）',
     create_time   DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '注册时间',
+    update_time   DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (id),
-    UNIQUE KEY uk_username (username) COMMENT '账号唯一约束'
+    UNIQUE KEY uk_username (username) COMMENT '账号唯一约束',
+    INDEX idx_status (status) COMMENT '状态索引',
+    INDEX idx_role (role) COMMENT '角色索引'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户基础信息表';
 
@@ -39,8 +44,11 @@ CREATE TABLE t_question
     target_salary INT          NOT NULL COMMENT '目标薪资',
     direction     VARCHAR(100) NOT NULL COMMENT '技术方向（如Java后端开发）',
     analysis      TEXT     DEFAULT NULL COMMENT 'AI生成的题目解析',
+    is_deleted    CHAR(1)  DEFAULT '0' COMMENT '逻辑删除（0-未删除 1-已删除）',
     create_time   DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-    PRIMARY KEY (id)
+    update_time   DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    PRIMARY KEY (id),
+    INDEX idx_is_deleted (is_deleted) COMMENT '逻辑删除索引'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='AI生成题库表';
 
@@ -136,3 +144,15 @@ CREATE TABLE t_quiz_collect
     INDEX idx_question_id (question_id) COMMENT '提升查询题目被收藏情况的效率'
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4 COMMENT ='用户题目收藏表';
+
+-- ----------------------------
+-- 初始化测试数据
+-- ----------------------------
+
+-- 插入管理员账号（密码：123456，BCrypt加密后的哈希值）
+INSERT INTO t_user (username, password, identity, salary, experience, status, role)
+VALUES ('admin_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '系统管理员', 30000, '5年开发经验', '0', 'admin');
+
+-- 插入普通用户（用于测试权限控制）
+INSERT INTO t_user (username, password, identity, salary, experience, status, role)
+VALUES ('user_test', '$2a$10$N.zmdr9k7uOCQb376NoUnuTJ8iAt6Z5EHsM8lE9lBOsl7iKTVKIUi', '张三', 15000, '2年开发经验', '0', 'user');

@@ -1,8 +1,12 @@
 package top.mayiqin.ai_edu_platform.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionAddDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
+import top.mayiqin.ai_edu_platform.entity.dto.QuestionListQueryDTO;
+import top.mayiqin.ai_edu_platform.entity.vo.QuestionListVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuestionVO;
 
 /**
@@ -13,4 +17,18 @@ import top.mayiqin.ai_edu_platform.entity.vo.QuestionVO;
 public interface QuestionService extends IService<Question> {
 
     QuestionVO generateQuestion(QuestionGenerateDTO request);
+
+    /**
+     * 管理员手动新增题目
+     * @param dto 题目信息
+     * @return 题目ID
+     */
+    Long addQuestion(QuestionAddDTO dto);
+
+    /**
+     * 分页查询题目列表
+     * @param queryDTO 查询条件
+     * @return 分页结果
+     */
+    Page<QuestionListVO> getQuestionList(QuestionListQueryDTO queryDTO);
 }

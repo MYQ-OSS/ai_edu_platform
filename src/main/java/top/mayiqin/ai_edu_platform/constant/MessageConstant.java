@@ -21,6 +21,7 @@ public class MessageConstant {
     public static final String DATA_NOT_FOUND = "数据不存在";
     public static final String PARAMETER_ERROR = "参数错误";
     public static final String PERMISSION_DENIED = "权限不足";
+    public static final String ADMIN_PERMISSION_DENIED = "权限不足，仅管理员可操作";
     public static final String GET_TECH_DIRECTIONS_SUCCESS = "获取技术方向成功";
 
     // --- 用户模块 ---
@@ -30,16 +31,23 @@ public class MessageConstant {
     public static final String USERNAME_OR_PASSWORD_ERROR = "用户名或密码错误";
     public static final String USERNAME_ALREADY_EXISTS = "用户名已存在";
     public static final String GET_LEARNING_HISTORY_SUCCESS = "获取学习足迹成功";
+    public static final String USER_NOT_FOUND = "用户不存在";
+    public static final String PASSWORD_RESET_SUCCESS = "密码重置成功";
+    public static final String USER_STATUS_UPDATE_SUCCESS = "用户状态更新成功";
 
     // --- 题目与答题模块 ---
     public static final String QUESTION_GENERATE_SUCCESS = "题目生成成功";
     public static final String QUIZ_SUBMIT_SUCCESS = "答题结果提交成功";
     public static final String GET_QUIZ_REPORT_SUCCESS = "获取答题报告成功";
+    public static final String GET_COLLECT_LIST_SUCCESS = "获取收藏列表成功";
     public static final String QUESTION_NOT_EXIST = "题目不存在";
     public static final String REQUEST_PARAM_EMPTY = "请求参数不能为空";
     public static final String SAVE_QUESTION_FAILED = "题目保存失败";
     public static final String UPDATE_COLLECT_STATUS_FAILED = "更新收藏状态失败";
     public static final String ADD_COLLECT_RECORD_FAILED = "新增收藏记录失败";
+    public static final String QUESTION_ADD_SUCCESS = "题目添加成功";
+    public static final String QUESTION_UPDATE_SUCCESS = "题目更新成功";
+    public static final String QUESTION_DELETE_SUCCESS = "题目删除成功";
 
     // --- 薪资评估模块 ---
     public static final String SALARY_EVALUATE_SUCCESS = "薪资评估报告生成成功";
@@ -54,6 +62,8 @@ public class MessageConstant {
     public static final String AI_RESPONSE_FORMAT_ERROR = "AI返回数据格式错误";
     public static final String AI_SERVICE_CALL_FAILED = "AI 服务调用失败，请检查 API Key 和网络连接";
     public static final String AI_GENERATED_CONTENT_INVALID = "AI生成的内容格式错误";
+    public static final String AI_GENERATE_FALLBACK_SUCCESS = "AI生成题目暂时失败，已自动从题库中找到符合要求的题目";
+    public static final String NO_SUITABLE_QUESTION_FOUND = "AI生成题目失败且找不到符合要求的题目";
 
     // --- 拦截器与认证相关 ---
     public static final String AUTH_HEADER_NAME = "Authorization";

@@ -14,7 +14,17 @@ export const useUserStore = defineStore('user', {
     getToken: (state) => state.token,
     getIsLoggedIn: (state) => state.isLoggedIn,
     getLoading: (state) => state.loading,
-    getError: (state) => state.error
+    getError: (state) => state.error,
+    // 判断是否为管理员
+    isAdmin: (state) => {
+      // 优先使用 state 中的 userInfo（最新数据）
+      if (state.userInfo && state.userInfo.role) {
+        return state.userInfo.role === 'admin'
+      }
+      // 降级方案：从 localStorage 读取（页面刷新后 state 丢失）
+      const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null')
+      return userInfo && userInfo.role === 'admin'
+    }
   },
   actions: {
     // 注册
@@ -59,6 +69,8 @@ export const useUserStore = defineStore('user', {
         const response = await userApi.getUserInfo()
         if (response.code === 200) {
           this.userInfo = response.data
+          // 保存到 localStorage，供 isAdmin getter 使用
+          localStorage.setItem('userInfo', JSON.stringify(response.data))
         }
         this.loading = false
         return response
@@ -105,12 +117,49 @@ export const useUserStore = defineStore('user', {
         throw error
       }
     },
+    // 获取用户答题统计信息
+    async getQuizStatistics() {
+      this.loading = true
+      this.error = null
+      try {
+        const response = await userApi.getQuizStatistics()
+        if (response.code === 200) {
+          // 更新本地用户信息中的答题统计
+          if (this.userInfo) {
+            this.userInfo.answerTimes = response.data.answerTimes
+            this.userInfo.averageScore = response.data.averageScore
+          }
+        }
+        this.loading = false
+        return response
+      } catch (error) {
+        this.error = error.message
+        this.loading = false
+        throw error
+      }
+    },
     // 登出
     logout() {
       this.userInfo = null
       this.token = null
       this.isLoggedIn = false
       localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+    },
+    
+    // 刷新用户信息（用于确保角色等数据是最新的）
+    async refreshUserInfo() {
+      if (!this.token) return
+      try {
+        const response = await userApi.getUserInfo()
+        if (response.code === 200) {
+          this.userInfo = response.data
+          localStorage.setItem('userInfo', JSON.stringify(response.data))
+          return response
+        }
+      } catch (error) {
+        console.error('刷新用户信息失败:', error)
+      }
     }
   }
 })

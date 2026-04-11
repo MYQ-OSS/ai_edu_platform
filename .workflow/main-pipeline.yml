@@ -1,6 +1,6 @@
 version: '1.0'
-name: master-pipeline
-displayName: MasterPipeline
+name: main-pipeline
+displayName: MainPipeline
 stages:
   - stage: 
     name: compile
@@ -9,10 +9,10 @@ stages:
       - step: build@maven
         name: build_maven
         displayName: Maven 构建
-        # 支持6、7、8、9、10、11六个版本
-        jdkVersion: 8
-        # 支持2.2.1、3.2.5、3.3.9、3.5.2、3.5.3、3.5.4、3.6.1、3.6.3八个版本
-        mavenVersion: 3.3.9
+        # Java 21
+        jdkVersion: 21
+        # Maven 3.6.3
+        mavenVersion: 3.6.3
         # 构建命令
         commands:
           - mvn -B clean package -Dmaven.test.skip=true
@@ -32,20 +32,45 @@ stages:
         artifactName: output
         dependsOn: build_maven
   - stage: 
+    name: frontend-build
+    displayName: 前端构建
+    steps:
+      - step: build@nodejs
+        name: build_frontend
+        displayName: Node.js 构建
+        nodeVersion: 18.20.0
+        commands:
+          - cd ai_edu_platform_frontend
+          - npm install
+          - npm run build
+        artifacts:
+          - name: FRONTEND_ARTIFACT
+            path:
+              - ./ai_edu_platform_frontend/dist
+      - step: publish@general_artifacts
+        name: publish_frontend_artifacts
+        displayName: 上传前端制品
+        dependArtifact: FRONTEND_ARTIFACT
+        artifactName: frontend-output
+        dependsOn: build_frontend
+  - stage: 
     name: release
-    displayName: 发布
+    displayName: 发布制品
     steps:
       - step: publish@release_artifacts
         name: publish_release_artifacts
-        displayName: '发布'
-        # 上游上传制品任务的产出
+        displayName: '发布后端制品'
         dependArtifact: output
-        # 发布制品版本号
         version: '1.0.0.0'
-        # 是否开启版本号自增，默认开启
+        autoIncrement: true
+      - step: publish@release_artifacts
+        name: publish_frontend_release
+        displayName: '发布前端制品'
+        dependArtifact: frontend-output
+        version: '1.0.0.0'
         autoIncrement: true
 triggers:
   push:
     branches:
       include:
-        - master
+        - main

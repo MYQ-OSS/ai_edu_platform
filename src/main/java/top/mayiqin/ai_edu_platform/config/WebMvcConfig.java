@@ -22,11 +22,13 @@ public class WebMvcConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/user/login",      // 登录接口（实际路径：/api/user/login）
                         "/user/register",   // 注册接口（实际路径：/api/user/register）
+                        "/dict/**",         // 字典接口公开访问
                         "/doc.html",        // Knife4j 文档首页
                         "/webjars/**",      // Swagger 静态资源
                         "/swagger-resources/**",  // Swagger 资源配置
                         "/v3/api-docs/**",   // OpenAPI 3 文档 JSON
-                        "/favicon.ico"       // 网站图标（浏览器自动请求）
+                        "/favicon.ico",       // 网站图标（浏览器自动请求）
+                        "/error"              // 错误页面
                 );
     }
 }

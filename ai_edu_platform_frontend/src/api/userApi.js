@@ -42,3 +42,11 @@ export const getLearningHistory = () => {
     method: "GET",
   });
 };
+
+// 获取用户答题统计信息
+export const getQuizStatistics = () => {
+  return request({
+    url: "/user/quiz-statistics",
+    method: "GET",
+  });
+};

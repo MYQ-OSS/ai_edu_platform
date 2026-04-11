@@ -29,4 +29,9 @@ export const setupRouterGuard = (router) => {
       next();
     }
   });
+
+  // 路由跳转后滚动到顶部
+  router.afterEach(() => {
+    window.scrollTo(0, 0);
+  });
 };

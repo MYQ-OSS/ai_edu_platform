@@ -1,5 +1,6 @@
 package top.mayiqin.ai_edu_platform.interceptor;
 
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -44,12 +45,31 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
         }
         
         try {
-            // 使用JwtUtil验证token并解析userId
-            Long userId = JwtUtil.getUserIdFromToken(jwtProperties.getSecretKey(), token);
+            // 使用JwtUtil验证token并解析Claims
+            log.debug("🔑 当前使用的JWT密钥: {}", jwtProperties.getSecretKey());
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getSecretKey(), token);
             
-            // 将userId存入当前线程的ThreadLocal
+            // 提取userId
+            Object userIdObj = claims.get("userId");
+            if (userIdObj == null) {
+                log.warn("Token中缺少userId字段");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write(String.format("{\"code\":401,\"msg\":\"%s\",\"data\":null}", "Token中缺少用户ID"));
+                return false;
+            }
+            Long userId = ((Number) userIdObj).longValue();
+            
+            // 提取role（默认为user）
+            String role = claims.get("role", String.class);
+            if (role == null || role.isEmpty()) {
+                role = "user"; // 默认角色
+            }
+            
+            // 将userId和role存入当前线程的ThreadLocal
             UserContext.setCurrentUserId(userId);
-            log.info("✅ Token验证成功 - URI: {}, userId: {}", request.getRequestURI(), userId);
+            UserContext.setCurrentUserRole(role);
+            log.info("✅ Token验证成功 - URI: {}, userId: {}, role: {}", request.getRequestURI(), userId, role);
         } catch (IllegalArgumentException e) {
             // token无效或过期，返回401状态码
             log.warn("❌ Token验证失败 - URI: {}, 错误: {}", request.getRequestURI(), e.getMessage());
@@ -65,6 +85,6 @@ public class JwtAuthenticationInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         UserContext.remove();
-        log.debug("已清除ThreadLocal中的用户ID");
+        log.debug("已清除ThreadLocal中的用户信息");
     }
 }

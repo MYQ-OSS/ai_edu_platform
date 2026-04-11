@@ -114,4 +114,21 @@ public class UserController {
         return Result.success(MessageConstant.GET_LEARNING_HISTORY_SUCCESS, learningHistory);
     }
 
+    /**
+     * 获取用户答题统计信息
+     * 返回答题数量和平均分数
+     *
+     * @return 响应结果
+     */
+    @Operation(summary = "获取用户答题统计信息")
+    @GetMapping("/quiz-statistics")
+    public Result<Map<String, Object>> getQuizStatistics() {
+        log.info("获取用户答题统计信息请求");
+        
+        // 调用服务层获取答题统计信息
+        Map<String, Object> statistics = userService.getQuizStatistics();
+        
+        return Result.success("获取成功", statistics);
+    }
+
 }

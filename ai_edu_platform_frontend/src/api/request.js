@@ -10,8 +10,14 @@ const request = axios.create({
 request.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
+    console.log('🔑 请求拦截器 - Token:', token ? `${token.substring(0, 20)}...` : '无')
+    console.log('🔑 请求拦截器 - URL:', config.url)
+    
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
+      console.log('✅ 已添加 Authorization header')
+    } else {
+      console.warn('⚠️ 未找到 Token，请求将不带认证信息')
     }
     return config
   },
@@ -29,8 +35,10 @@ request.interceptors.response.use(
     if (error.response) {
       switch (error.response.status) {
         case 401:
+          // Token 无效、过期或签名错误，清除本地存储并跳转登录
           localStorage.removeItem('token')
           localStorage.removeItem('userInfo')
+          ElMessage.error('登录已过期，请重新登录')
           window.location.href = '/login'
           break
         case 403:

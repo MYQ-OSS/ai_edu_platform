@@ -26,6 +26,12 @@ public class UserUpdateDTO {
     private Long id;
     
     /**
+     * 用户名（可选，如需修改则提供）
+     */
+    @Schema(description = "用户名", example = "zhangsan")
+    private String username;
+    
+    /**
      * 密码（可选，如需修改则提供）
      */
     @Schema(description = "密码（可选，明文传输）", example = "123456")

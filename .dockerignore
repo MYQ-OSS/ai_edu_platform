@@ -1,0 +1,44 @@
+# Docker 忽略文件
+# ====================================
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+.settings
+.classpath
+.project
+target/
+
+# Maven
+mvnw
+mvnw.cmd
+.mvn/
+
+# 前端项目（后端镜像不需要）
+ai_edu_platform_frontend/
+
+# 文档
+*.md
+LICENSE
+HELP.md
+
+# 工作流配置
+.workflow/
+
+# 日志
+logs/
+*.log
+
+# 临时文件
+*.tmp
+*.swp
+*~
+
+# Docker
+Dockerfile
+docker-compose.yml

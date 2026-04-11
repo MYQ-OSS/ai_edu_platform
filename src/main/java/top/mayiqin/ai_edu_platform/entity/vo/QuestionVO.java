@@ -49,4 +49,10 @@ public class QuestionVO {
      */
     @Schema(description = "技术方向", example = "Java后端开发")
     private String direction;
+
+    /**
+     * 是否来自降级方案（AI失败后从题库取出）
+     */
+    @Schema(description = "是否来自降级方案", example = "false")
+    private Boolean fromFallback;
 }

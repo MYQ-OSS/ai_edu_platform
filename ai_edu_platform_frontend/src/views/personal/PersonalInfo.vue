@@ -27,6 +27,10 @@
           <label class="info-label">答题统计：</label>
           <span class="info-value">答题次数：<strong>{{ userForm?.answerTimes || 0 }}</strong> | 平均得分：<strong class="score">{{ userForm?.averageScore || 0 }}</strong></span>
         </div>
+        <div class="info-row experience-row">
+          <label class="info-label">项目经历：</label>
+          <span class="info-value experience-text">{{ userForm?.experience || '未设置' }}</span>
+        </div>
       </div>
       <div class="button-section">
         <el-button type="primary" @click="handleEditInfo" class="edit-btn" size="large">
@@ -99,21 +103,69 @@
           </div>
         </div>
       </el-tab-pane>
+
+      <el-tab-pane label="我的收藏" name="my-collect">
+        <div class="tab-content">
+          <el-table :data="collectList" style="width: 100%" stripe v-loading="collectLoading">
+            <el-table-column prop="questionName" label="题目名称" min-width="250" show-overflow-tooltip align="center" />
+            <el-table-column prop="direction" label="技术方向" width="150" align="center" />
+            <el-table-column prop="targetSalary" label="目标薪资" width="120" align="center">
+              <template #default="scope">
+                <span class="salary-badge">{{ scope.row.targetSalary }}元</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="答题状态" width="120" align="center">
+              <template #default="scope">
+                <el-tag :type="isAnswered(scope.row.questionId) ? 'success' : 'info'" size="small">
+                  {{ isAnswered(scope.row.questionId) ? '已答题' : '未答题' }}
+                </el-tag>
+              </template>
+            </el-table-column>
+            <el-table-column prop="collectTime" label="收藏时间" min-width="180" align="center">
+              <template #default="scope">
+                {{ formatTime(scope.row.collectTime) }}
+              </template>
+            </el-table-column>
+            <el-table-column label="操作" width="200" align="center" fixed="right">
+              <template #default="scope">
+                <div class="action-buttons">
+                  <el-button type="primary" size="default" @click="viewCollectDetail(scope.row.questionId)" :loading="collectLoading">查看详情</el-button>
+                  <el-button type="danger" size="default" @click="cancelCollect(scope.row.questionId)" :loading="collectLoading">取消收藏</el-button>
+                </div>
+              </template>
+            </el-table-column>
+          </el-table>
+          <div v-if="collectList.length === 0" class="empty-state">
+            <el-empty description="暂无收藏题目" />
+          </div>
+        </div>
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { Edit, Back } from '@element-plus/icons-vue'
 import { useUserStore } from '../../store/userStore'
+import { getCollectList, toggleCollect } from '../../api/questionApi'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 const userFormRef = ref(null)
-const activeTab = ref('answer-history')
+
+// 根据 URL 参数设置默认激活的标签页
+const getDefaultTab = () => {
+  const tab = route.query.tab
+  if (tab === 'salary-report') return 'salary-report'
+  if (tab === 'my-collect') return 'my-collect'
+  return 'answer-history' // 默认显示答题历史
+}
+
+const activeTab = ref(getDefaultTab())
 
 const userForm = reactive({
   id: '',
@@ -132,6 +184,10 @@ const answerHistoryList = ref([])
 // 薪资报告数据
 const salaryReportList = ref([])
 
+// 收藏列表数据
+const collectList = ref([])
+const collectLoading = ref(false)
+
 // 正确率趋势数据（用于图表）
 const accuracyTrendData = ref([])
 
@@ -146,6 +202,7 @@ onMounted(async () => {
   if (userStore.isLoggedIn) {
     await loadUserInfo()
     await loadLearningHistory()
+    await loadCollectList()
   }
 })
 
@@ -237,6 +294,92 @@ const viewAnswerDetail = (id) => {
 const viewSalaryDetail = (id) => {
   // 跳转到薪资报告详情页
   router.push(`/personal/salary-detail/${id}`)
+}
+
+// 判断题目是否已答题
+const isAnswered = (questionId) => {
+  return answerHistoryList.value.some(record => record.questionId === questionId)
+}
+
+// 加载收藏列表
+const loadCollectList = async () => {
+  try {
+    collectLoading.value = true
+    const response = await getCollectList()
+    if (response.code === 200) {
+      collectList.value = response.data || []
+    }
+  } catch (error) {
+    ElMessage.error('获取收藏列表失败')
+  } finally {
+    collectLoading.value = false
+  }
+}
+
+// 查看收藏题目详情
+const viewCollectDetail = async (questionId) => {
+  try {
+    // 先检查该题目是否有答题记录
+    const answerRecord = answerHistoryList.value.find(record => record.questionId === questionId)
+    
+    if (answerRecord) {
+      // 有答题记录，跳转到答题详情页
+      router.push(`/personal/answer-detail/${answerRecord.recordId}`)
+    } else {
+      // 没有答题记录，从收藏列表中获取题目信息并跳转到答题页面
+      const collectItem = collectList.value.find(item => item.questionId === questionId)
+      if (!collectItem) {
+        ElMessage.error('题目不存在')
+        return
+      }
+      
+      // 构造题目数据并存储到localStorage
+      const questionData = {
+        questionId: collectItem.questionId,
+        questionName: collectItem.questionName,
+        questionDesc: collectItem.questionDesc,
+        direction: collectItem.direction,
+        targetSalary: collectItem.targetSalary,
+        options: collectItem.options,
+        timeLimit: 0 // 收藏题目默认不限时
+      }
+      
+      localStorage.setItem('currentQuestion', JSON.stringify(questionData))
+      
+      // 跳转到答题页面，并标记来源为个人中心
+      router.push({
+        path: '/question/answer',
+        query: { from: 'personal' }
+      })
+    }
+  } catch (error) {
+    ElMessage.error('跳转失败')
+  }
+}
+
+// 取消收藏
+const cancelCollect = async (questionId) => {
+  try {
+    await ElMessageBox.confirm('确定要取消收藏该题目吗？', '提示', {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    })
+    
+    collectLoading.value = true
+    const response = await toggleCollect(questionId)
+    if (response.code === 200) {
+      ElMessage.success('取消收藏成功')
+      // 刷新收藏列表
+      await loadCollectList()
+    }
+  } catch (error) {
+    if (error !== 'cancel') {
+      ElMessage.error('取消收藏失败')
+    }
+  } finally {
+    collectLoading.value = false
+  }
 }
 
 // 格式化时间
@@ -345,6 +488,16 @@ const formatTime = (timeStr) => {
 .info-value .score {
   color: #67c23a;
   font-size: 18px;
+}
+
+.experience-row {
+  align-items: flex-start;
+}
+
+.experience-text {
+  white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.8;
 }
 
 .button-section {
@@ -467,6 +620,14 @@ const formatTime = (timeStr) => {
   border-color: #66b1ff;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+}
+
+/* 收藏列表操作按钮 */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
 }
 
 /* 响应式设计 */

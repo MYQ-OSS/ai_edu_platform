@@ -131,6 +131,12 @@
             <artifactId>spring-ai-openai-spring-boot-starter</artifactId>
             <version>1.0.0-M6</version>
         </dependency>
+
+        <!-- Spring Boot AOP 支持，用于实现面向切面编程（如权限校验） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

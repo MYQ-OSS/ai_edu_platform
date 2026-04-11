@@ -5,12 +5,12 @@
     
     <div class="edit-card">
       <el-form :model="editForm" :rules="rules" ref="editFormRef" label-width="120px">
-        <el-form-item label="用户名">
-          <el-input v-model="editForm.username" disabled />
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="editForm.username" placeholder="请输入用户名" maxlength="50" show-word-limit />
         </el-form-item>
         
         <el-form-item label="用户身份" prop="identity">
-          <el-input v-model="editForm.identity" placeholder="请输入用户身份（如：学生、前端工程师等）" maxlength="23" show-word-limit />
+          <el-input v-model="editForm.identity" placeholder="请输入用户身份（如：学生）" maxlength="23" show-word-limit />
         </el-form-item>
         
         <el-form-item label="期望薪资" prop="salary">
@@ -96,6 +96,10 @@ const validateConfirmPassword = (rule, value, callback) => {
 }
 
 const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    { max: 50, message: '用户名长度不超过50位', trigger: 'blur' }
+  ],
   identity: [
     { max: 23, message: '用户身份长度不超过23位', trigger: 'blur' }
   ],
@@ -137,8 +141,9 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        // 构造提交数据，如果密码为空则不传递
+        // 构造提交数据
         const submitData = {
+          username: editForm.username,
           identity: editForm.identity,
           salary: editForm.salary,
           experience: editForm.experience

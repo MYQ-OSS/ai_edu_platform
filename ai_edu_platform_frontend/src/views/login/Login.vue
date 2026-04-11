@@ -54,14 +54,28 @@ const handleLogin = async () => {
     if (valid) {
       try {
         const response = await userStore.login(loginForm)
+        console.log('登录响应:', response)
+        
         if (response.code === 200) {
           ElMessage.success('登录成功')
+          
+          // 获取用户信息（包含 role）
           await userStore.fetchUserInfo()
+          console.log('用户信息:', userStore.userInfo)
+          
+          // 将 role 信息存入 localStorage，供 isAdmin getter 使用
+          const userInfo = userStore.userInfo
+          if (userInfo) {
+            localStorage.setItem('userInfo', JSON.stringify(userInfo))
+            console.log('已保存 userInfo 到 localStorage:', userInfo)
+          }
+          
           router.push('/home')
         } else {
-          ElMessage.error(response.msg)
+          ElMessage.error(response.msg || '登录失败')
         }
       } catch (error) {
+        console.error('登录错误:', error)
         ElMessage.error(error.response?.data?.msg || '登录失败，请稍后重试')
       }
     }

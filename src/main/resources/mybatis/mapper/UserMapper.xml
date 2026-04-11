@@ -13,12 +13,15 @@
             <result property="experience" column="experience" />
             <result property="answerTimes" column="answer_times" />
             <result property="averageScore" column="average_score" />
+            <result property="status" column="status" />
+            <result property="role" column="role" />
             <result property="createTime" column="create_time" />
+            <result property="updateTime" column="update_time" />
     </resultMap>
 
     <sql id="Base_Column_List">
         id,username,password,identity,salary,experience,
-        answer_times,average_score,create_time
+        answer_times,average_score,status,role,create_time,update_time
     </sql>
 
 </mapper>

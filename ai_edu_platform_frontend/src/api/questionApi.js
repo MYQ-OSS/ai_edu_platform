@@ -43,3 +43,19 @@ export const collectQuiz = (data) => {
     data,
   });
 };
+
+// 5. 获取收藏列表接口
+export const getCollectList = () => {
+  return request({
+    url: "/quiz/collect/list",
+    method: "GET",
+  });
+};
+
+// 6. 切换收藏状态接口
+export const toggleCollect = (questionId) => {
+  return request({
+    url: `/quiz/collect/toggle/${questionId}`,
+    method: "POST",
+  });
+};

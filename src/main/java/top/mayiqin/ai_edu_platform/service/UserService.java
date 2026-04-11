@@ -1,5 +1,7 @@
 package top.mayiqin.ai_edu_platform.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import top.mayiqin.ai_edu_platform.entity.dto.UserListQueryDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.LearningHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserLoginDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.UserRegisterDTO;
@@ -7,6 +9,7 @@ import top.mayiqin.ai_edu_platform.entity.dto.UserUpdateDTO;
 import top.mayiqin.ai_edu_platform.entity.po.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.mayiqin.ai_edu_platform.entity.vo.UserInfoVO;
+import top.mayiqin.ai_edu_platform.entity.vo.UserListVO;
 
 import java.util.Map;
 
@@ -51,6 +54,34 @@ public interface UserService extends IService<User> {
      * @return 学习足迹数据
      */
     LearningHistoryVO getLearningHistory();
+
+    /**
+     * 获取用户答题统计信息
+     * 返回答题数量和平均分数
+     *
+     * @return 包含答题数量和平均分数的Map
+     */
+    Map<String, Object> getQuizStatistics();
+
+    /**
+     * 后台查询用户列表（分页）
+     * @param queryDTO 查询条件
+     * @return 分页结果
+     */
+    Page<UserListVO> getUserList(UserListQueryDTO queryDTO);
+
+    /**
+     * 更新用户状态（禁用/启用）
+     * @param userId 用户ID
+     * @param status 目标状态（0-正常，1-禁用）
+     */
+    void updateUserStatus(Long userId, String status);
+
+    /**
+     * 重置用户密码
+     * @param userId 用户ID
+     */
+    void resetUserPassword(Long userId);
 }
 
 

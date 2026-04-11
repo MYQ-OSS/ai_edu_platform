@@ -20,6 +20,36 @@
       <div class="report-content">
         <h3>答题分析</h3>
         
+        <!-- 用户选择的技术栈 -->
+        <div v-if="report.userOptions" class="analysis-section">
+          <h4>您选择的技术栈</h4>
+          <div class="tech-tags">
+            <el-tag
+              v-for="(option, index) in parseUserOptions(report.userOptions)"
+              :key="index"
+              type="primary"
+              size="large"
+            >
+              {{ option.label }}
+            </el-tag>
+          </div>
+        </div>
+        
+        <!-- 正确选项 -->
+        <div v-if="report.trueOptions" class="analysis-section">
+          <h4>正确选项</h4>
+          <div class="tech-tags">
+            <el-tag
+              v-for="(option, index) in parseTrueOptions(report.trueOptions)"
+              :key="index"
+              type="success"
+              size="large"
+            >
+              {{ option.label }}
+            </el-tag>
+          </div>
+        </div>
+        
         <div v-if="report.comment" class="analysis-section">
           <h4>评价</h4>
           <p>{{ report.comment }}</p>
@@ -61,7 +91,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { getQuizReport, collectQuiz } from '../../api/questionApi'
+import { getQuizReport, toggleCollect } from '../../api/questionApi'
 import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
@@ -102,9 +132,8 @@ const loadReport = async (recordId) => {
     const response = await getQuizReport(recordId)
     if (response.code === 200) {
       Object.assign(report, response.data)
-      // TODO: 查询收藏状态（如果后端有接口）
-      // 暂时默认为未收藏
-      isCollected.value = false
+      // 查询收藏状态
+      await checkCollectStatus()
     } else {
       ElMessage.error(response.msg || '获取报告失败')
       router.push('/question/input')
@@ -114,6 +143,22 @@ const loadReport = async (recordId) => {
     router.push('/question/input')
   } finally {
     loading.value = false
+  }
+}
+
+// 检查收藏状态
+const checkCollectStatus = async () => {
+  try {
+    // 从个人中心接口获取收藏列表，检查当前题目是否已收藏
+    const { getCollectList } = await import('../../api/questionApi')
+    const response = await getCollectList()
+    if (response.code === 200) {
+      const collectList = response.data || []
+      isCollected.value = collectList.some(item => item.questionId === report.questionId)
+    }
+  } catch (error) {
+    console.error('查询收藏状态失败:', error)
+    isCollected.value = false
   }
 }
 
@@ -145,13 +190,7 @@ const handleCollect = async () => {
   
   collectLoading.value = true
   try {
-    const requestData = {
-      userId: userStore.userInfo?.id,
-      questionId: report.questionId,
-      isCollect: !isCollected.value
-    }
-    
-    const response = await collectQuiz(requestData)
+    const response = await toggleCollect(report.questionId)
     
     if (response.code === 200) {
       isCollected.value = !isCollected.value
@@ -178,6 +217,24 @@ const getScoreClass = (score) => {
   if (score >= 80) return 'excellent'
   if (score >= 60) return 'pass'
   return 'fail'
+}
+
+// 解析用户选项
+const parseUserOptions = (userOptionsStr) => {
+  try {
+    return JSON.parse(userOptionsStr)
+  } catch (e) {
+    return []
+  }
+}
+
+// 解析正确选项
+const parseTrueOptions = (trueOptionsStr) => {
+  try {
+    return JSON.parse(trueOptionsStr)
+  } catch (e) {
+    return []
+  }
 }
 </script>
 
@@ -292,6 +349,14 @@ const getScoreClass = (score) => {
   margin: 10px 0 0 20px;
   line-height: 1.6;
   color: #606266;
+}
+
+/* 技术栈标签 */
+.tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .button-section {

@@ -29,6 +29,27 @@ public class SecurityConfig {
             "/favicon.ico"
     };
 
+    /**
+     * 完全公开访问的路径（无需任何认证）
+     */
+    private static final String[] PUBLIC_WHITELIST = {
+            "/user/login",
+            "/user/register",
+            "/dict/**",  // 字典接口公开访问
+            "/error"
+    };
+
+    /**
+     * JWT 认证路径（由 JWT 拦截器处理，Spring Security 不干预）
+     */
+    private static final String[] JWT_AUTH_PATHS = {
+            "/user/**",      // 用户相关接口
+            "/admin/**",     // 管理员接口
+            "/quiz/**",      // 题目/答题相关接口
+            "/question/**",  // 题库管理接口
+            "/salary/**"     // 薪资相关接口
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -38,8 +59,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Knife4j 文档相关路径放行
                         .requestMatchers(KNIFE4J_WHITELIST).permitAll()
-                        // 其他所有请求暂时全部放行（可根据需要调整）
-                        .anyRequest().permitAll()
+                        // 完全公开访问的路径（登录、注册等）
+                        .requestMatchers(PUBLIC_WHITELIST).permitAll()
+                        // JWT 认证路径（由 JWT 拦截器处理，Spring Security 不干预）
+                        .requestMatchers(JWT_AUTH_PATHS).permitAll()
+                        // 其他所有请求需要认证
+                        .anyRequest().authenticated()
                 )
                 // 允许 iframe 嵌套（Knife4j 需要）
                 .headers(headers -> headers

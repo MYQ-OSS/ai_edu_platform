@@ -2,6 +2,7 @@ package top.mayiqin.ai_edu_platform.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.context.annotation.Bean;
@@ -10,7 +11,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 /**
  * MyBatis-Plus 配置类
- * 配置分页插件和 Mapper 扫描路径
+ * 配置分页插件、逻辑删除和 Mapper 扫描路径
  * @author m'y'q
  */
 @Configuration
@@ -19,7 +20,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 public class MybatisPlusConfig {
 
     /**
-     * 添加分页插件
+     * 添加分页插件和乐观锁插件
      * 配置分页拦截器，设置数据库类型为 MySQL，并限制单页最大记录数为 500
      * 防止恶意请求导致性能问题或内存溢出
      *
@@ -40,6 +41,9 @@ public class MybatisPlusConfig {
         
         // 添加分页拦截器到链中
         interceptor.addInnerInterceptor(paginationInterceptor);
+        
+        // 添加乐观锁插件（可选）
+        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         
         return interceptor;
     }
