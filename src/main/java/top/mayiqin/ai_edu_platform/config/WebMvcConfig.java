@@ -28,7 +28,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
                         "/swagger-resources/**",  // Swagger 资源配置
                         "/v3/api-docs/**",   // OpenAPI 3 文档 JSON
                         "/favicon.ico",       // 网站图标（浏览器自动请求）
-                        "/error"              // 错误页面
+                        "/error",             // 错误页面
+                        "/actuator/**"        // Actuator 监控端点（用于 Docker 健康检查）
                 );
     }
 }

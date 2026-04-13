@@ -36,7 +36,8 @@ public class SecurityConfig {
             "/user/login",
             "/user/register",
             "/dict/**",  // 字典接口公开访问
-            "/error"
+            "/error",
+            "/actuator/**"  // Actuator 监控端点（用于 Docker 健康检查）
     };
 
     /**
