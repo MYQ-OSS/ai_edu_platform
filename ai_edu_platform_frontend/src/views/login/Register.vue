@@ -2,7 +2,13 @@
 <template>
   <div class="register-container">
     <div class="register-form">
-      <h2>注册</h2>
+      <div class="terminal-header">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="terminal-title">auth::register</span>
+      </div>
+      <h2><span class="prompt">$</span> 注册</h2>
       <el-form :model="registerForm" :rules="rules" ref="registerFormRef" label-width="80px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="registerForm.username" placeholder="请输入用户名" />
@@ -97,30 +103,117 @@ const goToLogin = () => {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  position: relative;
+  animation: terminal-fade-in 0.6s ease-out;
+}
+
+/* 装饰光斑 */
+.register-container::before {
+  content: '';
+  position: fixed;
+  top: 15%;
+  right: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: corner-pulse 9s ease-in-out infinite;
+  z-index: 0;
+}
+
+.register-container::after {
+  content: '';
+  position: fixed;
+  bottom: 10%;
+  left: 10%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(180, 74, 255, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: corner-pulse 11s ease-in-out infinite reverse;
+  z-index: 0;
 }
 
 .register-form {
-  width: 450px;
-  padding: 30px;
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  width: 470px;
+  padding: 0;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* 终端标题栏 */
+.terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 212, 255, 0.05);
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.dot.red { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.5); }
+.dot.yellow { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.5); }
+.dot.green { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.5); }
+
+.terminal-title {
+  margin-left: 8px;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .register-form h2 {
   text-align: center;
-  margin-bottom: 20px;
-  color: #303133;
+  margin: 24px 0 20px;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+}
+
+.register-form h2 .prompt {
+  color: var(--neon-cyan);
+  margin-right: 4px;
+  animation: cursor-blink 1s step-end infinite;
+}
+
+.register-form :deep(.el-form) {
+  padding: 0 36px 32px;
 }
 
 .el-form-item {
-  margin-bottom: 15px;
+  margin-bottom: 16px;
+}
+
+.el-form-item :deep(.el-form-item__label) {
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
 }
 
 .el-form-item__content {
   display: flex;
   justify-content: space-between;
+  gap: 12px;
 }
 
 .el-button {

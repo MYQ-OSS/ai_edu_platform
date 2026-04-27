@@ -3,17 +3,23 @@
     <el-container>
       <el-main>
         <div class="hero-section">
-          <h2>欢迎使用 AI 教育平台</h2>
+          <div class="hero-header">
+            <span class="hero-tag">SYSTEM</span>
+            <span class="hero-tag status">ONLINE</span>
+          </div>
+          <h2>> AI 教育平台_</h2>
           <p>
             通过AI技术实现"精准练"与"科学评"的结合，解决学习盲目性与信息不对称的核心痛点,为开发者提供从技术挑战到价值评估的一站式服务。</p>
         </div>
         <el-row :gutter="20" class="feature-section" type="flex" align="stretch">
-          <!-- 左侧个人信息列表 -->
+          <!-- 左侧个人信息 -->
           <el-col :span="6">
             <el-card shadow="hover" class="personal-info-card" v-if="isLoggedIn">
               <template #header>
                 <div class="card-header center-header">
+                  <span class="header-icon">></span>
                   <span>个人信息</span>
+                  <span class="status-dot"></span>
                 </div>
               </template>
               <div class="personal-info-content">
@@ -22,20 +28,20 @@
                 </el-avatar>
                 <h3>{{ userInfo?.username || '未登录' }}</h3>
                 <div class="info-item">
-                  <span class="label">身份：</span>
-                  <span>{{ userInfo?.identity || '未设置' }}</span>
+                  <span class="label">身份</span>
+                  <span class="value">{{ userInfo?.identity || '未设置' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">期望薪资：</span>
-                  <span>{{ userInfo?.salary ? userInfo.salary + '元' : '未设置' }}</span>
+                  <span class="label">期望薪资</span>
+                  <span class="value salary">{{ userInfo?.salary ? userInfo.salary + '元' : '未设置' }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">答题次数：</span>
-                  <span>{{ userInfo?.answerTimes || 0 }}</span>
+                  <span class="label">答题次数</span>
+                  <span class="value">{{ userInfo?.answerTimes || 0 }}</span>
                 </div>
                 <div class="info-item">
-                  <span class="label">平均得分：</span>
-                  <span>{{ userInfo?.averageScore || 0 }}</span>
+                  <span class="label">平均得分</span>
+                  <span class="value score">{{ userInfo?.averageScore || 0 }}</span>
                 </div>
                 <div class="button-group">
                   <el-button type="primary" @click="navigateTo('/personal/edit-info')" class="edit-btn">
@@ -50,6 +56,7 @@
             <el-card shadow="hover" class="personal-info-card" v-else>
               <template #header>
                 <div class="card-header center-header">
+                  <span class="header-icon">></span>
                   <span>个人信息</span>
                 </div>
               </template>
@@ -63,14 +70,14 @@
               </div>
             </el-card>
           </el-col>
-          <!-- 右侧功能模块选择按钮 -->
+          <!-- 右侧功能模块 -->
           <el-col :span="18">
             <el-row :gutter="20" class="feature-cards">
               <el-col :span="8">
                 <el-card shadow="hover" class="feature-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">📝</span>
+                      <span class="card-icon">&lt;/&gt;</span>
                       <span>题目练习</span>
                     </div>
                   </template>
@@ -85,7 +92,7 @@
                 <el-card shadow="hover" class="feature-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">💰</span>
+                      <span class="card-icon">$</span>
                       <span>薪资评估</span>
                     </div>
                   </template>
@@ -100,7 +107,7 @@
                 <el-card shadow="hover" class="feature-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">👤</span>
+                      <span class="card-icon">#</span>
                       <span>个人中心</span>
                     </div>
                   </template>
@@ -112,14 +119,14 @@
                 </el-card>
               </el-col>
             </el-row>
-            
-            <!-- 管理员功能卡片（仅管理员可见） -->
+
+            <!-- 管理员功能 -->
             <el-row :gutter="20" class="feature-cards admin-section" v-if="isAdmin">
               <el-col :span="8">
                 <el-card shadow="hover" class="feature-card admin-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">👥</span>
+                      <span class="card-icon">@</span>
                       <span>用户管理</span>
                     </div>
                   </template>
@@ -134,7 +141,7 @@
                 <el-card shadow="hover" class="feature-card admin-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">📚</span>
+                      <span class="card-icon">~</span>
                       <span>题库管理</span>
                     </div>
                   </template>
@@ -149,7 +156,7 @@
                 <el-card shadow="hover" class="feature-card admin-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">📋</span>
+                      <span class="card-icon">!</span>
                       <span>字典管理</span>
                     </div>
                   </template>
@@ -161,20 +168,20 @@
                 </el-card>
               </el-col>
             </el-row>
-            
-            <!-- 普通用户推荐内容（仅非管理员可见） -->
+
+            <!-- 普通用户推荐 -->
             <el-row :gutter="20" class="feature-cards recommend-section" v-else>
               <el-col :span="8">
                 <el-card shadow="hover" class="feature-card recommend-card">
                   <template #header>
                     <div class="card-header center-header">
-                      <span class="card-icon">🏆</span>
+                      <span class="card-icon">^</span>
                       <span>薪资报告</span>
                     </div>
                   </template>
                   <div class="card-content">
                     <p>查看历史薪资评估报告和建议。</p>
-                    <el-button type="success" @click="navigateTo('/personal/info?tab=salary-report')" class="feature-btn">查看报告
+                    <el-button type="primary" @click="navigateTo('/personal/info?tab=salary-report')" class="feature-btn">查看报告
                     </el-button>
                   </div>
                 </el-card>
@@ -183,13 +190,13 @@
               <el-card shadow="hover" class="feature-card recommend-card">
                 <template #header>
                   <div class="card-header center-header">
-                    <span class="card-icon">⭐</span>
+                    <span class="card-icon">*</span>
                     <span>我的收藏</span>
                   </div>
                 </template>
                 <div class="card-content">
                   <p>回顾收藏的题目，巩固知识点。</p>
-                  <el-button type="success" @click="navigateTo('/personal/info?tab=my-collect')" class="feature-btn">查看收藏
+                  <el-button type="primary" @click="navigateTo('/personal/info?tab=my-collect')" class="feature-btn">查看收藏
                   </el-button>
                 </div>
               </el-card>
@@ -198,13 +205,13 @@
               <el-card shadow="hover" class="feature-card recommend-card">
                 <template #header>
                   <div class="card-header center-header">
-                    <span class="card-icon">📊</span>
+                    <span class="card-icon">%</span>
                     <span>学习统计</span>
                   </div>
                 </template>
                 <div class="card-content">
                   <p>查看你的答题记录和正确率趋势。</p>
-                  <el-button type="success" @click="navigateTo('/personal/learning-statistics')" class="feature-btn">查看详情
+                  <el-button type="primary" @click="navigateTo('/personal/learning-statistics')" class="feature-btn">查看详情
                   </el-button>
                 </div>
               </el-card>
@@ -257,7 +264,7 @@ const handleLogout = () => {
 <style scoped>
 .home {
   min-height: 100vh;
-  background-color: #f5f7fa;
+  animation: terminal-fade-in 0.6s ease-out;
 }
 
 .el-container {
@@ -267,45 +274,79 @@ const handleLogout = () => {
 
 /* 英雄区域 */
 .hero-section {
-  text-align: center;
-  padding: 40px 0;
-  background: linear-gradient(135deg, #409EFF 0%, #667eea 100%);
-  color: white;
-  margin-bottom: 40px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  margin-bottom: 30px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 顶部状态条 */
+.hero-header {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.hero-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
+}
+
+.hero-tag.status {
+  color: var(--neon-green);
+  border-color: rgba(0, 255, 65, 0.3);
+  animation: neon-pulse 2s ease-in-out infinite;
 }
 
 .hero-section h2 {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   font-size: 32px;
-  font-weight: bold;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 1px;
 }
 
 .hero-section p {
-  font-size: 18px;
-  line-height: 1.6;
+  font-size: 15px;
+  line-height: 1.8;
   max-width: 800px;
-  margin: 0 auto;
+  color: var(--text-secondary);
 }
 
 /* 功能区域 */
 .feature-section {
-  margin-top: 40px;
+  margin-top: 20px;
 }
 
 .feature-cards {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 /* 功能卡片 */
 .feature-card {
-  transition: all 0.3s ease;
-  border-radius: 8px;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  border-radius: var(--radius-md);
   overflow: hidden;
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-glow);
 }
 
 .feature-card :deep(.el-card__body) {
@@ -316,37 +357,66 @@ const handleLogout = () => {
 }
 
 .feature-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  border-color: var(--panel-border-active);
+  box-shadow: var(--panel-glow-active);
 }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 15px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #e4e7ed;
-  min-height: 56px;
-}
-
-.card-header.center-header {
+  padding: 14px 16px;
+  background: rgba(0, 255, 65, 0.03);
+  border-bottom: 1px solid var(--divider);
+  min-height: 50px;
   gap: 8px;
 }
 
-.card-icon {
-  font-size: 32px;
-  margin-right: 0;
+.card-header.center-header {
+  position: relative;
 }
 
-.card-header span {
-  font-size: 18px;
-  font-weight: bold;
-  color: #303133;
+.card-icon {
+  font-size: 16px;
+  color: var(--neon-cyan);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  transition: color var(--transition-base);
+}
+
+.feature-card:hover .card-icon {
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+}
+
+.status-dot {
+  position: absolute;
+  right: 16px;
+  width: 6px;
+  height: 6px;
+  background: var(--neon-green);
+  border-radius: 50%;
+  box-shadow: var(--glow-text-green);
+  animation: neon-pulse 2s ease-in-out infinite;
+}
+
+.card-header span:not(.card-icon):not(.status-dot):not(.header-icon) {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.header-icon {
+  color: var(--neon-green);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
 }
 
 .card-content {
-  padding: 30px 20px;
+  padding: 24px 16px;
   text-align: center;
   flex: 1;
   display: flex;
@@ -355,35 +425,42 @@ const handleLogout = () => {
 }
 
 .card-content p {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
   line-height: 1.6;
-  color: #606266;
-  min-height: 48px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  min-height: 44px;
 }
 
-/* 按钮样式 */
+/* 按钮 */
 .feature-btn {
   width: 100%;
-  padding: 12px 0;
-  font-size: 16px;
-  font-weight: bold;
-  transition: all 0.3s ease;
-  border-radius: 6px;
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .feature-btn:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 /* 个人信息卡片 */
 .personal-info-card {
-  border-radius: 8px;
+  border-radius: var(--radius-md);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--panel-glow);
 }
 
 .personal-info-card :deep(.el-card__body) {
@@ -393,151 +470,166 @@ const handleLogout = () => {
   flex-direction: column;
 }
 
+.personal-info-card :deep(.el-card__header) {
+  background: rgba(0, 255, 65, 0.03);
+  border-bottom: 1px solid var(--divider);
+}
+
 .personal-info-card:hover {
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border-color: var(--panel-border-active);
+  box-shadow: var(--panel-glow-active);
 }
 
 .personal-info-content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 30px 20px;
+  padding: 24px 16px;
   flex: 1;
 }
 
 .button-group {
   width: 100%;
-  margin-top: 25px;
+  margin-top: 20px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
   align-items: center;
 }
 
 .avatar {
-  margin-bottom: 20px;
-  transition: all 0.3s ease;
+  margin-bottom: 16px;
+  transition: transform var(--transition-base);
+  border: 2px solid var(--panel-border);
 }
 
 .personal-info-content:hover .avatar {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .personal-info-content h3 {
-  margin-bottom: 25px;
-  color: #303133;
+  margin-bottom: 20px;
+  color: var(--text-primary);
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .info-item {
   width: 100%;
-  margin-bottom: 15px;
+  margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
-  padding: 8px 10px;
-  border-bottom: 1px solid #f0f0f0;
-  transition: all 0.3s ease;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--divider);
+  border-radius: var(--radius-xs);
+  font-size: 13px;
 }
 
 .info-item:hover {
-  background-color: #f8f9fa;
-  border-radius: 4px;
+  background: rgba(0, 255, 65, 0.03);
 }
 
 .info-item .label {
-  font-weight: bold;
-  color: #606266;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-.info-item span:last-child {
-  color: #303133;
-  font-weight: 500;
+.info-item .value {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.info-item .value.salary {
+  color: var(--neon-green);
+}
+
+.info-item .value.score {
+  color: var(--neon-cyan);
+  font-weight: 700;
 }
 
 .logout-btn {
   width: 80%;
-  height: 40px;
-  padding: 0;
-  font-size: 14px;
-  font-weight: bold;
-  line-height: 40px;
-  transition: all 0.3s ease;
-  border-radius: 6px;
+  height: 36px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 0, 128, 0.1);
+  border-color: var(--neon-pink);
+  color: var(--neon-pink);
 }
 
 .edit-btn,
 .login-btn {
   width: 100%;
-  height: 44px;
-  padding: 0;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 44px;
-  transition: all 0.3s ease;
-  border-radius: 6px;
-}
-
-.edit-btn,
-.login-btn {
-  font-weight: bold;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 700;
+  transition: all var(--transition-base);
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .edit-btn:hover,
 .login-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
 }
 
-.logout-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* 管理员卡片样式 */
+/* 管理员卡片 */
 .admin-section {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .admin-card {
-  border: 2px solid #e6a23c;
+  border-color: rgba(255, 107, 0, 0.2);
 }
 
-.admin-card :deep(.el-card__header) {
-  background-color: #fdf6ec;
-  border-bottom: 2px solid #e6a23c;
+.admin-card:hover {
+  border-color: var(--neon-orange);
+  box-shadow: 0 0 16px rgba(255, 107, 0, 0.1);
 }
 
-.admin-card .card-header span {
-  color: #e6a23c;
+.admin-card .card-icon {
+  color: var(--neon-orange);
 }
 
-/* 推荐卡片样式 */
+.admin-card .feature-btn:hover {
+  box-shadow: 0 0 16px rgba(255, 107, 0, 0.2);
+}
+
+/* 推荐卡片 */
 .recommend-section {
-  margin-top: 20px;
+  margin-top: 15px;
 }
 
 .recommend-card {
-  border: 2px solid #67c23a;
+  border-color: rgba(0, 212, 255, 0.2);
 }
 
-.recommend-card :deep(.el-card__header) {
-  background-color: #f0f9ff;
-  border-bottom: 2px solid #67c23a;
+.recommend-card:hover {
+  border-color: var(--neon-cyan);
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.1);
 }
 
-.recommend-card .card-header span {
-  color: #67c23a;
+.recommend-card .card-icon {
+  color: var(--neon-cyan);
 }
 
-/* 响应式设计 */
+/* 响应式 */
 @media (max-width: 768px) {
-  .header-content {
-    padding: 0 20px;
-  }
-
   .hero-section {
-    padding: 30px 20px;
+    padding: 24px;
   }
 
   .hero-section h2 {
@@ -545,20 +637,20 @@ const handleLogout = () => {
   }
 
   .hero-section p {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .feature-section {
-    margin-top: 30px;
+    margin-top: 20px;
   }
 
   .el-col {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 
   .personal-info-card,
   .feature-card {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
   }
 }
 </style>

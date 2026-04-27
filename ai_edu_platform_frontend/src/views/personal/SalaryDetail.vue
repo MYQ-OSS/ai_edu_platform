@@ -96,37 +96,52 @@ const goBack = () => {
 
 <style scoped>
 .salary-detail-container {
-  padding: 30px 50px;
+  padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
 }
 
 .salary-detail-container h2 {
-  margin-bottom: 30px;
-  color: #303133;
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.salary-detail-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .detail-card {
-  background-color: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  padding: 32px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
 }
 
 .detail-section {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .detail-item {
   display: flex;
   align-items: flex-start;
-  margin-bottom: 20px;
-  padding: 15px;
-  background-color: #fafafa;
-  border-radius: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--divider);
 }
 
 .detail-item.full-width {
@@ -136,7 +151,7 @@ const goBack = () => {
 
 .detail-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   flex-wrap: wrap;
 }
 
@@ -147,47 +162,58 @@ const goBack = () => {
 }
 
 .detail-label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #606266;
-  min-width: 100px;
-  margin-right: 15px;
+  color: var(--neon-cyan);
+  min-width: 80px;
+  margin-right: 12px;
   line-height: 1.8;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-value {
-  font-size: 16px;
-  color: #303133;
+  font-size: 14px;
+  color: var(--text-primary);
   line-height: 1.8;
   flex: 1;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-value.salary {
-  font-size: 20px;
-  font-weight: 600;
-  color: #409EFF;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
 }
 
 .detail-text {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.8;
-  color: #303133;
+  color: var(--text-secondary);
   width: 100%;
-  margin-top: 10px;
-  padding: 15px;
-  background-color: white;
-  border-radius: 6px;
-  border-left: 4px solid #409EFF;
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--divider);
+  border-left: 3px solid var(--neon-cyan);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-text.trend {
-  border-left-color: #67c23a;
+  border-left-color: var(--neon-green);
 }
 
 .button-section {
   display: flex;
   justify-content: center;
-  padding-top: 20px;
-  border-top: 1px solid #e4e7ed;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
+}
+
+.button-section .el-button {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 </style>

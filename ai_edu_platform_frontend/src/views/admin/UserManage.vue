@@ -317,18 +317,70 @@ onMounted(() => {
   padding: 30px 50px;
   max-width: 1400px;
   margin: 0 auto;
+  animation: tech-fade-in 0.6s ease-out;
+  position: relative;
 }
 
 .user-manage-container h2 {
   margin-bottom: 30px;
-  color: #303133;
   text-align: center;
   font-size: 28px;
-  font-weight: 600;
+  font-weight: 800;
+  background: var(--tech-gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
-.search-card {
-  margin-bottom: 20px;
+.search-card,
+.table-card {
+  background: var(--tech-glass-bg-strong);
+  backdrop-filter: blur(var(--tech-glass-blur));
+  -webkit-backdrop-filter: blur(var(--tech-glass-blur));
+  border: 1px solid var(--tech-glass-border);
+  border-radius: var(--tech-radius-lg);
+  box-shadow: var(--tech-card-shadow);
+}
+
+.search-card :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.table-card :deep(.el-card__body) {
+  padding: 20px;
+}
+
+.table-card {
+  min-height: 500px;
+}
+
+/* 暗色表格 */
+.search-card :deep(.el-table),
+.table-card :deep(.el-table) {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
+  --el-table-border-color: var(--tech-divider);
+  background: transparent;
+  color: var(--tech-text-primary);
+}
+
+.search-card :deep(.el-table th.el-table__cell),
+.table-card :deep(.el-table th.el-table__cell) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--tech-text-secondary);
+  border-color: var(--tech-divider);
+}
+
+.search-card :deep(.el-table td.el-table__cell),
+.table-card :deep(.el-table td.el-table__cell) {
+  border-color: var(--tech-divider);
+  color: var(--tech-text-primary);
+}
+
+.search-card :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell),
+.table-card :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .search-form {
@@ -336,8 +388,28 @@ onMounted(() => {
   flex-wrap: wrap;
 }
 
-.table-card {
-  min-height: 500px;
+.search-form :deep(.el-input__wrapper),
+.search-form :deep(.el-select .el-input__wrapper) {
+  background: var(--tech-glass-bg);
+  border: 1px solid var(--tech-glass-border);
+  box-shadow: none;
+}
+
+.search-form :deep(.el-input__inner) {
+  color: var(--tech-text-primary);
+}
+
+.search-form :deep(.el-form-item__label) {
+  color: var(--tech-text-secondary);
+}
+
+.search-form :deep(.el-select-dropdown) {
+  background: var(--tech-bg-mid);
+  border: 1px solid var(--tech-glass-border);
+}
+
+.search-form :deep(.el-select-dropdown__item) {
+  color: var(--tech-text-primary);
 }
 
 .pagination-container {
@@ -346,12 +418,19 @@ onMounted(() => {
   justify-content: flex-end;
 }
 
+.pagination-container :deep(.el-pagination) {
+  --el-pagination-bg-color: transparent;
+  --el-pagination-text-color: var(--tech-text-secondary);
+  --el-pagination-button-bg-color: var(--tech-glass-bg);
+  color: var(--tech-text-secondary);
+}
+
 .back-button-section {
   display: flex;
   justify-content: center;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e4e7ed;
+  border-top: 1px solid var(--tech-divider);
 }
 
 /* 响应式设计 */
@@ -398,7 +477,6 @@ onMounted(() => {
     min-height: auto;
   }
 
-  /* 表格在小屏幕上横向滚动 */
   .table-card :deep(.el-table) {
     font-size: 14px;
   }

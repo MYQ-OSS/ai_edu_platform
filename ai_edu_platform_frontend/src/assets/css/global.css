@@ -1,1 +1,457 @@
-/* 全局通用样式 */
+/* ============================================
+   CYBER TERMINAL - Global Overrides
+   AI Education Platform v2.0
+   ============================================ */
+
+html {
+  background: var(--bg-primary);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+body {
+  background: var(--bg-primary) !important;
+  background-attachment: fixed !important;
+  color: var(--text-primary) !important;
+  min-height: 100vh !important;
+  margin: 0;
+  padding: 0;
+}
+
+/* === 自定义滚动条 === */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--panel-border);
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green);
+  box-shadow: var(--glow-green);
+}
+
+/* === 选中颜色 === */
+::selection {
+  background: rgba(0, 255, 65, 0.3);
+  color: var(--neon-green);
+}
+
+/* === Element Plus 全局消息 === */
+.el-message {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-sm) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.el-message__content {
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-message--success {
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--glow-green);
+}
+.el-message--error {
+  border-color: var(--neon-pink) !important;
+  box-shadow: var(--glow-pink);
+}
+
+/* === Element Plus 全局弹窗 === */
+.el-message-box {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--panel-glow);
+}
+.el-message-box__title {
+  color: var(--neon-cyan) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-message-box__message {
+  color: var(--text-primary) !important;
+}
+
+/* === Element Plus 下拉菜单 === */
+.el-select-dropdown,
+.el-dropdown-menu {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: var(--panel-glow);
+}
+.el-select-dropdown__item {
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-select-dropdown__item.is-hovering {
+  background: var(--panel-bg) !important;
+  color: var(--neon-cyan) !important;
+}
+.el-select-dropdown__item.is-selected {
+  color: var(--neon-green) !important;
+  font-weight: 700;
+}
+
+/* === Element Plus 日期/时间选择器 === */
+.el-picker-popover {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--panel-border) !important;
+  color: var(--text-primary) !important;
+}
+
+/* === Element Plus 对话框 === */
+.el-dialog {
+  background: var(--bg-elevated) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--panel-glow);
+}
+.el-dialog__title {
+  color: var(--neon-cyan) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-dialog__body {
+  color: var(--text-primary) !important;
+}
+.el-dialog__header {
+  border-bottom: 1px solid var(--divider) !important;
+}
+.el-dialog__footer {
+  border-top: 1px solid var(--divider) !important;
+}
+.el-dialog__headerbtn .el-dialog__close {
+  color: var(--text-secondary) !important;
+}
+.el-dialog__headerbtn .el-dialog__close:hover {
+  color: var(--neon-pink) !important;
+}
+
+/* === Element Plus 卡片 === */
+.el-card {
+  --el-card-bg-color: transparent !important;
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--panel-glow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.el-card:hover {
+  border-color: var(--panel-border-active) !important;
+  box-shadow: var(--panel-glow-active);
+}
+.el-card__header {
+  background: var(--panel-bg) !important;
+  border-bottom: 1px solid var(--divider) !important;
+  color: var(--neon-cyan) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+}
+.el-card__body {
+  color: var(--text-primary) !important;
+}
+
+/* === Element Plus 按钮 === */
+.el-button--primary {
+  background: var(--btn-primary-bg) !important;
+  border: none !important;
+  color: var(--bg-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-weight: 700;
+  transition: all var(--transition-base);
+}
+.el-button--primary:hover {
+  background: var(--btn-primary-hover) !important;
+  box-shadow: var(--glow-green);
+  transform: translateY(-1px);
+}
+.el-button--primary:active {
+  transform: translateY(0);
+}
+.el-button--danger {
+  background: var(--btn-danger-bg) !important;
+  border: none !important;
+  color: var(--bg-primary) !important;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-button--danger:hover {
+  box-shadow: var(--glow-pink);
+  transform: translateY(-1px);
+}
+.el-button--warning {
+  background: var(--btn-warning-bg) !important;
+  border: none !important;
+  color: var(--bg-primary) !important;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-button.is-link:hover {
+  color: var(--neon-cyan) !important;
+  text-shadow: var(--glow-text-green);
+}
+
+/* === Element Plus 输入框 === */
+.el-input__wrapper {
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.el-input__wrapper:hover {
+  border-color: var(--neon-cyan) !important;
+}
+.el-input__wrapper.is-focus {
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--glow-green) !important;
+}
+.el-input__inner {
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-input__inner::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* === Element Plus 文本域 === */
+.el-textarea__inner {
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+.el-textarea__inner:hover {
+  border-color: var(--neon-cyan) !important;
+}
+.el-textarea__inner:focus {
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--glow-green) !important;
+}
+.el-textarea__inner::placeholder {
+  color: var(--text-muted) !important;
+}
+
+/* === Element Plus 下拉选择器输入框 === */
+.el-select .el-input__wrapper {
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+}
+.el-select .el-input__wrapper.is-focus {
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--glow-green) !important;
+}
+
+/* === Element Plus 标签 === */
+.el-tag--success {
+  background: rgba(0, 255, 65, 0.1) !important;
+  border-color: rgba(0, 255, 65, 0.3) !important;
+  color: var(--neon-green) !important;
+}
+.el-tag--info {
+  background: rgba(0, 212, 255, 0.1) !important;
+  border-color: rgba(0, 212, 255, 0.3) !important;
+  color: var(--neon-cyan) !important;
+}
+.el-tag--warning {
+  background: rgba(255, 107, 0, 0.1) !important;
+  border-color: rgba(255, 107, 0, 0.3) !important;
+  color: var(--neon-orange) !important;
+}
+.el-tag--danger {
+  background: rgba(255, 0, 128, 0.1) !important;
+  border-color: rgba(255, 0, 128, 0.3) !important;
+  color: var(--neon-pink) !important;
+}
+
+/* === Element Plus 步骤条 === */
+.el-step__title {
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-step__head.is-process {
+  color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-step__head.is-finish {
+  color: var(--neon-cyan) !important;
+  border-color: var(--neon-cyan) !important;
+}
+.el-step__head.is-wait {
+  color: var(--text-muted) !important;
+  border-color: var(--text-muted) !important;
+}
+
+/* === Element Plus 分页 === */
+.el-pagination button {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+  color: var(--text-secondary) !important;
+}
+.el-pagination button:hover {
+  color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-pagination .el-pager li {
+  color: var(--text-secondary) !important;
+  background: var(--panel-bg) !important;
+  border: 1px solid var(--panel-border) !important;
+  border-radius: var(--radius-xs) !important;
+}
+.el-pagination .el-pager li:hover {
+  color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-pagination .el-pager li.is-active {
+  background: var(--neon-green) !important;
+  color: var(--bg-primary) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-pagination .el-pagination__sizes .el-select .el-input__wrapper {
+  background: var(--panel-bg) !important;
+  border-color: var(--panel-border) !important;
+}
+
+/* === Element Plus 空状态 === */
+.el-empty__description {
+  color: var(--text-secondary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* === Element Plus 加载 === */
+.el-loading-mask {
+  background: var(--bg-overlay) !important;
+}
+.el-loading-spinner .circular {
+  stroke: var(--neon-green) !important;
+}
+.el-loading-spinner .el-loading-text {
+  color: var(--neon-green) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* === Element Plus 开关 === */
+.el-switch.is-checked .el-switch__core {
+  background-color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+  box-shadow: var(--glow-green);
+}
+
+/* === Element Plus 复选框 === */
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-checkbox__input.is-checked + .el-checkbox__label {
+  color: var(--text-primary) !important;
+}
+.el-checkbox__label {
+  color: var(--text-secondary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* === Element Plus 单选 === */
+.el-radio__input.is-checked .el-radio__inner {
+  background-color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+}
+.el-radio__label {
+  color: var(--text-secondary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+
+/* === Element Plus 表格全局 === */
+.el-table {
+  --el-table-bg-color: transparent !important;
+  --el-table-tr-bg-color: transparent !important;
+  --el-table-header-bg-color: var(--panel-bg) !important;
+  --el-table-border-color: var(--divider) !important;
+  --el-table-text-color: var(--text-primary) !important;
+  --el-table-header-text-color: var(--neon-cyan) !important;
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+.el-table th.el-table__cell {
+  background: var(--panel-bg) !important;
+  color: var(--neon-cyan) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-color: var(--divider) !important;
+}
+.el-table td.el-table__cell {
+  border-color: var(--divider) !important;
+  color: var(--text-primary) !important;
+}
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+.el-table__body tr:hover > td {
+  background: rgba(0, 255, 65, 0.05) !important;
+}
+
+/* === Element Plus Tabs === */
+.el-tabs__item {
+  color: var(--text-secondary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  transition: color var(--transition-base);
+}
+.el-tabs__item:hover {
+  color: var(--neon-cyan) !important;
+}
+.el-tabs__item.is-active {
+  color: var(--neon-green) !important;
+  font-weight: 700;
+}
+.el-tabs__active-bar {
+  background: var(--neon-green) !important;
+  box-shadow: var(--glow-green);
+}
+.el-tabs__content {
+  color: var(--text-primary) !important;
+}
+.el-tabs__nav-wrap::after {
+  background: var(--divider) !important;
+}
+
+/* === Element Plus 描述列表 === */
+.el-descriptions__title {
+  color: var(--text-primary) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+}
+.el-descriptions__label {
+  color: var(--neon-cyan) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-weight: 700;
+}
+.el-descriptions__content {
+  color: var(--text-primary) !important;
+}
+
+/* === Element Plus 进度条 === */
+.el-progress-bar__outer {
+  background: var(--panel-border) !important;
+}
+.el-progress-bar__inner {
+  background: var(--btn-primary-bg) !important;
+  box-shadow: var(--glow-green);
+}
+.el-progress__text {
+  color: var(--neon-green) !important;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-weight: 700;
+}

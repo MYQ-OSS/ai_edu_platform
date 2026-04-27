@@ -160,31 +160,120 @@ const goBack = () => {
   padding: 40px;
   max-width: 900px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
+}
+
+/* 装饰光斑 */
+.question-input-container::before {
+  content: '';
+  position: fixed;
+  top: 10%;
+  right: 5%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: corner-pulse 10s ease-in-out infinite;
+  z-index: 0;
 }
 
 .question-input-container h2 {
-  margin-bottom: 40px;
-  color: #303133;
+  margin-bottom: 30px;
   text-align: center;
-  font-size: 32px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+.question-input-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .input-card {
-  background-color: white;
-  padding: 50px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  padding: 40px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  position: relative;
+  z-index: 1;
 }
 
 .el-form-item {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
+}
+
+.el-form-item :deep(.el-form-item__label) {
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.el-form-item :deep(.el-input__wrapper),
+.el-form-item :deep(.el-select .el-input__wrapper) {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--panel-border);
+  box-shadow: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.el-form-item :deep(.el-input__wrapper:hover),
+.el-form-item :deep(.el-select .el-input__wrapper:hover) {
+  border-color: var(--neon-cyan);
+}
+
+.el-form-item :deep(.el-input__wrapper.is-focus),
+.el-form-item :deep(.el-select .el-input__wrapper.is-focus) {
+  border-color: var(--neon-green);
+  box-shadow: var(--glow-green);
+}
+
+.el-form-item :deep(.el-input__inner) {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.el-form-item :deep(.el-select-dropdown) {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--panel-border);
+}
+
+.el-form-item :deep(.el-select-dropdown__item) {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.el-form-item :deep(.el-select-dropdown__item:hover) {
+  background: var(--panel-bg);
+}
+
+.el-form-item :deep(.el-select-dropdown__item.is-selected) {
+  color: var(--neon-green);
+  font-weight: 700;
 }
 
 .button-group {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.button-group .el-button {
+  min-width: 140px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 </style>

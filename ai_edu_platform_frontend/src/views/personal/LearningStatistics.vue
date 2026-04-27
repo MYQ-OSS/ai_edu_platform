@@ -320,63 +320,100 @@ onMounted(() => {
 
 <style scoped>
 .learning-statistics-container {
-  padding: 30px 50px;
+  padding: 30px 40px;
   max-width: 1600px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
 }
 
 .learning-statistics-container h2 {
-  margin-bottom: 30px;
-  color: #303133;
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.learning-statistics-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .statistics-cards {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .stat-card {
-  transition: all 0.3s ease;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+}
+
+.stat-card :deep(.el-card__body) {
+  padding: 16px;
 }
 
 .stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  border-color: var(--panel-border-active);
+  box-shadow: var(--panel-glow-active);
 }
 
 .stat-content {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .stat-icon {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 24px;
   flex-shrink: 0;
+  transition: transform var(--transition-base);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
 }
 
 .stat-icon.total {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: rgba(0, 212, 255, 0.15);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 212, 255, 0.3);
 }
 
 .stat-icon.average {
-  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  background: rgba(255, 107, 0, 0.15);
+  color: var(--neon-orange);
+  border: 1px solid rgba(255, 107, 0, 0.3);
 }
 
 .stat-icon.accuracy {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  background: rgba(0, 255, 65, 0.15);
+  color: var(--neon-green);
+  border: 1px solid rgba(0, 255, 65, 0.3);
 }
 
 .stat-icon.range {
-  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  background: rgba(180, 74, 255, 0.15);
+  color: var(--neon-purple);
+  border: 1px solid rgba(180, 74, 255, 0.3);
+}
+
+.stat-card:hover .stat-icon {
+  transform: scale(1.1);
 }
 
 .stat-info {
@@ -384,45 +421,65 @@ onMounted(() => {
 }
 
 .stat-value {
-  font-size: 24px;
-  font-weight: bold;
-  color: #303133;
-  margin-bottom: 5px;
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .stat-label {
-  font-size: 14px;
-  color: #909399;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .charts-section {
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .chart-card {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+}
+
+.chart-card :deep(.el-card__header) {
+  background: rgba(0, 255, 65, 0.03);
+  border-bottom: 1px solid var(--divider);
 }
 
 .card-header {
-  font-size: 16px;
-  font-weight: bold;
-  color: #303133;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--neon-cyan);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .chart-container {
   width: 100%;
-  height: 400px;
+  height: 350px;
 }
 
 .back-button-section {
   display: flex;
   justify-content: center;
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid #e4e7ed;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--divider);
 }
 
-/* 响应式设计 */
+.back-button-section .el-button {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* 响应式 */
 @media (max-width: 1200px) {
   .learning-statistics-container {
     padding: 20px 30px;
@@ -435,20 +492,20 @@ onMounted(() => {
   }
 
   .learning-statistics-container h2 {
-    font-size: 24px;
-    margin-bottom: 20px;
+    font-size: 22px;
+    margin-bottom: 16px;
   }
 
   .statistics-cards {
-    margin-bottom: 20px;
+    margin-bottom: 16px;
   }
 
   .stat-card {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
   }
 
   .chart-container {
-    height: 300px;
+    height: 280px;
   }
 }
 
@@ -458,16 +515,16 @@ onMounted(() => {
   }
 
   .learning-statistics-container h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
+    font-size: 18px;
+    margin-bottom: 12px;
   }
 
   .stat-value {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .chart-container {
-    height: 250px;
+    height: 220px;
   }
 
   .back-button-section :deep(.el-button) {

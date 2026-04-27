@@ -421,29 +421,62 @@ const formatTime = (timeStr) => {
 
 <style scoped>
 .personal-center-container {
-  padding: 30px 50px;
+  padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
+}
+
+/* 装饰光斑 */
+.personal-center-container::before {
+  content: '';
+  position: fixed;
+  top: 15%;
+  right: 5%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: corner-pulse 10s ease-in-out infinite;
+  z-index: 0;
 }
 
 .personal-center-container h2 {
-  margin-bottom: 30px;
-  color: #303133;
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+  z-index: 1;
 }
 
-/* 顶部个人信息卡片 */
+.personal-center-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
+}
+
+/* 顶部个人信息 */
 .top-info-card {
   display: flex;
   align-items: center;
-  gap: 30px;
-  background-color: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
+  gap: 24px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  padding: 32px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 1;
 }
 
 .avatar-section {
@@ -451,62 +484,79 @@ const formatTime = (timeStr) => {
 }
 
 .avatar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
   color: white;
-  font-size: 40px;
-  font-weight: bold;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  font-size: 36px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  box-shadow: var(--glow-cyan);
   object-fit: cover;
+  transition: transform var(--transition-base);
+  border: 2px solid var(--panel-border);
+}
+
+.top-info-card:hover .avatar {
+  transform: scale(1.05);
 }
 
 .user-basic-info {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .info-row {
   display: flex;
   align-items: center;
-  padding: 10px 15px;
-  background-color: #fafafa;
-  border-radius: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--divider);
+  transition: border-color var(--transition-base), background var(--transition-base);
+  font-size: 14px;
+}
+
+.info-row:hover {
+  background: rgba(0, 255, 65, 0.03);
+  border-color: var(--panel-border-active);
 }
 
 .info-label {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  color: #606266;
-  min-width: 100px;
+  color: var(--text-secondary);
+  min-width: 90px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .info-value {
-  font-size: 16px;
-  color: #303133;
+  font-size: 14px;
+  color: var(--text-primary);
   line-height: 1.6;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .info-value.username {
-  font-size: 20px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .info-value.salary {
-  font-size: 18px;
-  font-weight: 600;
-  color: #409EFF;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--neon-green);
 }
 
 .info-value strong {
-  font-weight: 600;
-  color: #303133;
+  font-weight: 700;
+  color: var(--text-primary);
 }
 
 .info-value .score {
-  color: #67c23a;
-  font-size: 18px;
+  color: var(--neon-cyan);
+  font-size: 16px;
 }
 
 .experience-row {
@@ -517,185 +567,226 @@ const formatTime = (timeStr) => {
   white-space: pre-wrap;
   word-break: break-word;
   line-height: 1.8;
+  color: var(--text-secondary);
 }
 
 .button-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 .edit-btn,
 .back-btn {
-  min-width: 140px;
-  height: 44px;
-  font-size: 16px;
-  font-weight: 500;
+  min-width: 130px;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-}
-
-.edit-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
+  gap: 6px;
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .edit-btn:hover {
-  background: linear-gradient(135deg, #5568d3 0%, #653e8f 100%);
+  transform: translateY(-2px);
 }
 
-/* 标签页容器 */
+.back-btn {
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+}
+
+.back-btn:hover {
+  background: var(--panel-bg);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+}
+
+/* 标签页 */
 .tabs-container {
-  background-color: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  background: var(--panel-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
   overflow: hidden;
-  padding: 20px;
-  min-height: 400px;
+  padding: 16px;
+  min-height: 350px;
+}
+
+.tabs-container :deep(.el-tabs__header) {
+  border-bottom: 1px solid var(--divider);
+}
+
+.tabs-container :deep(.el-tabs__item) {
+  color: var(--text-secondary);
+  transition: color var(--transition-base);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+.tabs-container :deep(.el-tabs__item:hover) {
+  color: var(--neon-cyan);
+}
+
+.tabs-container :deep(.el-tabs__item.is-active) {
+  color: var(--neon-green);
+  font-weight: 700;
+}
+
+.tabs-container :deep(.el-tabs__active-bar) {
+  background: var(--neon-green);
+  box-shadow: var(--glow-text-green);
+}
+
+.tabs-container :deep(.el-tabs__content) {
+  color: var(--text-primary);
 }
 
 .tab-content {
-  min-height: 300px;
+  min-height: 280px;
 }
 
-/* 历史记录卡片 */
-.history-card,
-.report-card {
-  /* 已移除，使用统一的 tab-content */
-}
-
-/* 空状态 */
 .empty-state {
   text-align: center;
-  padding: 60px 0;
+  padding: 50px 0;
 }
 
-/* 表格样式 */
+.empty-state :deep(.el-empty) {
+  color: var(--text-secondary);
+}
+
+/* 表格 */
 .el-table {
-  margin-top: 10px;
-  font-size: 15px;
+  margin-top: 8px;
+  font-size: 14px;
 }
 
-.el-table th {
-  background-color: #f5f7fa;
-  color: #606266;
-  font-weight: 600;
-  font-size: 15px;
+.el-table th.el-table__cell {
+  background: rgba(0, 0, 0, 0.3) !important;
+  color: var(--neon-cyan);
+  border-color: var(--divider);
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  font-size: 13px;
 }
 
-.el-table td {
-  color: #303133;
-  font-size: 15px;
+.el-table td.el-table__cell {
+  border-color: var(--divider);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* 分数徽章 */
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.el-table__empty-block {
+  background: transparent;
+}
+
+.el-table__body tr:hover > td {
+  background: rgba(0, 255, 65, 0.03);
+}
+
+/* 徽章 */
 .score-badge {
   display: inline-block;
-  padding: 4px 12px;
-  background-color: #ecf5ff;
-  color: #409EFF;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
+  padding: 3px 10px;
+  background: rgba(0, 212, 255, 0.1);
+  color: var(--neon-cyan);
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid rgba(0, 212, 255, 0.2);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .accuracy-badge {
   display: inline-block;
-  padding: 4px 12px;
-  background-color: #f0f9ff;
-  color: #67c23a;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
+  padding: 3px 10px;
+  background: rgba(0, 255, 65, 0.1);
+  color: var(--neon-green);
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* 薪资徽章 */
 .salary-badge {
   display: inline-block;
-  padding: 4px 12px;
-  background-color: #f0f9ff;
-  color: #67c23a;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 14px;
+  padding: 3px 10px;
+  background: rgba(0, 255, 65, 0.1);
+  color: var(--neon-green);
+  border-radius: var(--radius-xs);
+  font-weight: 700;
+  font-size: 13px;
+  border: 1px solid rgba(0, 255, 65, 0.2);
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* 按钮样式 */
-.el-button {
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.el-button--primary {
-  background-color: #409EFF;
-  border-color: #409EFF;
-}
-
-.el-button--primary:hover {
-  background-color: #66b1ff;
-  border-color: #66b1ff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(64, 158, 255, 0.3);
-}
-
-/* 收藏列表操作按钮 */
 .action-buttons {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   justify-content: center;
   align-items: center;
 }
 
-/* 学习统计提示 */
 .statistics-hint {
   text-align: center;
-  padding: 80px 20px;
+  padding: 60px 20px;
 }
 
 .hint-icon {
-  font-size: 64px;
-  color: #409EFF;
-  margin-bottom: 20px;
+  font-size: 56px;
+  color: var(--neon-cyan);
+  margin-bottom: 16px;
+  animation: corner-pulse 3s ease-in-out infinite;
 }
 
 .statistics-hint p {
-  font-size: 16px;
-  color: #606266;
-  margin-bottom: 30px;
+  font-size: 15px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
-/* 响应式设计 */
+/* 响应式 */
 @media (max-width: 768px) {
   .personal-center-container {
     padding: 20px;
   }
-  
+
   .top-info-card {
     flex-direction: column;
     text-align: center;
-    gap: 20px;
+    gap: 16px;
   }
-  
+
   .avatar-section {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
-  
+
   .user-basic-info {
     width: 100%;
   }
-  
+
   .info-row {
     justify-content: center;
   }
-  
+
   .button-section {
     flex-direction: row;
     width: 100%;
   }
-  
+
   .edit-btn,
   .back-btn {
     flex: 1;

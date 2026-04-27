@@ -186,26 +186,84 @@ const goHome = () => {
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
 }
 
 .edit-info-container h2 {
   margin-bottom: 20px;
-  color: #303133;
   text-align: center;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.edit-info-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .edit-card {
-  background-color: white;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  padding: 32px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
 }
 
 .el-form-item {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
+}
+
+.el-form-item :deep(.el-form-item__label) {
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+.el-form-item :deep(.el-input__wrapper) {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--panel-border);
+  box-shadow: none;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.el-form-item :deep(.el-input__wrapper:hover) {
+  border-color: var(--neon-cyan);
+}
+
+.el-form-item :deep(.el-input__wrapper.is-focus) {
+  border-color: var(--neon-green);
+  box-shadow: var(--glow-green);
+}
+
+.el-form-item :deep(.el-input__inner) {
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.el-form-item :deep(.el-textarea__inner) {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--panel-border);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.el-form-item :deep(.el-textarea__inner:focus) {
+  border-color: var(--neon-green);
+  box-shadow: var(--glow-green);
 }
 
 .el-button {
   margin-right: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 </style>

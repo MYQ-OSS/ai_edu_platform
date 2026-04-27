@@ -240,95 +240,147 @@ const parseTrueOptions = (trueOptionsStr) => {
 
 <style scoped>
 .question-report-container {
-  padding: 30px 50px;
+  padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
+  animation: terminal-fade-in 0.6s ease-out;
+  position: relative;
+}
+
+/* 装饰光斑 */
+.question-report-container::before {
+  content: '';
+  position: fixed;
+  bottom: 10%;
+  right: 10%;
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: corner-pulse 10s ease-in-out infinite;
+  z-index: 0;
 }
 
 .question-report-container h2 {
-  margin-bottom: 30px;
-  color: #303133;
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 28px;
-  font-weight: 600;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
+  letter-spacing: 2px;
+  font-family: 'JetBrains Mono', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+.question-report-container h2::before {
+  content: '> ';
+  color: var(--neon-cyan);
+  animation: cursor-blink 1s step-end infinite;
 }
 
 .report-card {
-  background-color: white;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+  background: var(--panel-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--panel-border);
+  padding: 36px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  position: relative;
+  z-index: 1;
 }
 
 .score-section {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e4e7ed;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--divider);
 }
 
 .score-circle {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 150px;
-  height: 150px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
   color: white;
-  margin-right: 30px;
-  transition: all 0.3s ease;
+  margin-right: 24px;
+  transition: transform var(--transition-base);
+  border: 3px solid;
 }
 
 .score-circle.excellent {
-  background: linear-gradient(135deg, #67c23a 0%, #85ce61 100%);
+  background: rgba(0, 255, 65, 0.15);
+  border-color: var(--neon-green);
+  box-shadow: var(--glow-green);
 }
 
 .score-circle.pass {
-  background: linear-gradient(135deg, #409EFF 0%, #66b1ff 100%);
+  background: rgba(0, 212, 255, 0.15);
+  border-color: var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
 }
 
 .score-circle.fail {
-  background: linear-gradient(135deg, #f56c6c 0%, #f78989 100%);
+  background: rgba(255, 0, 128, 0.15);
+  border-color: var(--neon-pink);
+  box-shadow: var(--glow-pink);
+}
+
+.score-circle:hover {
+  transform: scale(1.05);
 }
 
 .score-number {
-  font-size: 48px;
-  font-weight: bold;
+  font-size: 44px;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .score-text {
-  font-size: 24px;
-  margin-left: 5px;
+  font-size: 20px;
+  margin-left: 4px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .score-info h3 {
-  margin: 0 0 10px 0;
-  color: #303133;
+  margin: 0 0 8px 0;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .score-info p {
   margin: 0;
-  font-size: 18px;
-  color: #606266;
+  font-size: 16px;
+  color: var(--text-secondary);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .score-info .accuracy {
-  margin-top: 8px;
-  font-size: 16px;
-  color: #909399;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .report-content {
-  margin-bottom: 30px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid #e4e7ed;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--divider);
 }
 
 .report-content h3 {
-  margin-bottom: 20px;
-  color: #303133;
+  margin-bottom: 16px;
+  color: var(--neon-cyan);
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .analysis-section {
@@ -336,32 +388,41 @@ const parseTrueOptions = (trueOptionsStr) => {
 }
 
 .analysis-section h4 {
-  margin-bottom: 10px;
-  color: #303133;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 15px;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .analysis-section p {
-  line-height: 1.6;
-  color: #606266;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  font-size: 14px;
 }
 
 .analysis-section ul {
-  margin: 10px 0 0 20px;
-  line-height: 1.6;
-  color: #606266;
+  margin: 8px 0 0 16px;
+  line-height: 1.8;
+  color: var(--text-secondary);
 }
 
-/* 技术栈标签 */
 .tech-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 8px;
+  margin-top: 8px;
 }
 
 .button-section {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
+}
+
+.button-section .el-button {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700;
+  letter-spacing: 1px;
 }
 </style>

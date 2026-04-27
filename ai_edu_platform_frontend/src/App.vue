@@ -15,5 +15,6 @@ import GlobalFooter from './components/common/GlobalFooter.vue'
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--tech-page-gradient);
 }
 </style>

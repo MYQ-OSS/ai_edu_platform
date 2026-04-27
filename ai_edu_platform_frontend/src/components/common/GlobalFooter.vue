@@ -1,8 +1,9 @@
 <!-- 全局页脚组件 -->
 <template>
   <footer class="global-footer">
+    <div class="footer-scanline"></div>
     <div class="footer-content">
-      <p class="copyright">© 2026 AI 教育平台 版权所有</p>
+      <p class="copyright">&copy; 2026 AI EDU PLATFORM // ALL RIGHTS RESERVED</p>
       <div class="beian-info">
         <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2026035720号-1</a>
         <span class="separator">|</span>
@@ -20,11 +21,42 @@
 
 <style scoped>
 .global-footer {
-  background-color: #f5f7fa;
-  color: #606266;
-  padding: 20px 0;
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  padding: 24px 0 20px;
   margin-top: auto;
-  border-top: 1px solid #e4e7ed;
+  border-top: 1px solid var(--panel-border);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 扫描线装饰 */
+.footer-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+  animation: footer-scan 4s linear infinite;
+  opacity: 0.4;
+}
+
+@keyframes footer-scan {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 终端风格上边框 */
+.global-footer::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--neon-cyan) 20%, var(--neon-green) 50%, var(--neon-cyan) 80%, transparent 100%);
+  opacity: 0.5;
 }
 
 .footer-content {
@@ -32,28 +64,33 @@
   margin: 0 auto;
   text-align: center;
   padding: 0 20px;
+  position: relative;
+  z-index: 1;
 }
 
 .copyright {
   margin: 0 0 10px 0;
-  font-size: 14px;
-  color: #606266;
+  font-size: 12px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .beian-info {
-  font-size: 12px;
-  color: #909399;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .beian-info a {
-  color: #606266;
+  color: var(--text-secondary);
   text-decoration: none;
-  transition: color 0.3s ease;
+  transition: all var(--transition-base);
 }
 
 .beian-info a:hover {
-  color: #409EFF;
-  text-decoration: underline;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
 }
 
 .beian-link {
@@ -66,11 +103,12 @@
   width: 14px;
   height: 14px;
   vertical-align: middle;
+  filter: brightness(0) invert(0.6);
 }
 
 .separator {
   margin: 0 10px;
-  color: #dcdfe6;
+  color: var(--panel-border);
 }
 
 /* 响应式设计 */
@@ -78,21 +116,22 @@
   .global-footer {
     padding: 15px 0;
   }
-  
+
   .copyright {
-    font-size: 12px;
-    margin-bottom: 8px;
-  }
-  
-  .beian-info {
     font-size: 11px;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
   }
-  
+
+  .beian-info {
+    font-size: 10px;
+  }
+
   .beian-icon {
     width: 12px;
     height: 12px;
   }
-  
+
   .separator {
     margin: 0 6px;
   }

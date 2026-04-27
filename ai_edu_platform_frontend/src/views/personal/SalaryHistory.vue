@@ -77,16 +77,52 @@ const goBack = () => {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  animation: tech-fade-in 0.6s ease-out;
 }
 
 .salary-history-container h2 {
   margin-bottom: 20px;
-  color: #303133;
   text-align: center;
+  font-size: 28px;
+  font-weight: 800;
+  background: var(--tech-gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .history-card {
   margin-bottom: 20px;
+  background: var(--tech-glass-bg-strong);
+  backdrop-filter: blur(var(--tech-glass-blur));
+  -webkit-backdrop-filter: blur(var(--tech-glass-blur));
+  border: 1px solid var(--tech-glass-border);
+  border-radius: var(--tech-radius-lg);
+  box-shadow: var(--tech-card-shadow);
+}
+
+.history-card :deep(.el-table) {
+  --el-table-bg-color: transparent;
+  --el-table-tr-bg-color: transparent;
+  --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
+  --el-table-border-color: var(--tech-divider);
+  background: transparent;
+  color: var(--tech-text-primary);
+}
+
+.history-card :deep(.el-table th.el-table__cell) {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: var(--tech-text-secondary);
+  border-color: var(--tech-divider);
+}
+
+.history-card :deep(.el-table td.el-table__cell) {
+  border-color: var(--tech-divider);
+  color: var(--tech-text-primary);
+}
+
+.history-card :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .button-section {
