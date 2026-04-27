@@ -1,7 +1,7 @@
-<!-- 答题历史详情页 -->
+<!-- 答题详情 - Cyberpunk 2.0 -->
 <template>
   <div class="answer-detail-container">
-    <h2>答题详情</h2>
+    <h2 class="page-title gradient-text">答题详情</h2>
     <div class="detail-card">
       <div class="detail-section">
         <!-- 核心数据展示 -->
@@ -25,7 +25,7 @@
         <!-- 用户答案 -->
         <div class="detail-item full-width" v-if="answerDetail.userOptions">
           <label class="detail-label">您的选项：</label>
-          <div class="detail-text options">{{ formatOptions(answerDetail.userOptions) }}</div>
+          <div class="detail-text user-options">{{ formatOptions(answerDetail.userOptions) }}</div>
         </div>
         <div class="detail-item full-width" v-if="answerDetail.userAnswer">
           <label class="detail-label">您的文本答案：</label>
@@ -80,23 +80,12 @@ const route = useRoute()
 const recordId = route.params.id
 
 const answerDetail = reactive({
-  recordId: '',
-  questionId: '',
-  userOptions: '',
-  userAnswer: '',
-  score: 0,
-  comment: '',
-  suggest: '',
-  reason: '',
-  trueOptions: '',
-  analysis: '',
-  accuracy: 0,
-  createTime: ''
+  recordId: '', questionId: '', userOptions: '', userAnswer: '', score: 0, comment: '',
+  suggest: '', reason: '', trueOptions: '', analysis: '', accuracy: 0, createTime: ''
 })
 
 const loading = ref(false)
 
-// 页面加载时获取答题详情
 onMounted(async () => {
   await loadAnswerDetail()
 })
@@ -106,7 +95,6 @@ const loadAnswerDetail = async () => {
     ElMessage.error('缺少答题记录ID')
     return
   }
-  
   loading.value = true
   try {
     const response = await getQuizReport(recordId)
@@ -128,13 +116,11 @@ const goBack = () => {
   router.push('/personal/info')
 }
 
-// 格式化选项JSON为可读文本
 const formatOptions = (optionsJson) => {
   if (!optionsJson) return ''
   try {
     const options = JSON.parse(optionsJson)
     if (Array.isArray(options)) {
-      // 如果数组元素是对象，提取label或value字段，每个选项单独一行
       return options.map((opt, index) => {
         let text = ''
         if (typeof opt === 'object') {
@@ -157,66 +143,46 @@ const formatOptions = (optionsJson) => {
   padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
-  animation: terminal-fade-in 0.6s ease-out;
-  position: relative;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-.answer-detail-container h2 {
+.page-title {
   margin-bottom: 24px;
   text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
+  font-size: 28px;
+  font-weight: 900;
   letter-spacing: 2px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.answer-detail-container h2::before {
-  content: '> ';
-  color: var(--neon-cyan);
-  animation: cursor-blink 1s step-end infinite;
 }
 
 .detail-card {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
   padding: 32px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
-  position: relative;
-  z-index: 1;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
+  animation: breathe 5s ease-in-out infinite;
 }
 
-.detail-section {
-  margin-bottom: 24px;
-}
-
-/* 核心数据概览 */
+/* 分数概览 */
 .score-overview {
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 24px;
-  background: var(--panel-bg);
+  padding: 28px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.04), rgba(180, 74, 255, 0.04));
   border: 1px solid var(--panel-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   margin-bottom: 24px;
 }
 
-.score-item {
-  text-align: center;
-  flex: 1;
-}
+.score-item { text-align: center; flex: 1; }
 
 .score-label {
   font-size: 13px;
   color: var(--text-secondary);
   margin-bottom: 8px;
-  font-weight: 500;
-  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .score-value {
@@ -224,49 +190,38 @@ const formatOptions = (optionsJson) => {
   font-weight: 800;
   color: var(--neon-cyan);
   line-height: 1.2;
-  font-family: 'JetBrains Mono', monospace;
+  text-shadow: var(--glow-text-cyan);
 }
 
 .score-value.accuracy {
-  color: var(--neon-yellow);
+  color: var(--neon-purple);
+  text-shadow: var(--glow-text-purple);
 }
 
 .score-value.time {
-  font-size: 16px;
+  font-size: 14px;
   color: var(--text-secondary);
 }
 
 .score-divider {
   width: 1px;
   height: 40px;
-  background-color: var(--divider-strong);
+  background: linear-gradient(180deg, transparent, var(--divider-strong), transparent);
 }
 
+/* 详情区块 */
 .detail-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 16px;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 212, 255, 0.03);
   border-radius: var(--radius-xs);
   border: 1px solid var(--divider);
 }
 
 .detail-item.full-width {
   flex-direction: column;
-  align-items: flex-start;
-}
-
-.detail-row {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.detail-row .detail-item {
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: 0;
 }
 
 .detail-label {
@@ -276,71 +231,39 @@ const formatOptions = (optionsJson) => {
   min-width: 80px;
   margin-right: 12px;
   line-height: 1.8;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.detail-value {
-  font-size: 14px;
-  color: var(--text-primary);
-  line-height: 1.8;
-  flex: 1;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.detail-value.score {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--neon-cyan);
 }
 
 .detail-text {
   font-size: 14px;
   line-height: 1.8;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   width: 100%;
   margin-top: 8px;
-  padding: 16px;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: var(--radius-xs);
-  border: 1px solid var(--divider);
   border-left: 3px solid var(--neon-cyan);
-  font-family: 'JetBrains Mono', monospace;
 }
 
-.detail-text.options,
-.detail-text.true-options {
+.detail-text.user-options {
   white-space: pre-line;
-  line-height: 2;
-}
-
-.detail-text.options {
   border-left-color: var(--text-muted);
 }
 
+.detail-text.user-answer { border-left-color: var(--neon-green); }
+
 .detail-text.true-options {
+  white-space: pre-line;
+  line-height: 2;
   border-left-color: var(--neon-green);
   color: var(--neon-green);
+  text-shadow: var(--glow-text-green);
 }
 
-.detail-text.user-answer {
-  border-left-color: var(--neon-green);
-}
-
-.detail-text.comment {
-  border-left-color: var(--neon-yellow);
-}
-
-.detail-text.reason {
-  border-left-color: var(--neon-pink);
-}
-
-.detail-text.analysis {
-  border-left-color: var(--neon-cyan);
-}
-
-.detail-text.suggest {
-  border-left-color: var(--neon-green);
-}
+.detail-text.comment { border-left-color: var(--neon-yellow); }
+.detail-text.reason { border-left-color: var(--neon-pink); }
+.detail-text.analysis { border-left-color: var(--neon-cyan); }
+.detail-text.suggest { border-left-color: var(--neon-blue); }
 
 .button-section {
   display: flex;
@@ -349,9 +272,8 @@ const formatOptions = (optionsJson) => {
   border-top: 1px solid var(--divider);
 }
 
-.button-section .el-button {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
+@media (max-width: 768px) {
+  .answer-detail-container { padding: 20px; }
+  .detail-card { padding: 24px; }
 }
 </style>

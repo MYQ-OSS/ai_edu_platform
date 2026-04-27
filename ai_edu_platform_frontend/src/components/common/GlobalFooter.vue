@@ -1,9 +1,9 @@
-<!-- 全局页脚组件 -->
+<!-- 全局页脚组件 - Cyberpunk 2.0 -->
 <template>
   <footer class="global-footer">
     <div class="footer-scanline"></div>
     <div class="footer-content">
-      <p class="copyright">&copy; 2026 AI EDU PLATFORM // ALL RIGHTS RESERVED</p>
+      <p class="copyright">© 2026 AI EDU PLATFORM // ALL RIGHTS RESERVED</p>
       <div class="beian-info">
         <a href="https://beian.miit.gov.cn/" target="_blank" rel="noreferrer">粤ICP备2026035720号-1</a>
         <span class="separator">|</span>
@@ -21,25 +21,25 @@
 
 <style scoped>
 .global-footer {
-  background: var(--bg-primary);
+  background: var(--panel-bg-strong);
   color: var(--text-secondary);
   padding: 24px 0 20px;
   margin-top: auto;
   border-top: 1px solid var(--panel-border);
   position: relative;
   overflow: hidden;
+  z-index: 1;
 }
 
-/* 扫描线装饰 */
 .footer-scanline {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--neon-green), transparent);
+  background: linear-gradient(90deg, transparent, var(--neon-cyan), var(--neon-purple), transparent);
   animation: footer-scan 4s linear infinite;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 @keyframes footer-scan {
@@ -47,7 +47,6 @@
   100% { transform: translateX(100%); }
 }
 
-/* 终端风格上边框 */
 .global-footer::before {
   content: '';
   position: absolute;
@@ -55,8 +54,8 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--neon-cyan) 20%, var(--neon-green) 50%, var(--neon-cyan) 80%, transparent 100%);
-  opacity: 0.5;
+  background: linear-gradient(90deg, transparent 0%, var(--neon-cyan) 30%, var(--neon-purple) 60%, transparent 100%);
+  opacity: 0.4;
 }
 
 .footer-content {
@@ -72,14 +71,12 @@
   margin: 0 0 10px 0;
   font-size: 12px;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
   letter-spacing: 1px;
 }
 
 .beian-info {
   font-size: 11px;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
 }
 
 .beian-info a {
@@ -111,29 +108,11 @@
   color: var(--panel-border);
 }
 
-/* 响应式设计 */
 @media (max-width: 768px) {
-  .global-footer {
-    padding: 15px 0;
-  }
-
-  .copyright {
-    font-size: 11px;
-    margin-bottom: 8px;
-    letter-spacing: 0.5px;
-  }
-
-  .beian-info {
-    font-size: 10px;
-  }
-
-  .beian-icon {
-    width: 12px;
-    height: 12px;
-  }
-
-  .separator {
-    margin: 0 6px;
-  }
+  .global-footer { padding: 15px 0; }
+  .copyright { font-size: 11px; margin-bottom: 8px; letter-spacing: 0.5px; }
+  .beian-info { font-size: 10px; }
+  .beian-icon { width: 12px; height: 12px; }
+  .separator { margin: 0 6px; }
 }
 </style>

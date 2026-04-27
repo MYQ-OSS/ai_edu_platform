@@ -1,11 +1,10 @@
-<!-- 薪资报告历史页面 -->
+<!-- 薪资报告历史 - Cyberpunk 2.0 -->
 <template>
   <div class="salary-history-container">
-    <h2>薪资评估历史</h2>
-    
+    <h2 class="page-title gradient-text">薪资评估历史</h2>
+
     <el-card class="history-card" v-loading="loading">
       <el-empty v-if="!loading && historyList.length === 0" description="暂无薪资评估记录" />
-      
       <el-table v-else :data="historyList" style="width: 100%">
         <el-table-column prop="id" label="报告ID" width="100" />
         <el-table-column prop="salaryRange" label="预估薪资" width="150">
@@ -21,7 +20,7 @@
         </el-table-column>
       </el-table>
     </el-card>
-    
+
     <div class="button-section">
       <el-button @click="goBack">返回个人中心</el-button>
     </div>
@@ -38,12 +37,10 @@ const router = useRouter()
 const loading = ref(false)
 const historyList = ref([])
 
-// 页面加载时获取历史记录
 onMounted(async () => {
   await loadHistory()
 })
 
-// 加载历史记录
 const loadHistory = async () => {
   loading.value = true
   try {
@@ -60,13 +57,11 @@ const loadHistory = async () => {
   }
 }
 
-// 查看详情
 const viewDetail = (reportId) => {
   localStorage.setItem('salaryReportId', reportId)
   router.push('/salary/report')
 }
 
-// 返回个人中心
 const goBack = () => {
   router.push('/personal/info')
 }
@@ -74,59 +69,48 @@ const goBack = () => {
 
 <style scoped>
 .salary-history-container {
-  padding: 20px;
+  padding: 30px 40px;
   max-width: 1200px;
   margin: 0 auto;
-  animation: tech-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-.salary-history-container h2 {
-  margin-bottom: 20px;
+.page-title {
+  margin-bottom: 24px;
   text-align: center;
   font-size: 28px;
-  font-weight: 800;
-  background: var(--tech-gradient-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
 .history-card {
   margin-bottom: 20px;
-  background: var(--tech-glass-bg-strong);
-  backdrop-filter: blur(var(--tech-glass-blur));
-  -webkit-backdrop-filter: blur(var(--tech-glass-blur));
-  border: 1px solid var(--tech-glass-border);
-  border-radius: var(--tech-radius-lg);
-  box-shadow: var(--tech-card-shadow);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
 }
 
-.history-card :deep(.el-table) {
-  --el-table-bg-color: transparent;
-  --el-table-tr-bg-color: transparent;
-  --el-table-header-bg-color: rgba(255, 255, 255, 0.05);
-  --el-table-border-color: var(--tech-divider);
-  background: transparent;
-  color: var(--tech-text-primary);
+.el-table th.el-table__cell {
+  background: rgba(0, 212, 255, 0.05) !important;
+  color: var(--neon-cyan) !important;
 }
 
-.history-card :deep(.el-table th.el-table__cell) {
-  background: rgba(255, 255, 255, 0.05) !important;
-  color: var(--tech-text-secondary);
-  border-color: var(--tech-divider);
+.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell {
+  background: rgba(180, 74, 255, 0.02) !important;
 }
 
-.history-card :deep(.el-table td.el-table__cell) {
-  border-color: var(--tech-divider);
-  color: var(--tech-text-primary);
-}
-
-.history-card :deep(.el-table--striped .el-table__body tr.el-table__row--striped td.el-table__cell) {
-  background: rgba(255, 255, 255, 0.02);
+.el-table__body tr:hover > td {
+  background: rgba(0, 212, 255, 0.06) !important;
 }
 
 .button-section {
   display: flex;
   justify-content: center;
+}
+
+@media (max-width: 768px) {
+  .salary-history-container { padding: 20px; }
 }
 </style>

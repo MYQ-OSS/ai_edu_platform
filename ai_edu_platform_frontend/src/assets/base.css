@@ -1,6 +1,6 @@
 /* ============================================
-   CYBER TERMINAL - Design System
-   AI Education Platform v2.0
+   CYBERPUNK 2.0 - Design System
+   AI Education Platform v3.0
    ============================================ */
 
 :root {
@@ -11,70 +11,92 @@
   --neon-purple: #b44aff;
   --neon-yellow: #ffee00;
   --neon-orange: #ff6b00;
+  --neon-magenta: #ff2d95;
+  --neon-blue: #4a9eff;
 
-  /* === 背景 === */
-  --bg-primary: #0a0a0f;
-  --bg-secondary: #0d1117;
-  --bg-tertiary: #161b22;
-  --bg-elevated: #1c2333;
-  --bg-overlay: rgba(10, 10, 15, 0.85);
+  /* === 背景 - 深蓝紫渐变 === */
+  --bg-primary: #0a0e1a;
+  --bg-secondary: #0d1225;
+  --bg-tertiary: #141b33;
+  --bg-elevated: #1a2340;
+  --bg-overlay: rgba(10, 14, 26, 0.88);
+  --bg-gradient: linear-gradient(135deg, #0a0e1a 0%, #0d1a3a 30%, #1a0a2e 60%, #0a0e1a 100%);
 
-  /* === 终端面板 === */
-  --panel-bg: rgba(13, 17, 23, 0.92);
-  --panel-border: rgba(0, 255, 65, 0.15);
-  --panel-border-active: rgba(0, 255, 65, 0.4);
-  --panel-glow: 0 0 20px rgba(0, 255, 65, 0.08);
-  --panel-glow-active: 0 0 24px rgba(0, 255, 65, 0.15);
+  /* === 赛博朋克面板 === */
+  --panel-bg: rgba(13, 18, 37, 0.85);
+  --panel-bg-strong: rgba(20, 27, 51, 0.92);
+  --panel-border: rgba(0, 212, 255, 0.12);
+  --panel-border-active: rgba(0, 212, 255, 0.35);
+  --panel-border-purple: rgba(180, 74, 255, 0.3);
+  --panel-glow: 0 0 20px rgba(0, 212, 255, 0.06), 0 0 40px rgba(180, 74, 255, 0.03);
+  --panel-glow-active: 0 0 30px rgba(0, 212, 255, 0.12), 0 0 60px rgba(180, 74, 255, 0.06);
+  --panel-glow-purple: 0 0 20px rgba(180, 74, 255, 0.1), 0 0 40px rgba(180, 74, 255, 0.05);
 
   /* === 文字 === */
-  --text-primary: #e6e6e6;
-  --text-secondary: #8892b0;
-  --text-muted: #4a5568;
+  --text-primary: #e8eaf0;
+  --text-secondary: #8a94b8;
+  --text-muted: #4e5878;
   --text-terminal: #00ff41;
   --text-accent: #00d4ff;
+  --text-gradient: linear-gradient(135deg, #00d4ff, #b44aff, #ff0080);
 
   /* === 按钮 === */
-  --btn-primary-bg: linear-gradient(135deg, #00ff41 0%, #00d4ff 100%);
-  --btn-primary-hover: linear-gradient(135deg, #00d4ff 0%, #00ff41 100%);
+  --btn-primary-bg: linear-gradient(135deg, #00d4ff 0%, #b44aff 50%, #ff0080 100%);
+  --btn-primary-hover: linear-gradient(135deg, #ff0080 0%, #b44aff 50%, #00d4ff 100%);
   --btn-danger-bg: linear-gradient(135deg, #ff0080 0%, #ff3366 100%);
   --btn-warning-bg: linear-gradient(135deg, #ff6b00 0%, #ffee00 100%);
-  --btn-ghost-border: rgba(0, 255, 65, 0.3);
+  --btn-success-bg: linear-gradient(135deg, #00ff41 0%, #00d4ff 100%);
+  --btn-ghost-border: rgba(0, 212, 255, 0.3);
 
   /* === 发光 === */
   --glow-green: 0 0 12px rgba(0, 255, 65, 0.4), 0 0 24px rgba(0, 255, 65, 0.15);
   --glow-cyan: 0 0 12px rgba(0, 212, 255, 0.4), 0 0 24px rgba(0, 212, 255, 0.15);
   --glow-pink: 0 0 12px rgba(255, 0, 128, 0.4), 0 0 24px rgba(255, 0, 128, 0.15);
   --glow-purple: 0 0 12px rgba(180, 74, 255, 0.4), 0 0 24px rgba(180, 74, 255, 0.15);
+  --glow-blue: 0 0 12px rgba(74, 158, 255, 0.4), 0 0 24px rgba(74, 158, 255, 0.15);
   --glow-text-green: 0 0 8px rgba(0, 255, 65, 0.6);
+  --glow-text-cyan: 0 0 8px rgba(0, 212, 255, 0.6);
+  --glow-text-purple: 0 0 8px rgba(180, 74, 255, 0.6);
 
   /* === 页面背景 === */
-  --page-bg: #0a0a0f;
+  --page-bg: #0a0e1a;
 
   /* === 分割线 === */
-  --divider: rgba(0, 255, 65, 0.08);
-  --divider-strong: rgba(0, 255, 65, 0.15);
+  --divider: rgba(0, 212, 255, 0.06);
+  --divider-strong: rgba(0, 212, 255, 0.12);
 
   /* === 圆角 === */
-  --radius-xs: 3px;
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
 
   /* === 过渡 & 动画 === */
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --transition-fast: 150ms var(--ease-out);
-  --transition-base: 250ms var(--ease-out);
-  --transition-slow: 400ms var(--ease-out);
+  --transition-base: 300ms var(--ease-out);
+  --transition-slow: 500ms var(--ease-out);
+
+  /* === 全息扫描 === */
+  --holo-gradient: linear-gradient(
+    135deg,
+    rgba(0, 212, 255, 0) 0%,
+    rgba(0, 212, 255, 0.08) 45%,
+    rgba(180, 74, 255, 0.15) 50%,
+    rgba(0, 212, 255, 0.08) 55%,
+    rgba(0, 212, 255, 0) 100%
+  );
 
   /* === 兼容别名（旧 --tech-* 变量映射） === */
   --tech-accent-cyan: var(--neon-cyan);
-  --tech-accent-blue: #3b82f6;
+  --tech-accent-blue: var(--neon-blue);
   --tech-accent-purple: var(--neon-purple);
   --tech-bg-deep: var(--bg-secondary);
   --tech-bg-mid: var(--bg-tertiary);
   --tech-glass-bg: var(--panel-bg);
-  --tech-glass-bg-strong: var(--panel-bg);
+  --tech-glass-bg-strong: var(--panel-bg-strong);
   --tech-glass-border: var(--panel-border);
   --tech-glass-border-hover: var(--panel-border-active);
   --tech-glass-blur: 16px;
@@ -93,12 +115,12 @@
   --tech-card-shadow-hover: var(--panel-glow-active);
   --tech-glow-cyan: var(--glow-cyan);
   --tech-glow-purple: var(--glow-purple);
-  --tech-gradient-text: var(--btn-primary-bg);
+  --tech-gradient-text: var(--text-gradient);
   --tech-btn-primary-gradient: var(--btn-primary-bg);
   --tech-btn-primary-hover: var(--btn-primary-hover);
   --tech-btn-warning-gradient: var(--btn-warning-bg);
-  --tech-btn-success-gradient: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-  --tech-page-gradient: var(--bg-primary);
+  --tech-btn-success-gradient: var(--btn-success-bg);
+  --tech-page-gradient: var(--bg-gradient);
 }
 
 /* === Reset === */
@@ -112,7 +134,8 @@
 body {
   min-height: 100vh;
   color: var(--text-primary);
-  background: var(--page-bg);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
   line-height: 1.6;
   font-family:
     'JetBrains Mono',
@@ -128,20 +151,20 @@ body {
   overflow-x: hidden;
 }
 
-/* === 页面网格背景 === */
+/* === 页面网格背景 - 升级为紫蓝渐变网格 === */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(rgba(0, 255, 65, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 255, 65, 0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(0, 212, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(180, 74, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
   pointer-events: none;
   z-index: 0;
 }
 
-/* === 扫描线效果 === */
+/* === 扫描线效果 - 更 subtle === */
 body::after {
   content: '';
   position: fixed;
@@ -149,29 +172,48 @@ body::after {
   background: repeating-linear-gradient(
     0deg,
     transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.08) 2px,
-    rgba(0, 0, 0, 0.08) 4px
+    transparent 3px,
+    rgba(0, 0, 0, 0.05) 3px,
+    rgba(0, 0, 0, 0.05) 6px
   );
   pointer-events: none;
   z-index: 9999;
-  opacity: 0.3;
+  opacity: 0.2;
+}
+
+/* === 全局页面过渡 - 移除渐变效果 === */
+.page-enter-active,
+.page-leave-active {
+  transition: none;
+}
+
+.page-enter-from,
+.page-leave-to {
+  opacity: 1;
+  transform: none;
 }
 
 /* === 动画 Keyframes === */
 @keyframes terminal-fade-in {
-  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  from { opacity: 0; transform: translateY(20px); filter: blur(6px); }
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes neon-pulse {
-  0%, 100% { opacity: 1; text-shadow: var(--glow-text-green); }
-  50% { opacity: 0.85; text-shadow: 0 0 12px rgba(0, 255, 65, 0.8), 0 0 24px rgba(0, 255, 65, 0.4); }
+  0%, 100% { opacity: 1; text-shadow: var(--glow-text-cyan); }
+  50% { opacity: 0.85; text-shadow: 0 0 12px rgba(0, 212, 255, 0.8), 0 0 30px rgba(180, 74, 255, 0.4); }
 }
 
 @keyframes border-glow {
-  0%, 100% { border-color: rgba(0, 255, 65, 0.15); box-shadow: 0 0 8px rgba(0, 255, 65, 0.05); }
-  50% { border-color: rgba(0, 255, 65, 0.35); box-shadow: 0 0 16px rgba(0, 255, 65, 0.12); }
+  0%, 100% { border-color: rgba(0, 212, 255, 0.12); box-shadow: 0 0 8px rgba(0, 212, 255, 0.05); }
+  50% { border-color: rgba(180, 74, 255, 0.3); box-shadow: 0 0 20px rgba(180, 74, 255, 0.1); }
+}
+
+@keyframes border-glow-rainbow {
+  0% { border-color: rgba(0, 212, 255, 0.3); box-shadow: 0 0 15px rgba(0, 212, 255, 0.1); }
+  33% { border-color: rgba(180, 74, 255, 0.3); box-shadow: 0 0 15px rgba(180, 74, 255, 0.1); }
+  66% { border-color: rgba(255, 0, 128, 0.3); box-shadow: 0 0 15px rgba(255, 0, 128, 0.1); }
+  100% { border-color: rgba(0, 212, 255, 0.3); box-shadow: 0 0 15px rgba(0, 212, 255, 0.1); }
 }
 
 @keyframes scan-line {
@@ -199,17 +241,17 @@ body::after {
 }
 
 @keyframes slide-in-left {
-  from { opacity: 0; transform: translateX(-20px); }
+  from { opacity: 0; transform: translateX(-30px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes slide-in-right {
-  from { opacity: 0; transform: translateX(20px); }
+  from { opacity: 0; transform: translateX(30px); }
   to { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
@@ -228,21 +270,20 @@ body::after {
   50% { opacity: 1; }
 }
 
-/* === 兼容别名动画 === */
+/* === 赛博朋克 2.0 新动画 === */
 @keyframes tech-fade-in {
-  from { opacity: 0; transform: translateY(12px); filter: blur(4px); }
+  from { opacity: 0; transform: translateY(16px); filter: blur(6px); }
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 }
 
 @keyframes tech-float {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  50% { transform: translateY(-8px); }
 }
 
 @keyframes tech-shimmer {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
 
 @keyframes tech-glow-pulse {
@@ -252,5 +293,104 @@ body::after {
 
 @keyframes neon-flicker {
   0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-  20%, 24%, 55% { opacity: 0.6; }
+  20%, 24%, 55% { opacity: 0.7; }
+}
+
+/* === 全息扫描动画 === */
+@keyframes holo-scan {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* === 呼吸发光 === */
+@keyframes breathe {
+  0%, 100% { box-shadow: 0 0 10px rgba(0, 212, 255, 0.15), 0 0 20px rgba(180, 74, 255, 0.08); }
+  50% { box-shadow: 0 0 25px rgba(0, 212, 255, 0.3), 0 0 50px rgba(180, 74, 255, 0.15); }
+}
+
+/* === 波纹扩散 === */
+@keyframes ripple {
+  0% { transform: scale(0); opacity: 0.5; }
+  100% { transform: scale(4); opacity: 0; }
+}
+
+/* === 数字滚动 === */
+@keyframes digit-roll {
+  0% { transform: translateY(100%); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* === 流光骨架屏 === */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* === 卡片悬浮浮动 === */
+@keyframes card-float {
+  0%, 100% { transform: translateY(0) rotateX(0) rotateY(0); }
+  50% { transform: translateY(-6px) rotateX(1deg) rotateY(-1deg); }
+}
+
+/* === 渐变文字动画 === */
+@keyframes gradient-text {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* === 粒子容器 === */
+.particle-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* === 通用玻璃卡片 === */
+.cyber-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--panel-glow);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all var(--transition-base);
+}
+.cyber-card:hover {
+  border-color: var(--panel-border-active);
+  box-shadow: var(--panel-glow-active);
+  transform: translateY(-2px);
+}
+
+/* === 通用按钮波纹 === */
+.btn-ripple-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple-wrap .btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  width: 100px;
+  height: 100px;
+  animation: ripple 0.6s ease-out;
+  pointer-events: none;
+}
+
+/* === 渐变文字 === */
+.gradient-text {
+  background: var(--text-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-text 4s ease infinite;
+}
+
+/* === 数字滚动 === */
+.digit-animate {
+  display: inline-block;
+  animation: digit-roll 0.6s var(--ease-out) forwards;
 }

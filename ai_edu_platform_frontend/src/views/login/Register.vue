@@ -1,6 +1,7 @@
-<!-- 注册页面 -->
+<!-- 注册页面 - Cyberpunk 2.0 -->
 <template>
   <div class="register-container">
+    <CodeRain :zIndex="0" :fontSize="12" :speed="0.5" :density="0.5" />
     <div class="register-form">
       <div class="terminal-header">
         <span class="dot red"></span>
@@ -26,8 +27,8 @@
           <el-input v-model="registerForm.experience" type="textarea" placeholder="请输入项目/工作经历" :rows="3" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleRegister" :loading="userStore.loading">注册</el-button>
-          <el-button @click="goToLogin">登录</el-button>
+          <el-button type="primary" @click="handleRegister" :loading="userStore.loading" class="btn-ripple-wrap">注册</el-button>
+          <el-button @click="goToLogin" class="btn-ripple-wrap">登录</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -39,6 +40,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../../store/userStore'
+import CodeRain from '../../components/common/CodeRain.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -72,14 +74,12 @@ const handleRegister = async () => {
         const response = await userStore.register(registerForm)
         if (response.code === 200) {
           ElMessage.success('注册成功')
-          // 如果返回了token，自动登录
           if (response.data && response.data.token) {
             userStore.token = response.data.token
             userStore.isLoggedIn = true
             localStorage.setItem('token', response.data.token)
             router.push('/home')
           } else {
-            // 否则跳转到登录页
             router.push('/login')
           }
         } else {
@@ -104,18 +104,17 @@ const goToLogin = () => {
   align-items: center;
   min-height: 100vh;
   position: relative;
-  animation: terminal-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-/* 装饰光斑 */
 .register-container::before {
   content: '';
   position: fixed;
   top: 15%;
   right: 10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: corner-pulse 9s ease-in-out infinite;
@@ -127,9 +126,9 @@ const goToLogin = () => {
   position: fixed;
   bottom: 10%;
   left: 10%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(180, 74, 255, 0.04) 0%, transparent 70%);
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(180, 74, 255, 0.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: corner-pulse 11s ease-in-out infinite reverse;
@@ -139,17 +138,18 @@ const goToLogin = () => {
 .register-form {
   width: 470px;
   padding: 0;
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.08), 0 0 80px rgba(180, 74, 255, 0.04);
   position: relative;
   z-index: 1;
   overflow: hidden;
   max-height: 90vh;
   overflow-y: auto;
+  animation: breathe 4s ease-in-out infinite;
 }
 
 /* 终端标题栏 */
@@ -157,41 +157,47 @@ const goToLogin = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
-  background: rgba(0, 212, 255, 0.05);
+  padding: 14px 18px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.06), rgba(180, 74, 255, 0.06));
   border-bottom: 1px solid var(--panel-border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
+  transition: transform 0.2s ease;
 }
-.dot.red { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.5); }
-.dot.yellow { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.5); }
-.dot.green { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.5); }
+.dot:hover { transform: scale(1.3); }
+.dot.red { background: #ff5f56; box-shadow: 0 0 8px rgba(255, 95, 86, 0.6); }
+.dot.yellow { background: #ffbd2e; box-shadow: 0 0 8px rgba(255, 189, 46, 0.6); }
+.dot.green { background: #27c93f; box-shadow: 0 0 8px rgba(39, 201, 63, 0.6); }
 
 .terminal-title {
   margin-left: 8px;
   font-size: 12px;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
   letter-spacing: 1px;
 }
 
 .register-form h2 {
   text-align: center;
-  margin: 24px 0 20px;
-  font-size: 24px;
+  margin: 28px 0 24px;
+  font-size: 26px;
   font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
-  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
 }
 
 .register-form h2 .prompt {
-  color: var(--neon-cyan);
+  -webkit-text-fill-color: var(--neon-cyan);
   margin-right: 4px;
   animation: cursor-blink 1s step-end infinite;
 }
@@ -206,7 +212,6 @@ const goToLogin = () => {
 
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
 }
 

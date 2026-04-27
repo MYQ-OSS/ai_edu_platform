@@ -1,7 +1,7 @@
-<!-- 薪资报告详情页 -->
+<!-- 薪资报告详情 - Cyberpunk 2.0 -->
 <template>
   <div class="salary-detail-container">
-    <h2>薪资报告详情</h2>
+    <h2 class="page-title gradient-text">薪资报告详情</h2>
     <div class="detail-card">
       <div class="detail-section">
         <div class="detail-row">
@@ -18,7 +18,7 @@
             <span class="detail-value">{{ salaryDetail.createTime }}</span>
           </div>
         </div>
-        <div class="detail-item full-width">
+        <div class="detail-item full-width salary-item">
           <label class="detail-label">预估薪资：</label>
           <span class="detail-value salary">{{ salaryDetail.salaryRange }}</span>
         </div>
@@ -49,19 +49,11 @@ const route = useRoute()
 const reportId = route.params.id
 
 const salaryDetail = reactive({
-  id: '',
-  userId: '',
-  direction: '',
-  city: '',
-  experience: '',
-  salaryRange: '',
-  aiSuggestion: '',
-  createTime: ''
+  id: '', userId: '', direction: '', city: '', experience: '', salaryRange: '', aiSuggestion: '', createTime: ''
 })
 
 const loading = ref(false)
 
-// 页面加载时获取薪资报告详情
 onMounted(async () => {
   await loadSalaryDetail()
 })
@@ -71,7 +63,6 @@ const loadSalaryDetail = async () => {
     ElMessage.error('缺少薪资报告ID')
     return
   }
-  
   loading.value = true
   try {
     const response = await getSalaryReport(reportId)
@@ -99,55 +90,40 @@ const goBack = () => {
   padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
-  animation: terminal-fade-in 0.6s ease-out;
-  position: relative;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-.salary-detail-container h2 {
+.page-title {
   margin-bottom: 24px;
   text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
+  font-size: 28px;
+  font-weight: 900;
   letter-spacing: 2px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.salary-detail-container h2::before {
-  content: '> ';
-  color: var(--neon-cyan);
-  animation: cursor-blink 1s step-end infinite;
 }
 
 .detail-card {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
   padding: 32px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
+  animation: breathe 5s ease-in-out infinite;
 }
 
-.detail-section {
-  margin-bottom: 24px;
-}
+.detail-section { margin-bottom: 24px; }
 
 .detail-item {
   display: flex;
   align-items: flex-start;
   margin-bottom: 16px;
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 212, 255, 0.03);
   border-radius: var(--radius-xs);
   border: 1px solid var(--divider);
 }
 
-.detail-item.full-width {
-  flex-direction: column;
-  align-items: flex-start;
-}
+.detail-item.full-width { flex-direction: column; }
 
 .detail-row {
   display: flex;
@@ -155,11 +131,7 @@ const goBack = () => {
   flex-wrap: wrap;
 }
 
-.detail-row .detail-item {
-  flex: 1;
-  min-width: 200px;
-  margin-bottom: 0;
-}
+.detail-row .detail-item { flex: 1; min-width: 200px; }
 
 .detail-label {
   font-size: 14px;
@@ -168,7 +140,6 @@ const goBack = () => {
   min-width: 80px;
   margin-right: 12px;
   line-height: 1.8;
-  font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-value {
@@ -176,32 +147,32 @@ const goBack = () => {
   color: var(--text-primary);
   line-height: 1.8;
   flex: 1;
-  font-family: 'JetBrains Mono', monospace;
 }
 
 .detail-value.salary {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-text-cyan);
 }
 
 .detail-text {
   font-size: 14px;
   line-height: 1.8;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   width: 100%;
   margin-top: 8px;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.3);
   border-radius: var(--radius-xs);
-  border: 1px solid var(--divider);
-  border-left: 3px solid var(--neon-cyan);
-  font-family: 'JetBrains Mono', monospace;
+  border-left: 3px solid var(--neon-purple);
 }
 
-.detail-text.trend {
-  border-left-color: var(--neon-green);
+.detail-text.trend { border-left-color: var(--neon-green); }
+
+.salary-item {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.05), rgba(180, 74, 255, 0.03));
+  border-color: rgba(0, 212, 255, 0.2);
 }
 
 .button-section {
@@ -211,9 +182,9 @@ const goBack = () => {
   border-top: 1px solid var(--divider);
 }
 
-.button-section .el-button {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
+@media (max-width: 768px) {
+  .salary-detail-container { padding: 20px; }
+  .detail-card { padding: 24px; }
+  .detail-row { flex-direction: column; }
 }
 </style>

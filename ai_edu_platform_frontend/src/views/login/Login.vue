@@ -1,6 +1,7 @@
-<!-- 登录页面 -->
+<!-- 登录页面 - Cyberpunk 2.0 -->
 <template>
   <div class="login-container">
+    <CodeRain :zIndex="0" :fontSize="12" :speed="0.6" :density="0.5" />
     <div class="login-form">
       <div class="terminal-header">
         <span class="dot red"></span>
@@ -17,8 +18,8 @@
           <el-input v-model="loginForm.password" type="password" placeholder="请输入密码" />
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleLogin" :loading="userStore.loading">登录</el-button>
-          <el-button @click="goToRegister">注册</el-button>
+          <el-button type="primary" @click="handleLogin" :loading="userStore.loading" class="btn-ripple-wrap">登录</el-button>
+          <el-button @click="goToRegister" class="btn-ripple-wrap">注册</el-button>
         </el-form-item>
         <el-form-item>
           <div class="register-tip">
@@ -35,6 +36,7 @@ import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { useUserStore } from '../../store/userStore'
+import CodeRain from '../../components/common/CodeRain.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -60,28 +62,18 @@ const handleLogin = async () => {
     if (valid) {
       try {
         const response = await userStore.login(loginForm)
-        console.log('登录响应:', response)
-
         if (response.code === 200) {
           ElMessage.success('登录成功')
-
-          // 获取用户信息（包含 role）
           await userStore.fetchUserInfo()
-          console.log('用户信息:', userStore.userInfo)
-
-          // 将 role 信息存入 localStorage，供 isAdmin getter 使用
           const userInfo = userStore.userInfo
           if (userInfo) {
             localStorage.setItem('userInfo', JSON.stringify(userInfo))
-            console.log('已保存 userInfo 到 localStorage:', userInfo)
           }
-
           router.push('/home')
         } else {
           ElMessage.error(response.msg || '登录失败')
         }
       } catch (error) {
-        console.error('登录错误:', error)
         ElMessage.error(error.response?.data?.msg || '登录失败，请稍后重试')
       }
     }
@@ -100,18 +92,17 @@ const goToRegister = () => {
   align-items: center;
   min-height: 100vh;
   position: relative;
-  animation: terminal-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-/* 装饰光斑 */
 .login-container::before {
   content: '';
   position: fixed;
-  top: 20%;
-  left: 10%;
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(0, 255, 65, 0.04) 0%, transparent 70%);
+  top: 15%;
+  right: 10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0, 212, 255, 0.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: corner-pulse 8s ease-in-out infinite;
@@ -122,10 +113,10 @@ const goToRegister = () => {
   content: '';
   position: fixed;
   bottom: 10%;
-  right: 10%;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(0, 212, 255, 0.04) 0%, transparent 70%);
+  left: 10%;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(180, 74, 255, 0.06) 0%, transparent 70%);
   border-radius: 50%;
   pointer-events: none;
   animation: corner-pulse 10s ease-in-out infinite reverse;
@@ -135,15 +126,16 @@ const goToRegister = () => {
 .login-form {
   width: 440px;
   padding: 0;
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 0 40px rgba(0, 212, 255, 0.08), 0 0 80px rgba(180, 74, 255, 0.04);
   position: relative;
   z-index: 1;
   overflow: hidden;
+  animation: breathe 4s ease-in-out infinite;
 }
 
 /* 终端标题栏 */
@@ -151,41 +143,44 @@ const goToRegister = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 12px 16px;
-  background: rgba(0, 255, 65, 0.05);
+  padding: 14px 18px;
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.06), rgba(180, 74, 255, 0.06));
   border-bottom: 1px solid var(--panel-border);
 }
 
 .dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   display: inline-block;
+  transition: transform 0.2s ease;
 }
-.dot.red { background: #ff5f56; box-shadow: 0 0 6px rgba(255, 95, 86, 0.5); }
-.dot.yellow { background: #ffbd2e; box-shadow: 0 0 6px rgba(255, 189, 46, 0.5); }
-.dot.green { background: #27c93f; box-shadow: 0 0 6px rgba(39, 201, 63, 0.5); }
+.dot:hover { transform: scale(1.3); }
+.dot.red { background: #ff5f56; box-shadow: 0 0 8px rgba(255, 95, 86, 0.6); }
+.dot.yellow { background: #ffbd2e; box-shadow: 0 0 8px rgba(255, 189, 46, 0.6); }
+.dot.green { background: #27c93f; box-shadow: 0 0 8px rgba(39, 201, 63, 0.6); }
 
 .terminal-title {
   margin-left: 8px;
   font-size: 12px;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
   letter-spacing: 1px;
 }
 
 .login-form h2 {
   text-align: center;
-  margin: 24px 0 20px;
-  font-size: 24px;
+  margin: 28px 0 24px;
+  font-size: 26px;
   font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
-  letter-spacing: 2px;
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 3px;
 }
 
 .login-form h2 .prompt {
-  color: var(--neon-cyan);
+  -webkit-text-fill-color: var(--neon-cyan);
   margin-right: 4px;
   animation: cursor-blink 1s step-end infinite;
 }
@@ -200,7 +195,6 @@ const goToRegister = () => {
 
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
 }
 
@@ -219,6 +213,5 @@ const goToRegister = () => {
   color: var(--text-muted);
   font-size: 13px;
   margin-top: 8px;
-  font-family: 'JetBrains Mono', monospace;
 }
 </style>

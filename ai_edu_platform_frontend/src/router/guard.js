@@ -42,8 +42,10 @@ export const setupRouterGuard = (router) => {
     }
   });
 
-  // 路由跳转后滚动到顶部
+  // 路由跳转后滚动到顶部 - 使用 nextTick 避免阻塞渲染
   router.afterEach(() => {
-    window.scrollTo(0, 0);
+    requestAnimationFrame(() => {
+      window.scrollTo(0, 0);
+    });
   });
 };

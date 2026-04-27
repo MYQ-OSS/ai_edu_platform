@@ -1,55 +1,55 @@
-<!-- 个人信息编辑页面 -->
+<!-- 个人信息编辑页面 - Cyberpunk 2.0 -->
 <template>
   <div class="edit-info-container">
-    <h2>编辑个人信息</h2>
-    
+    <h2 class="page-title gradient-text">编辑个人信息</h2>
+
     <div class="edit-card">
       <el-form :model="editForm" :rules="rules" ref="editFormRef" label-width="120px">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="editForm.username" placeholder="请输入用户名" maxlength="50" show-word-limit />
         </el-form-item>
-        
+
         <el-form-item label="用户身份" prop="identity">
           <el-input v-model="editForm.identity" placeholder="请输入用户身份（如：学生）" maxlength="23" show-word-limit />
         </el-form-item>
-        
+
         <el-form-item label="期望薪资" prop="salary">
           <el-input v-model.number="editForm.salary" type="number" placeholder="请输入期望薪资（元）" />
         </el-form-item>
-        
+
         <el-form-item label="工作经历" prop="experience">
-          <el-input 
-            v-model="editForm.experience" 
-            type="textarea" 
-            placeholder="请输入项目/工作经历" 
+          <el-input
+            v-model="editForm.experience"
+            type="textarea"
+            placeholder="请输入项目/工作经历"
             :rows="5"
             maxlength="500"
             show-word-limit
           />
         </el-form-item>
-        
+
         <el-form-item label="修改密码" prop="password">
-          <el-input 
-            v-model="editForm.password" 
-            type="password" 
-            placeholder="如需修改密码请输入新密码，否则留空" 
+          <el-input
+            v-model="editForm.password"
+            type="password"
+            placeholder="如需修改密码请输入新密码，否则留空"
             show-password
           />
         </el-form-item>
-        
+
         <el-form-item label="确认密码" prop="confirmPassword">
-          <el-input 
-            v-model="editForm.confirmPassword" 
-            type="password" 
-            placeholder="请再次输入新密码" 
+          <el-input
+            v-model="editForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入新密码"
             show-password
           />
         </el-form-item>
-        
+
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="loading">保存</el-button>
-          <el-button @click="goBack">取消</el-button>
-          <el-button @click="goHome">返回首页</el-button>
+          <el-button type="primary" @click="handleSubmit" :loading="loading" class="btn-ripple-wrap">保存</el-button>
+          <el-button @click="goBack" class="btn-ripple-wrap">取消</el-button>
+          <el-button @click="goHome" class="btn-ripple-wrap">返回首页</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -76,7 +76,6 @@ const editForm = reactive({
   confirmPassword: ''
 })
 
-// 自定义密码验证规则
 const validatePassword = (rule, value, callback) => {
   if (value && value.length < 6) {
     callback(new Error('密码长度不能少于6位'))
@@ -114,14 +113,12 @@ const rules = {
   ]
 }
 
-// 页面加载时获取当前用户信息
 onMounted(async () => {
   if (!userStore.isLoggedIn) {
     ElMessage.warning('请先登录')
     router.push('/login')
     return
   }
-  
   try {
     const response = await userStore.fetchUserInfo()
     if (response.code === 200) {
@@ -141,23 +138,18 @@ const handleSubmit = async () => {
     if (valid) {
       loading.value = true
       try {
-        // 构造提交数据
         const submitData = {
           username: editForm.username,
           identity: editForm.identity,
           salary: editForm.salary,
           experience: editForm.experience
         }
-        
-        // 只有当密码不为空时才添加密码字段
         if (editForm.password) {
           submitData.password = editForm.password
         }
-        
         const response = await userStore.editUserInfo(submitData)
         if (response.code === 200) {
           ElMessage.success('个人信息更新成功')
-          // 重新获取用户信息
           await userStore.fetchUserInfo()
           router.push('/personal/info')
         } else {
@@ -183,38 +175,29 @@ const goHome = () => {
 
 <style scoped>
 .edit-info-container {
-  padding: 20px;
+  padding: 30px 40px;
   max-width: 800px;
   margin: 0 auto;
-  animation: terminal-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
   position: relative;
 }
 
-.edit-info-container h2 {
-  margin-bottom: 20px;
+.page-title {
+  margin-bottom: 24px;
   text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
+  font-size: 28px;
+  font-weight: 900;
   letter-spacing: 2px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.edit-info-container h2::before {
-  content: '> ';
-  color: var(--neon-cyan);
-  animation: cursor-blink 1s step-end infinite;
 }
 
 .edit-card {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
-  padding: 32px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  padding: 36px;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
+  animation: breathe 4s ease-in-out infinite;
 }
 
 .el-form-item {
@@ -223,47 +206,21 @@ const goHome = () => {
 
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
-}
-
-.el-form-item :deep(.el-input__wrapper) {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
-  box-shadow: none;
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
-}
-
-.el-form-item :deep(.el-input__wrapper:hover) {
-  border-color: var(--neon-cyan);
-}
-
-.el-form-item :deep(.el-input__wrapper.is-focus) {
-  border-color: var(--neon-green);
-  box-shadow: var(--glow-green);
-}
-
-.el-form-item :deep(.el-input__inner) {
-  color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.el-form-item :deep(.el-textarea__inner) {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
-  color: var(--text-primary);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.el-form-item :deep(.el-textarea__inner:focus) {
-  border-color: var(--neon-green);
-  box-shadow: var(--glow-green);
 }
 
 .el-button {
   margin-right: 10px;
-  font-family: 'JetBrains Mono', monospace;
   font-weight: 700;
   letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+  .edit-info-container {
+    padding: 20px;
+  }
+  .edit-card {
+    padding: 24px;
+  }
 }
 </style>

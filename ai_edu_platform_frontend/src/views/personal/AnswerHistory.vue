@@ -1,11 +1,11 @@
-<!-- 答题历史页面 -->
+<!-- 答题历史页面 - Cyberpunk 2.0 -->
 <template>
-    <div class="answer-history">
-        <h2>个人中心 - 答题历史</h2>
-        <div class="history-card">
-            <p>答题历史内容已整合至 PersonalInfo.vue 的标签页中</p>
-        </div>
+  <div class="answer-history">
+    <h2 class="page-title gradient-text">答题历史</h2>
+    <div class="history-card">
+      <p>答题历史内容已整合至 PersonalInfo.vue 的标签页中</p>
     </div>
+  </div>
 </template>
 
 <script setup>
@@ -16,33 +16,35 @@
   padding: 30px 50px;
   max-width: 1400px;
   margin: 0 auto;
-  animation: tech-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
 }
 
-.answer-history h2 {
+.page-title {
   margin-bottom: 30px;
   text-align: center;
   font-size: 28px;
-  font-weight: 800;
-  background: var(--tech-gradient-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
 .history-card {
-  background: var(--tech-glass-bg-strong);
-  backdrop-filter: blur(var(--tech-glass-blur));
-  -webkit-backdrop-filter: blur(var(--tech-glass-blur));
-  border: 1px solid var(--tech-glass-border);
-  border-radius: var(--tech-radius-lg);
-  box-shadow: var(--tech-card-shadow);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
   padding: 40px;
   text-align: center;
+  animation: breathe 5s ease-in-out infinite;
 }
 
 .history-card p {
-  color: var(--tech-text-secondary);
+  color: var(--text-secondary);
   font-size: 16px;
+}
+
+@media (max-width: 768px) {
+  .answer-history { padding: 20px; }
+  .page-title { font-size: 24px; }
 }
 </style>

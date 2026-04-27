@@ -1,11 +1,11 @@
-<!-- 薪资评估报告页 -->
+<!-- 薪资报告页 - Cyberpunk 2.0 -->
 <template>
   <div class="salary-report-container">
-    <h2>薪资评估报告</h2>
+    <ParticleBackground :zIndex="0" :particleCount="30" particleColor="cyan" :speed="0.3" />
+    <h2 class="page-title gradient-text">薪资评估报告</h2>
     <div class="report-card">
-      <!-- 薪资范围展示 -->
       <div class="salary-range-section">
-        <h3>预估薪资范围</h3>
+        <h3 class="section-subtitle">预估薪资范围</h3>
         <div class="salary-range">
           <span class="salary-number">{{ report.salaryRange }}</span>
         </div>
@@ -14,26 +14,22 @@
           <p v-if="report.city"><strong>目标城市：</strong>{{ report.city }}</p>
         </div>
       </div>
-      
-      <!-- 报告内容 -->
+
       <div class="report-content">
         <div v-if="report.aiSuggestion" class="analysis-section">
           <h4>AI评估建议</h4>
           <p>{{ report.aiSuggestion }}</p>
         </div>
-        
         <div v-if="report.experience" class="analysis-section">
           <h4>您的经历</h4>
           <p>{{ report.experience }}</p>
         </div>
-        
         <div v-if="report.createTime" class="analysis-section">
           <h4>评估时间</h4>
           <p>{{ report.createTime }}</p>
         </div>
       </div>
-      
-      <!-- 按钮区域 -->
+
       <div class="button-section">
         <el-button type="primary" @click="handleRetry" :loading="loading">重新评估</el-button>
         <el-button @click="goBack">返回首页</el-button>
@@ -47,22 +43,17 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getSalaryReport } from '../../api/salaryApi'
+import ParticleBackground from '../../components/common/ParticleBackground.vue'
+
+defineOptions({ name: 'SalaryReport' })
 
 const router = useRouter()
 const loading = ref(false)
 
-// 报告数据
 const report = reactive({
-  id: null,
-  direction: '',
-  city: '',
-  experience: '',
-  salaryRange: '',
-  aiSuggestion: '',
-  createTime: ''
+  id: null, direction: '', city: '', experience: '', salaryRange: '', aiSuggestion: '', createTime: ''
 })
 
-// 页面加载时获取薪资评估报告
 onMounted(async () => {
   const reportId = localStorage.getItem('salaryReportId')
   if (!reportId) {
@@ -70,11 +61,9 @@ onMounted(async () => {
     router.push('/salary/input')
     return
   }
-  
   await loadReport(reportId)
 })
 
-// 加载薪资评估报告
 const loadReport = async (reportId) => {
   loading.value = true
   try {
@@ -93,17 +82,12 @@ const loadReport = async (reportId) => {
   }
 }
 
-// 重新评估
 const handleRetry = () => {
-  // 清除本地存储的数据
   localStorage.removeItem('salaryReportId')
   router.push('/salary/input')
 }
 
-// 返回首页
-const goBack = () => {
-  router.push('/home')
-}
+const goBack = () => { router.push('/home') }
 </script>
 
 <style scoped>
@@ -111,54 +95,28 @@ const goBack = () => {
   padding: 30px 40px;
   max-width: 1400px;
   margin: 0 auto;
-  animation: terminal-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
   position: relative;
 }
 
-/* 装饰光斑 */
-.salary-report-container::before {
-  content: '';
-  position: fixed;
-  bottom: 10%;
-  left: 10%;
-  width: 450px;
-  height: 450px;
-  background: radial-gradient(circle, rgba(0, 255, 65, 0.04) 0%, transparent 70%);
-  border-radius: 50%;
-  pointer-events: none;
-  animation: corner-pulse 10s ease-in-out infinite;
-  z-index: 0;
-}
-
-.salary-report-container h2 {
+.page-title {
   margin-bottom: 24px;
   text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
+  font-size: 30px;
+  font-weight: 900;
   letter-spacing: 2px;
-  font-family: 'JetBrains Mono', monospace;
-  position: relative;
-  z-index: 1;
-}
-
-.salary-report-container h2::before {
-  content: '> ';
-  color: var(--neon-cyan);
-  animation: cursor-blink 1s step-end infinite;
 }
 
 .report-card {
-  background: var(--panel-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
   padding: 36px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
   position: relative;
   z-index: 1;
+  animation: breathe 5s ease-in-out infinite;
 }
 
 .salary-range-section {
@@ -168,83 +126,49 @@ const goBack = () => {
   border-bottom: 1px solid var(--divider);
 }
 
-.salary-range-section h3 {
+.section-subtitle {
   margin-bottom: 12px;
   color: var(--neon-cyan);
   font-weight: 700;
-  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
-.report-info {
-  margin-top: 12px;
-  text-align: left;
-  padding: 0 16px;
-}
+.report-info { margin-top: 12px; text-align: left; padding: 0 16px; }
+.report-info p { margin: 6px 0; font-size: 15px; color: var(--text-secondary); }
+.report-info strong { color: var(--neon-purple); }
 
-.report-info p {
-  margin: 6px 0;
-  font-size: 15px;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.salary-range {
-  margin-bottom: 8px;
-}
+.salary-range { margin-bottom: 8px; }
 
 .salary-number {
-  font-size: 44px;
+  font-size: 48px;
   font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
-  font-family: 'JetBrains Mono', monospace;
+  color: var(--neon-cyan);
+  text-shadow: var(--glow-text-cyan), 0 0 30px rgba(0, 212, 255, 0.3);
+  letter-spacing: 2px;
 }
 
-.salary-level {
-  font-size: 16px;
-  color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
-}
+.report-content { margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--divider); }
 
-.report-content {
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--divider);
-}
-
-.analysis-section {
-  margin-bottom: 20px;
-}
+.analysis-section { margin-bottom: 20px; }
 
 .analysis-section h4 {
   margin-bottom: 8px;
-  color: var(--text-primary);
+  color: var(--neon-purple);
   font-weight: 700;
   font-size: 15px;
-  font-family: 'JetBrains Mono', monospace;
 }
 
 .analysis-section p {
   line-height: 1.8;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 14px;
 }
 
-.analysis-section ul {
-  margin: 8px 0 0 16px;
-  line-height: 1.8;
-  color: var(--text-secondary);
-}
+.button-section { display: flex; justify-content: center; gap: 16px; }
 
-.button-section {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.button-section .el-button {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
+@media (max-width: 768px) {
+  .salary-report-container { padding: 20px; }
+  .report-card { padding: 24px; }
+  .salary-number { font-size: 32px; }
 }
 </style>

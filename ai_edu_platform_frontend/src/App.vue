@@ -1,4 +1,4 @@
-<!-- Vue3 根组件 -->
+<!-- Vue3 根组件 - Cyberpunk 2.0 -->
 <template>
   <div id="app">
     <router-view />
@@ -15,6 +15,7 @@ import GlobalFooter from './components/common/GlobalFooter.vue'
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--tech-page-gradient);
+  background: var(--bg-gradient);
+  background-attachment: fixed;
 }
 </style>

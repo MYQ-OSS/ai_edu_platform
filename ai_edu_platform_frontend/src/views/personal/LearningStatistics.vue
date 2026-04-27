@@ -1,13 +1,15 @@
+<!-- 学习统计 - Cyberpunk 2.0 -->
 <template>
   <div class="learning-statistics-container">
-    <h2>学习统计</h2>
-    
+    <ParticleBackground :zIndex="0" :particleCount="30" particleColor="cyan" :speed="0.3" />
+    <h2 class="page-title gradient-text">学习统计</h2>
+
     <!-- 统计卡片 -->
     <el-row :gutter="20" class="statistics-cards">
       <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+        <el-card shadow="hover" class="stat-card stat-card-cyan">
           <div class="stat-content">
-            <div class="stat-icon total">📊</div>
+            <div class="stat-icon total">&#128202;</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.totalQuizCount || 0 }}</div>
               <div class="stat-label">总答题次数</div>
@@ -15,11 +17,11 @@
           </div>
         </el-card>
       </el-col>
-      
+
       <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+        <el-card shadow="hover" class="stat-card stat-card-purple">
           <div class="stat-content">
-            <div class="stat-icon average">🎯</div>
+            <div class="stat-icon average">&#127919;</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.averageScore || 0 }}</div>
               <div class="stat-label">平均得分</div>
@@ -27,11 +29,11 @@
           </div>
         </el-card>
       </el-col>
-      
+
       <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+        <el-card shadow="hover" class="stat-card stat-card-pink">
           <div class="stat-content">
-            <div class="stat-icon accuracy">✅</div>
+            <div class="stat-icon accuracy">&#9989;</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.averageAccuracy || 0 }}%</div>
               <div class="stat-label">平均正确率</div>
@@ -39,11 +41,11 @@
           </div>
         </el-card>
       </el-col>
-      
+
       <el-col :span="6">
-        <el-card shadow="hover" class="stat-card">
+        <el-card shadow="hover" class="stat-card stat-card-blue">
           <div class="stat-content">
-            <div class="stat-icon range">📈</div>
+            <div class="stat-icon range">&#128200;</div>
             <div class="stat-info">
               <div class="stat-value">{{ statistics.minScore || 0 }} - {{ statistics.maxScore || 0 }}</div>
               <div class="stat-label">得分区间</div>
@@ -52,32 +54,28 @@
         </el-card>
       </el-col>
     </el-row>
-    
+
     <!-- 图表区域 -->
     <el-row :gutter="20" class="charts-section">
       <el-col :span="24">
-        <el-card shadow="hover" class="chart-card">
+        <el-card shadow="hover" class="chart-card chart-card-gradient">
           <template #header>
-            <div class="card-header">
-              <span>得分趋势图</span>
-            </div>
+            <div class="card-header gradient-text">得分趋势图</div>
           </template>
           <div ref="scoreChartRef" class="chart-container" v-loading="chartLoading"></div>
         </el-card>
       </el-col>
-      
+
       <el-col :span="24">
-        <el-card shadow="hover" class="chart-card">
+        <el-card shadow="hover" class="chart-card chart-card-gradient">
           <template #header>
-            <div class="card-header">
-              <span>正确率趋势图</span>
-            </div>
+            <div class="card-header gradient-text">正确率趋势图</div>
           </template>
           <div ref="accuracyChartRef" class="chart-container" v-loading="chartLoading"></div>
         </el-card>
       </el-col>
     </el-row>
-    
+
     <!-- 返回按钮 -->
     <div class="back-button-section">
       <el-button @click="goBack" size="large">
@@ -95,10 +93,12 @@ import { ElMessage } from 'element-plus'
 import { Back } from '@element-plus/icons-vue'
 import * as echarts from 'echarts'
 import { getLearningStatistics } from '../../api/statisticsApi'
+import ParticleBackground from '../../components/common/ParticleBackground.vue'
+
+defineOptions({ name: 'LearningStatistics' })
 
 const router = useRouter()
 
-// 统计数据
 const statistics = ref({
   totalQuizCount: 0,
   averageScore: 0,
@@ -109,23 +109,16 @@ const statistics = ref({
   accuracyTrend: []
 })
 
-// 图表加载状态
 const chartLoading = ref(false)
-
-// 图表引用
 const scoreChartRef = ref(null)
 const accuracyChartRef = ref(null)
 
-/**
- * 加载统计数据
- */
 const loadStatistics = async () => {
   chartLoading.value = true
   try {
     const res = await getLearningStatistics()
     if (res.code === 200) {
       statistics.value = res.data
-      // 数据加载完成后绘制图表
       await nextTick()
       drawCharts()
     } else {
@@ -139,180 +132,134 @@ const loadStatistics = async () => {
   }
 }
 
-/**
- * 绘制图表
- */
 const drawCharts = () => {
   drawScoreChart()
   drawAccuracyChart()
 }
 
-/**
- * 绘制得分趋势图
- */
 const drawScoreChart = () => {
   if (!scoreChartRef.value || !statistics.value.scoreTrend.length) return
-  
+
   const chart = echarts.init(scoreChartRef.value)
   const data = statistics.value.scoreTrend
-  
+
   const option = {
     tooltip: {
       trigger: 'axis',
+      backgroundColor: 'rgba(20, 27, 51, 0.95)',
+      borderColor: 'rgba(0, 212, 255, 0.3)',
+      textStyle: { color: '#e8eaf0', fontFamily: 'JetBrains Mono, monospace' },
       formatter: (params) => {
         const item = params[0]
         return `${item.name}<br/>题目：${data[item.dataIndex].questionName}<br/>得分：${item.value}`
       }
     },
     grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      containLabel: true
+      left: '3%', right: '4%', bottom: '15%', containLabel: true
     },
     xAxis: {
       type: 'category',
       data: data.map(item => item.quizTime),
-      axisLabel: {
-        rotate: 45,
-        interval: Math.ceil(data.length / 10) // 根据数据量动态调整显示间隔
-      }
+      axisLabel: { rotate: 45, interval: Math.ceil(data.length / 10), color: '#8a94b8', fontFamily: 'JetBrains Mono, monospace' },
+      axisLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.2)' } }
     },
     yAxis: {
-      type: 'value',
-      name: '得分',
-      min: 0,
-      max: 100
+      type: 'value', name: '得分', min: 0, max: 100,
+      axisLabel: { color: '#8a94b8', fontFamily: 'JetBrains Mono, monospace' },
+      splitLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.06)' } },
+      axisLine: { lineStyle: { color: 'rgba(0, 212, 255, 0.2)' } }
     },
     series: [
       {
-        name: '得分',
-        type: 'line',
-        data: data.map(item => item.score),
-        smooth: true,
-        lineStyle: {
-          color: '#409EFF',
-          width: 3
-        },
-        itemStyle: {
-          color: '#409EFF'
-        },
+        name: '得分', type: 'line', data: data.map(item => item.score), smooth: true,
+        lineStyle: { color: '#00d4ff', width: 3 },
+        itemStyle: { color: '#00d4ff' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(64, 158, 255, 0.3)' },
-            { offset: 1, color: 'rgba(64, 158, 255, 0.05)' }
+            { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
+            { offset: 1, color: 'rgba(180, 74, 255, 0.05)' }
           ])
         },
         markPoint: {
           data: [
-            { type: 'max', name: '最高分' },
-            { type: 'min', name: '最低分' }
+            { type: 'max', name: '最高分', itemStyle: { color: '#00d4ff' } },
+            { type: 'min', name: '最低分', itemStyle: { color: '#ff0080' } }
           ]
         },
         markLine: {
-          data: [
-            { type: 'average', name: '平均分' }
-          ]
+          data: [{ type: 'average', name: '平均分', lineStyle: { color: '#ffee00', type: 'dashed' } }]
         }
       }
     ]
   }
-  
+
   chart.setOption(option)
-  
-  // 响应式调整
-  window.addEventListener('resize', () => {
-    chart.resize()
-  })
+  window.addEventListener('resize', () => { chart.resize() })
 }
 
-/**
- * 绘制正确率趋势图
- */
 const drawAccuracyChart = () => {
   if (!accuracyChartRef.value || !statistics.value.accuracyTrend.length) return
-  
+
   const chart = echarts.init(accuracyChartRef.value)
   const data = statistics.value.accuracyTrend
-  
+
   const option = {
     tooltip: {
       trigger: 'axis',
+      backgroundColor: 'rgba(20, 27, 51, 0.95)',
+      borderColor: 'rgba(180, 74, 255, 0.3)',
+      textStyle: { color: '#e8eaf0', fontFamily: 'JetBrains Mono, monospace' },
       formatter: (params) => {
         const item = params[0]
         return `${item.name}<br/>题目：${data[item.dataIndex].questionName}<br/>正确率：${item.value}%`
       }
     },
     grid: {
-      left: '3%',
-      right: '4%',
-      bottom: '15%',
-      containLabel: true
+      left: '3%', right: '4%', bottom: '15%', containLabel: true
     },
     xAxis: {
-      type: 'category',
-      data: data.map(item => item.quizTime),
-      axisLabel: {
-        rotate: 45,
-        interval: Math.ceil(data.length / 10)
-      }
+      type: 'category', data: data.map(item => item.quizTime),
+      axisLabel: { rotate: 45, interval: Math.ceil(data.length / 10), color: '#8a94b8', fontFamily: 'JetBrains Mono, monospace' },
+      axisLine: { lineStyle: { color: 'rgba(180, 74, 255, 0.2)' } }
     },
     yAxis: {
-      type: 'value',
-      name: '正确率(%)',
-      min: 0,
-      max: 100
+      type: 'value', name: '正确率(%)', min: 0, max: 100,
+      axisLabel: { color: '#8a94b8', fontFamily: 'JetBrains Mono, monospace' },
+      splitLine: { lineStyle: { color: 'rgba(180, 74, 255, 0.06)' } },
+      axisLine: { lineStyle: { color: 'rgba(180, 74, 255, 0.2)' } }
     },
     series: [
       {
-        name: '正确率',
-        type: 'line',
-        data: data.map(item => item.accuracy),
-        smooth: true,
-        lineStyle: {
-          color: '#67C23A',
-          width: 3
-        },
-        itemStyle: {
-          color: '#67C23A'
-        },
+        name: '正确率', type: 'line', data: data.map(item => item.accuracy), smooth: true,
+        lineStyle: { color: '#b44aff', width: 3 },
+        itemStyle: { color: '#b44aff' },
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
-            { offset: 0, color: 'rgba(103, 194, 58, 0.3)' },
-            { offset: 1, color: 'rgba(103, 194, 58, 0.05)' }
+            { offset: 0, color: 'rgba(180, 74, 255, 0.3)' },
+            { offset: 1, color: 'rgba(255, 0, 128, 0.05)' }
           ])
         },
         markPoint: {
           data: [
-            { type: 'max', name: '最高正确率' },
-            { type: 'min', name: '最低正确率' }
+            { type: 'max', name: '最高正确率', itemStyle: { color: '#b44aff' } },
+            { type: 'min', name: '最低正确率', itemStyle: { color: '#ff0080' } }
           ]
         },
         markLine: {
-          data: [
-            { type: 'average', name: '平均正确率' }
-          ]
+          data: [{ type: 'average', name: '平均正确率', lineStyle: { color: '#ffee00', type: 'dashed' } }]
         }
       }
     ]
   }
-  
+
   chart.setOption(option)
-  
-  // 响应式调整
-  window.addEventListener('resize', () => {
-    chart.resize()
-  })
+  window.addEventListener('resize', () => { chart.resize() })
 }
 
-/**
- * 返回首页
- */
 const goBack = () => {
   router.push('/home')
 }
 
-// 页面加载时初始化
 onMounted(() => {
   loadStatistics()
 })
@@ -323,25 +270,18 @@ onMounted(() => {
   padding: 30px 40px;
   max-width: 1600px;
   margin: 0 auto;
-  animation: terminal-fade-in 0.6s ease-out;
+  animation: terminal-fade-in 0.8s ease-out;
   position: relative;
 }
 
-.learning-statistics-container h2 {
+.page-title {
   margin-bottom: 24px;
   text-align: center;
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--neon-green);
-  text-shadow: var(--glow-text-green);
-  letter-spacing: 2px;
-  font-family: 'JetBrains Mono', monospace;
-}
-
-.learning-statistics-container h2::before {
-  content: '> ';
-  color: var(--neon-cyan);
-  animation: cursor-blink 1s step-end infinite;
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  position: relative;
+  z-index: 1;
 }
 
 .statistics-cards {
@@ -349,17 +289,12 @@ onMounted(() => {
 }
 
 .stat-card {
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
-  background: var(--panel-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-md);
   box-shadow: var(--panel-glow);
-}
-
-.stat-card :deep(.el-card__body) {
-  padding: 16px;
+  transition: all var(--transition-base);
 }
 
 .stat-card:hover {
@@ -367,6 +302,15 @@ onMounted(() => {
   border-color: var(--panel-border-active);
   box-shadow: var(--panel-glow-active);
 }
+
+.stat-card :deep(.el-card__body) {
+  padding: 16px;
+}
+
+.stat-card-cyan { --accent: var(--neon-cyan); --glow: var(--glow-cyan); border-color: rgba(0, 212, 255, 0.2); }
+.stat-card-purple { --accent: var(--neon-purple); --glow: var(--glow-purple); border-color: rgba(180, 74, 255, 0.2); }
+.stat-card-pink { --accent: var(--neon-pink); --glow: var(--glow-pink); border-color: rgba(255, 0, 128, 0.2); }
+.stat-card-blue { --accent: var(--neon-blue); --glow: var(--glow-blue); border-color: rgba(74, 158, 255, 0.2); }
 
 .stat-content {
   display: flex;
@@ -384,54 +328,51 @@ onMounted(() => {
   font-size: 24px;
   flex-shrink: 0;
   transition: transform var(--transition-base);
-  font-family: 'JetBrains Mono', monospace;
   font-weight: 800;
 }
 
 .stat-icon.total {
-  background: rgba(0, 212, 255, 0.15);
+  background: rgba(0, 212, 255, 0.1);
   color: var(--neon-cyan);
   border: 1px solid rgba(0, 212, 255, 0.3);
 }
-
 .stat-icon.average {
-  background: rgba(255, 107, 0, 0.15);
-  color: var(--neon-orange);
-  border: 1px solid rgba(255, 107, 0, 0.3);
-}
-
-.stat-icon.accuracy {
-  background: rgba(0, 255, 65, 0.15);
-  color: var(--neon-green);
-  border: 1px solid rgba(0, 255, 65, 0.3);
-}
-
-.stat-icon.range {
-  background: rgba(180, 74, 255, 0.15);
+  background: rgba(180, 74, 255, 0.1);
   color: var(--neon-purple);
   border: 1px solid rgba(180, 74, 255, 0.3);
 }
+.stat-icon.accuracy {
+  background: rgba(255, 0, 128, 0.1);
+  color: var(--neon-pink);
+  border: 1px solid rgba(255, 0, 128, 0.3);
+}
+.stat-icon.range {
+  background: rgba(74, 158, 255, 0.1);
+  color: var(--neon-blue);
+  border: 1px solid rgba(74, 158, 255, 0.3);
+}
 
 .stat-card:hover .stat-icon {
-  transform: scale(1.1);
+  transform: scale(1.15);
 }
 
-.stat-info {
-  flex: 1;
-}
+.stat-info { flex: 1; }
 
 .stat-value {
   font-size: 22px;
   font-weight: 800;
-  color: var(--text-primary);
   margin-bottom: 4px;
-  font-family: 'JetBrains Mono', monospace;
 }
+
+.stat-card-cyan .stat-value { color: var(--neon-cyan); text-shadow: var(--glow-cyan); }
+.stat-card-purple .stat-value { color: var(--neon-purple); text-shadow: var(--glow-text-purple); }
+.stat-card-pink .stat-value { color: var(--neon-pink); text-shadow: var(--glow-text-green); }
+.stat-card-blue .stat-value { color: var(--neon-blue); text-shadow: var(--glow-blue); }
 
 .stat-label {
   font-size: 13px;
   color: var(--text-muted);
-  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 1px;
 }
 
 .charts-section {
@@ -439,25 +380,29 @@ onMounted(() => {
 }
 
 .chart-card {
-  margin-bottom: 16px;
-  background: var(--panel-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: var(--panel-bg-strong);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--panel-border);
-  border-radius: var(--radius-md);
-  box-shadow: var(--panel-glow);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--panel-glow-active);
+  margin-bottom: 16px;
+  transition: all var(--transition-base);
 }
 
-.chart-card :deep(.el-card__header) {
-  background: rgba(0, 255, 65, 0.03);
+.chart-card:hover {
+  border-color: var(--panel-border-active);
+  box-shadow: 0 0 30px rgba(0, 212, 255, 0.15), 0 0 60px rgba(180, 74, 255, 0.08);
+}
+
+.chart-card-gradient :deep(.el-card__header) {
+  background: linear-gradient(90deg, rgba(0, 212, 255, 0.06), rgba(180, 74, 255, 0.06));
   border-bottom: 1px solid var(--divider);
 }
 
 .card-header {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--neon-cyan);
-  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
 .chart-container {
@@ -473,62 +418,21 @@ onMounted(() => {
   border-top: 1px solid var(--divider);
 }
 
-.back-button-section .el-button {
-  font-family: 'JetBrains Mono', monospace;
-  font-weight: 700;
-  letter-spacing: 1px;
-}
-
-/* 响应式 */
 @media (max-width: 1200px) {
-  .learning-statistics-container {
-    padding: 20px 30px;
-  }
+  .learning-statistics-container { padding: 20px 30px; }
 }
 
 @media (max-width: 768px) {
-  .learning-statistics-container {
-    padding: 15px 20px;
-  }
-
-  .learning-statistics-container h2 {
-    font-size: 22px;
-    margin-bottom: 16px;
-  }
-
-  .statistics-cards {
-    margin-bottom: 16px;
-  }
-
-  .stat-card {
-    margin-bottom: 12px;
-  }
-
-  .chart-container {
-    height: 280px;
-  }
+  .learning-statistics-container { padding: 15px 20px; }
+  .page-title { font-size: 22px; margin-bottom: 16px; }
+  .stat-card { margin-bottom: 12px; }
+  .chart-container { height: 280px; }
 }
 
 @media (max-width: 480px) {
-  .learning-statistics-container {
-    padding: 10px 15px;
-  }
-
-  .learning-statistics-container h2 {
-    font-size: 18px;
-    margin-bottom: 12px;
-  }
-
-  .stat-value {
-    font-size: 18px;
-  }
-
-  .chart-container {
-    height: 220px;
-  }
-
-  .back-button-section :deep(.el-button) {
-    width: 100%;
-  }
+  .learning-statistics-container { padding: 10px 15px; }
+  .page-title { font-size: 18px; }
+  .stat-value { font-size: 18px; }
+  .chart-container { height: 220px; }
 }
 </style>
