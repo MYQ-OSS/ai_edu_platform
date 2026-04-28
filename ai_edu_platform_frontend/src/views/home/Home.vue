@@ -73,7 +73,7 @@
               </div>
               <div class="profile-actions">
                 <el-button type="primary" @click="navigateTo('/personal/edit-info')">编辑资料</el-button>
-                <el-button @click="handleLogout">退出登录</el-button>
+                <el-button type="danger" @click="handleLogout">退出登录</el-button>
               </div>
             </div>
           </div>

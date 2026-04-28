@@ -33,7 +33,7 @@
         </el-form-item>
 
         <el-form-item class="button-group">
-          <el-button type="primary" @click="handleSubmit" :loading="loading" size="large btn-ripple-wrap">开始挑战</el-button>
+          <el-button @click="handleSubmit" :loading="loading" size="large btn-ripple-wrap">开始挑战</el-button>
           <el-button @click="goBack" size="large btn-ripple-wrap">返回首页</el-button>
         </el-form-item>
       </el-form>
@@ -171,6 +171,32 @@ const goBack = () => {
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
   font-size: 13px;
+}
+
+/* 下拉选择器样式 */
+.el-form-item :deep(.el-select) {
+  width: 100%;
+}
+
+.el-form-item :deep(.el-input__wrapper) {
+  background: rgba(10, 14, 26, 0.6) !important;
+  border: 1px solid var(--panel-border) !important;
+}
+
+/* 下拉菜单样式 */
+:deep(.el-select-dropdown) {
+  background: var(--panel-bg-strong) !important;
+  border: 1px solid var(--panel-border) !important;
+}
+
+:deep(.el-select-dropdown__item) {
+  background: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+:deep(.el-select-dropdown__item.is-hovering) {
+  background: rgba(0, 212, 255, 0.08) !important;
+  color: var(--neon-cyan) !important;
 }
 
 .button-group {

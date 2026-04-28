@@ -49,7 +49,7 @@
     <el-tabs v-model="activeTab" class="tabs-container">
       <el-tab-pane label="答题历史" name="answer-history">
         <div class="tab-content">
-          <el-table :data="answerHistoryList" style="width: 100%" stripe>
+          <el-table :data="answerHistoryList" style="width: 100%">
             <el-table-column prop="score" label="得分" width="100" align="center">
               <template #default="scope">
                 <span class="score-badge">{{ scope.row.score }}</span>
@@ -60,7 +60,13 @@
                 <span class="accuracy-badge">{{ scope.row.accuracy }}%</span>
               </template>
             </el-table-column>
-            <el-table-column prop="comment" label="评价" min-width="250" show-overflow-tooltip align="center" />
+            <el-table-column prop="comment" label="评价" min-width="250" align="center">
+              <template #default="scope">
+                <el-tooltip :content="scope.row.comment" placement="top" effect="dark" popper-class="custom-tooltip">
+                  <div class="comment-cell">{{ scope.row.comment }}</div>
+                </el-tooltip>
+              </template>
+            </el-table-column>
             <el-table-column prop="createTime" label="答题时间" min-width="180" align="center">
               <template #default="scope">
                 {{ formatTime(scope.row.createTime) }}
@@ -80,7 +86,7 @@
 
       <el-tab-pane label="薪资报告" name="salary-report">
         <div class="tab-content">
-          <el-table :data="salaryReportList" style="width: 100%" stripe>
+          <el-table :data="salaryReportList" style="width: 100%">
             <el-table-column prop="direction" label="技术方向" width="150" align="center" />
             <el-table-column prop="salaryRange" label="预估薪资" width="150" align="center">
               <template #default="scope">
@@ -107,7 +113,7 @@
 
       <el-tab-pane label="我的收藏" name="my-collect">
         <div class="tab-content">
-          <el-table :data="collectList" style="width: 100%" stripe v-loading="collectLoading">
+          <el-table :data="collectList" style="width: 100%" v-loading="collectLoading">
             <el-table-column prop="questionName" label="题目名称" min-width="250" show-overflow-tooltip align="center" />
             <el-table-column prop="direction" label="技术方向" width="150" align="center" />
             <el-table-column prop="targetSalary" label="目标薪资" width="120" align="center">
@@ -578,6 +584,28 @@ const formatTime = (timeStr) => {
 
 .el-table__body tr:hover > td {
   background: rgba(0, 212, 255, 0.06) !important;
+}
+
+/* 确保tooltip不被遮挡 */
+.el-table__cell {
+  position: relative;
+  z-index: 1;
+}
+
+.comment-cell {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* 自定义tooltip样式 */
+:deep(.custom-tooltip) {
+  max-width: 300px !important;
+}
+
+:deep(.custom-tooltip .el-tooltip__trigger) {
+  max-width: 100%;
 }
 
 /* 徽章 */

@@ -47,7 +47,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="handleSubmit" :loading="loading" class="btn-ripple-wrap">保存</el-button>
+          <el-button @click="handleSubmit" :loading="loading" class="btn-ripple-wrap">保存</el-button>
           <el-button @click="goBack" class="btn-ripple-wrap">取消</el-button>
           <el-button @click="goHome" class="btn-ripple-wrap">返回首页</el-button>
         </el-form-item>
@@ -207,6 +207,16 @@ const goHome = () => {
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
   font-size: 13px;
+}
+
+/* 字数统计样式 */
+.el-form-item :deep(.el-input__count),
+.el-form-item :deep(.el-textarea__count),
+.el-form-item :deep(.el-input__count-inner),
+.el-form-item :deep(.el-textarea__count-inner) {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  font-size: 12px !important;
 }
 
 .el-button {

@@ -198,14 +198,16 @@ const goToRegister = () => {
   font-size: 13px;
 }
 
-.el-form-item__content {
+.el-form-item :deep(.el-form-item__content) {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
+  flex-wrap: nowrap;
 }
 
-.el-button {
+.el-form-item .el-button {
   width: 48%;
+  min-width: 120px;
 }
 
 .register-tip {

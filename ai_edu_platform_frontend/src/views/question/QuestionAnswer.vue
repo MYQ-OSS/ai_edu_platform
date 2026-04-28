@@ -1,7 +1,7 @@
 <!-- 技术挑战答题页 - Cyberpunk 2.0 -->
 <template>
   <div class="question-answer-container">
-    <ParticleBackground :zIndex="0" :particleCount="30" particleColor="mixed" :speed="0.3" />
+    <ParticleBackground :zIndex="0" :particleCount="15" particleColor="mixed" :speed="0.2" :interactive="false" />
     <h2 class="page-title gradient-text">技术挑战</h2>
 
     <!-- 计时器显示 -->
@@ -319,6 +319,7 @@ const handleCollect = async () => {
   box-shadow: var(--glow-cyan);
   position: relative;
   z-index: 1;
+  will-change: auto;
 }
 
 .timer-section.timer-warning {
@@ -345,6 +346,8 @@ const handleCollect = async () => {
   position: relative;
   z-index: 1;
   animation: breathe 5s ease-in-out infinite;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 .section-title {
@@ -386,6 +389,7 @@ const handleCollect = async () => {
   background: rgba(0, 212, 255, 0.03);
   word-break: break-word;
   font-family: inherit;
+  will-change: transform, box-shadow, border-color, background;
 }
 
 .tech-card:hover {

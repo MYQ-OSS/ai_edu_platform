@@ -100,7 +100,6 @@
   width: 14px;
   height: 14px;
   vertical-align: middle;
-  filter: brightness(0) invert(0.6);
 }
 
 .separator {

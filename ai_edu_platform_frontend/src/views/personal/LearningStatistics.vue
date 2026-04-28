@@ -1,7 +1,7 @@
 <!-- 学习统计 - Cyberpunk 2.0 -->
 <template>
   <div class="learning-statistics-container">
-    <ParticleBackground :zIndex="0" :particleCount="30" particleColor="cyan" :speed="0.3" />
+    <ParticleBackground :zIndex="0" :particleCount="15" particleColor="cyan" :speed="0.2" :interactive="false" />
     <h2 class="page-title gradient-text">学习统计</h2>
 
     <!-- 统计卡片 -->
@@ -87,7 +87,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, nextTick, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { Back } from '@element-plus/icons-vue'
@@ -112,6 +112,9 @@ const statistics = ref({
 const chartLoading = ref(false)
 const scoreChartRef = ref(null)
 const accuracyChartRef = ref(null)
+let scoreChart = null
+let accuracyChart = null
+let resizeTimer = null
 
 const loadStatistics = async () => {
   chartLoading.value = true
@@ -119,8 +122,12 @@ const loadStatistics = async () => {
     const res = await getLearningStatistics()
     if (res.code === 200) {
       statistics.value = res.data
-      await nextTick()
-      drawCharts()
+      // 使用 requestAnimationFrame 确保在下一帧渲染图表，避免阻塞
+      requestAnimationFrame(() => {
+        nextTick(() => {
+          drawCharts()
+        })
+      })
     } else {
       ElMessage.error(res.msg || '获取统计数据失败')
     }
@@ -128,7 +135,10 @@ const loadStatistics = async () => {
     console.error('获取统计数据失败:', error)
     ElMessage.error('获取统计数据失败')
   } finally {
-    chartLoading.value = false
+    // 延迟关闭loading，让图表有时间渲染
+    setTimeout(() => {
+      chartLoading.value = false
+    }, 100)
   }
 }
 
@@ -140,7 +150,12 @@ const drawCharts = () => {
 const drawScoreChart = () => {
   if (!scoreChartRef.value || !statistics.value.scoreTrend.length) return
 
-  const chart = echarts.init(scoreChartRef.value)
+  // 销毁旧图表实例
+  if (scoreChart) {
+    scoreChart.dispose()
+  }
+
+  scoreChart = echarts.init(scoreChartRef.value)
   const data = statistics.value.scoreTrend
 
   const option = {
@@ -154,6 +169,9 @@ const drawScoreChart = () => {
         return `${item.name}<br/>题目：${data[item.dataIndex].questionName}<br/>得分：${item.value}`
       }
     },
+    animation: true,
+    animationDuration: 800,
+    animationEasing: 'cubicOut',
     grid: {
       left: '3%', right: '4%', bottom: '15%', containLabel: true
     },
@@ -174,6 +192,7 @@ const drawScoreChart = () => {
         name: '得分', type: 'line', data: data.map(item => item.score), smooth: true,
         lineStyle: { color: '#00d4ff', width: 3 },
         itemStyle: { color: '#00d4ff' },
+        showSymbol: false,
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(0, 212, 255, 0.3)' },
@@ -181,26 +200,32 @@ const drawScoreChart = () => {
           ])
         },
         markPoint: {
+          symbolSize: 40,
           data: [
             { type: 'max', name: '最高分', itemStyle: { color: '#00d4ff' } },
             { type: 'min', name: '最低分', itemStyle: { color: '#ff0080' } }
           ]
         },
         markLine: {
+          symbol: 'none',
           data: [{ type: 'average', name: '平均分', lineStyle: { color: '#ffee00', type: 'dashed' } }]
         }
       }
     ]
   }
 
-  chart.setOption(option)
-  window.addEventListener('resize', () => { chart.resize() })
+  scoreChart.setOption(option)
 }
 
 const drawAccuracyChart = () => {
   if (!accuracyChartRef.value || !statistics.value.accuracyTrend.length) return
 
-  const chart = echarts.init(accuracyChartRef.value)
+  // 销毁旧图表实例
+  if (accuracyChart) {
+    accuracyChart.dispose()
+  }
+
+  accuracyChart = echarts.init(accuracyChartRef.value)
   const data = statistics.value.accuracyTrend
 
   const option = {
@@ -214,6 +239,9 @@ const drawAccuracyChart = () => {
         return `${item.name}<br/>题目：${data[item.dataIndex].questionName}<br/>正确率：${item.value}%`
       }
     },
+    animation: true,
+    animationDuration: 800,
+    animationEasing: 'cubicOut',
     grid: {
       left: '3%', right: '4%', bottom: '15%', containLabel: true
     },
@@ -233,6 +261,7 @@ const drawAccuracyChart = () => {
         name: '正确率', type: 'line', data: data.map(item => item.accuracy), smooth: true,
         lineStyle: { color: '#b44aff', width: 3 },
         itemStyle: { color: '#b44aff' },
+        showSymbol: false,
         areaStyle: {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             { offset: 0, color: 'rgba(180, 74, 255, 0.3)' },
@@ -240,28 +269,59 @@ const drawAccuracyChart = () => {
           ])
         },
         markPoint: {
+          symbolSize: 40,
           data: [
             { type: 'max', name: '最高正确率', itemStyle: { color: '#b44aff' } },
             { type: 'min', name: '最低正确率', itemStyle: { color: '#ff0080' } }
           ]
         },
         markLine: {
+          symbol: 'none',
           data: [{ type: 'average', name: '平均正确率', lineStyle: { color: '#ffee00', type: 'dashed' } }]
         }
       }
     ]
   }
 
-  chart.setOption(option)
-  window.addEventListener('resize', () => { chart.resize() })
+  accuracyChart.setOption(option)
 }
 
 const goBack = () => {
   router.push('/home')
 }
 
+// 处理窗口resize（防抖）
+const handleResize = () => {
+  if (resizeTimer) clearTimeout(resizeTimer)
+  resizeTimer = setTimeout(() => {
+    if (scoreChart) scoreChart.resize()
+    if (accuracyChart) accuracyChart.resize()
+  }, 200)
+}
+
 onMounted(() => {
   loadStatistics()
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  // 清理事件监听器
+  window.removeEventListener('resize', handleResize)
+  
+  // 销毁图表实例，释放内存
+  if (scoreChart) {
+    scoreChart.dispose()
+    scoreChart = null
+  }
+  if (accuracyChart) {
+    accuracyChart.dispose()
+    accuracyChart = null
+  }
+  
+  // 清除定时器
+  if (resizeTimer) {
+    clearTimeout(resizeTimer)
+  }
 })
 </script>
 
