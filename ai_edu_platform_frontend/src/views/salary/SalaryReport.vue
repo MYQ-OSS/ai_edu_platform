@@ -32,7 +32,7 @@
 
       <div class="button-section">
         <el-button type="primary" @click="handleRetry" :loading="loading">重新评估</el-button>
-        <el-button @click="goBack">返回首页</el-button>
+        <el-button @click="goBack" class="btn-back">返回首页</el-button>
       </div>
     </div>
   </div>
@@ -165,6 +165,17 @@ const goBack = () => { router.push('/home') }
 }
 
 .button-section { display: flex; justify-content: center; gap: 16px; }
+
+.btn-back {
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+}
+
+.btn-back:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+  box-shadow: var(--glow-cyan) !important;
+}
 
 @media (max-width: 768px) {
   .salary-report-container { padding: 20px; }

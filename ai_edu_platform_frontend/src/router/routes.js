@@ -93,6 +93,11 @@ const routes = [
     name: "DataDict",
     component: () => import("../views/admin/DataDict.vue"),
   },
+  {
+    path: "/chat",
+    name: "ChatAssistant",
+    component: () => import("../views/chat/ChatAssistant.vue"),
+  },
 ];
 
 export default routes;

@@ -31,12 +31,12 @@
         <el-form-item label="目标就业城市">
           <el-input v-model="inputForm.city" placeholder="请输入您期望就业的城市" size="large" />
         </el-form-item>
-
-        <el-form-item class="button-group">
-          <el-button @click="handleSubmit" :loading="loading" size="large btn-ripple-wrap">开始挑战</el-button>
-          <el-button @click="goBack" size="large btn-ripple-wrap">返回首页</el-button>
-        </el-form-item>
       </el-form>
+
+      <div class="button-group">
+        <el-button @click="handleSubmit" :loading="loading" size="large" class="btn-start">开始挑战</el-button>
+        <el-button @click="goBack" size="large" class="btn-back">返回首页</el-button>
+      </div>
     </div>
   </div>
 </template>
@@ -164,8 +164,21 @@ const goBack = () => {
   animation: breathe 5s ease-in-out infinite;
 }
 
+.el-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .el-form-item {
+  width: 100%;
+  max-width: 600px;
   margin-bottom: 24px;
+}
+
+.el-form-item :deep(.el-form-item__content) {
+  justify-content: center !important;
 }
 
 .el-form-item :deep(.el-form-item__label) {
@@ -210,6 +223,14 @@ const goBack = () => {
   min-width: 140px;
   font-weight: 700;
   letter-spacing: 1px;
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+}
+
+.button-group .el-button:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+  box-shadow: var(--glow-cyan) !important;
 }
 
 @media (max-width: 768px) {

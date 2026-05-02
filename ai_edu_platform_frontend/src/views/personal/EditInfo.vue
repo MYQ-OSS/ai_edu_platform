@@ -46,11 +46,11 @@
           />
         </el-form-item>
 
-        <el-form-item>
-          <el-button @click="handleSubmit" :loading="loading" class="btn-ripple-wrap">保存</el-button>
-          <el-button @click="goBack" class="btn-ripple-wrap">取消</el-button>
-          <el-button @click="goHome" class="btn-ripple-wrap">返回首页</el-button>
-        </el-form-item>
+        <div class="button-row">
+          <el-button @click="handleSubmit" :loading="loading" class="btn-ripple-wrap btn-save">保存</el-button>
+          <el-button @click="goBack" class="btn-ripple-wrap btn-cancel">取消</el-button>
+          <el-button @click="goHome" class="btn-ripple-wrap btn-home">返回首页</el-button>
+        </div>
       </el-form>
     </div>
   </div>
@@ -207,6 +207,7 @@ const goHome = () => {
 .el-form-item :deep(.el-form-item__label) {
   color: var(--text-secondary);
   font-size: 13px;
+  justify-content: center !important;
 }
 
 /* 字数统计样式 */
@@ -219,10 +220,56 @@ const goHome = () => {
   font-size: 12px !important;
 }
 
+.button-item :deep(.el-form-item__content) {
+  margin-left: 0 !important;
+}
+
+.button-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-left: 0;
+}
+
+.btn-save {
+  order: 1;
+}
+
+.btn-cancel {
+  order: 2;
+  margin: 0 30px;
+}
+
+.btn-home {
+  order: 3;
+  margin-left: 0 !important;
+}
+
 .el-button {
-  margin-right: 10px;
   font-weight: 700;
   letter-spacing: 1px;
+  padding: 0 20px !important;
+  height: 40px;
+  width: 120px !important;
+}
+
+/* 三个按钮统一样式 - 青色边框 */
+.btn-save,
+.btn-cancel,
+.btn-home {
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+  width: 120px !important;
+}
+
+.btn-save:hover,
+.btn-cancel:hover,
+.btn-home:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+  color: var(--neon-cyan) !important;
+  box-shadow: var(--glow-cyan) !important;
 }
 
 @media (max-width: 768px) {

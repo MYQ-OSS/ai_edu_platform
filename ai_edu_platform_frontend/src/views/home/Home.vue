@@ -110,6 +110,15 @@
                 <el-button type="primary" @click="navigateTo('/salary/input')">薪资查询</el-button>
               </div>
 
+              <div class="feature-item" v-if="isLoggedIn">
+                <div class="feature-icon">
+                  <span class="icon">🤖</span>
+                </div>
+                <h3>AI对话</h3>
+                <p>与AI助手对话，分析答题记录和职业规划</p>
+                <el-button type="primary" @click="navigateTo('/chat')">开始对话</el-button>
+              </div>
+
               <div class="feature-item">
                 <div class="feature-icon">
                   <span class="icon">📊</span>
@@ -448,6 +457,11 @@ const handleLogout = () => {
   gap: 12px;
   width: 100%;
   margin-top: 20px;
+}
+
+.profile-actions .el-button {
+  flex: 1;
+  width: 100%;
 }
 
 /* 登录提示卡片 */

@@ -82,7 +82,7 @@
         <el-button v-if="activeStep > 0" @click="prevStep">上一步</el-button>
         <el-button v-if="activeStep < 2" type="primary" @click="nextStep" :loading="loading">下一步</el-button>
         <el-button v-if="activeStep === 2" type="primary" @click="handleSubmit" :loading="loading">开始评估</el-button>
-        <el-button @click="goBack">返回首页</el-button>
+        <el-button @click="goBack" class="btn-back">返回首页</el-button>
       </div>
     </div>
   </div>
@@ -244,6 +244,17 @@ const goBack = () => { router.push('/home') }
   justify-content: center;
   gap: 16px;
   margin-top: 24px;
+}
+
+.btn-back {
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+}
+
+.btn-back:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+  box-shadow: var(--glow-cyan) !important;
 }
 
 @media (max-width: 768px) {

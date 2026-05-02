@@ -21,6 +21,11 @@
       <span>薪资评估</span>
     </el-menu-item>
 
+    <el-menu-item v-if="isLoggedIn" index="/chat">
+      <el-icon><ChatDotRound /></el-icon>
+      <span>AI对话</span>
+    </el-menu-item>
+
     <el-sub-menu v-if="isAdmin" index="admin">
       <template #title>
         <el-icon><Setting /></el-icon>
@@ -57,7 +62,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '../../store/userStore'
 import {
-  House, Edit, Money, Setting, User, Document, Collection, Avatar, Key
+  House, Edit, Money, ChatDotRound, Setting, User, Document, Collection, Avatar, Key
 } from '@element-plus/icons-vue'
 const route = useRoute()
 const userStore = useUserStore()

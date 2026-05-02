@@ -78,7 +78,7 @@
 
     <!-- 返回按钮 -->
     <div class="back-button-section">
-      <el-button @click="goBack" size="large">
+      <el-button @click="goBack" size="large" class="btn-back">
         <el-icon><Back /></el-icon>
         返回首页
       </el-button>
@@ -476,6 +476,17 @@ onUnmounted(() => {
   margin-top: 24px;
   padding-top: 16px;
   border-top: 1px solid var(--divider);
+}
+
+.btn-back {
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
+}
+
+.btn-back:hover {
+  background: rgba(0, 212, 255, 0.1) !important;
+  box-shadow: var(--glow-cyan) !important;
 }
 
 @media (max-width: 1200px) {

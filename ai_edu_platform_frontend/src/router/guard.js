@@ -23,6 +23,7 @@ export const setupRouterGuard = (router) => {
       "/admin/user-manage",
       "/admin/question-manage",
       "/admin/data-dict",
+      "/chat",
     ];
 
     // 登录/注册页面

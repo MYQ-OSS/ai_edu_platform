@@ -59,3 +59,12 @@ export const toggleCollect = (questionId) => {
     method: "POST",
   });
 };
+
+// 7. 获取答题历史记录接口
+export const getHistory = (userId) => {
+  return request({
+    url: "/question/history",
+    method: "GET",
+    params: { userId },
+  });
+};

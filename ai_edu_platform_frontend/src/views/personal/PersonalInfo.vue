@@ -38,7 +38,7 @@
           <el-icon><Edit /></el-icon>
           编辑信息
         </el-button>
-        <el-button @click="goBack" class="back-btn" size="large">
+        <el-button type="primary" @click="goBack" class="back-btn" size="large">
           <el-icon><Back /></el-icon>
           返回首页
         </el-button>
@@ -441,6 +441,7 @@ const formatTime = (timeStr) => {
 .info-row {
   display: flex;
   align-items: center;
+  justify-content: center;
   padding: 8px 12px;
   background: rgba(0, 212, 255, 0.03);
   border-radius: var(--radius-xs);
@@ -459,6 +460,9 @@ const formatTime = (timeStr) => {
   font-weight: 600;
   color: var(--text-secondary);
   min-width: 90px;
+  display: flex;
+  justify-content: center;
+  text-align: center;
 }
 
 .info-value {
@@ -505,33 +509,66 @@ const formatTime = (timeStr) => {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  width: 180px;
   flex-shrink: 0;
 }
 
-.edit-btn,
-.back-btn {
-  min-width: 130px;
-  height: 40px;
+.button-section :deep(.el-button) {
+  width: 100% !important;
+  height: 42px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box !important;
+  border-radius: var(--radius-xs) !important;
+}
+
+.button-section :deep(.el-button > span) {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
   font-size: 14px;
   font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
   letter-spacing: 1px;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.button-section :deep(.el-button .el-icon) {
+  flex-shrink: 0 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center;
+}
+
+.edit-btn {
+  background: var(--btn-primary-bg) !important;
+  border: none !important;
+  color: #fff !important;
+}
+
+.edit-btn:hover {
+  background: var(--btn-primary-hover) !important;
 }
 
 .back-btn {
-  background: transparent;
-  border: 1px solid var(--panel-border);
-  color: var(--text-secondary);
+  background: transparent !important;
+  border: 1px solid var(--neon-cyan) !important;
+  color: var(--neon-cyan) !important;
 }
 
 .back-btn:hover {
-  background: rgba(0, 212, 255, 0.08);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: var(--glow-cyan);
+  background: rgba(0, 212, 255, 0.1) !important;
+  color: var(--neon-cyan) !important;
+  box-shadow: var(--glow-cyan) !important;
 }
 
 /* 标签页 */
