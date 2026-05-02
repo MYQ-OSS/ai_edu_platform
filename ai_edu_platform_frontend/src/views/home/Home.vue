@@ -510,13 +510,30 @@ const handleLogout = () => {
 }
 
 /* 功能卡片网格 */
-.feature-grid,
-.admin-grid,
-.recommend-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+.feature-grid {
+  display: flex;
+  flex-wrap: nowrap;
   gap: 30px;
   width: 100%;
+}
+
+.feature-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-grid,
+.recommend-grid {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 30px;
+  width: 100%;
+}
+
+.admin-item,
+.recommend-item {
+  flex: 1;
+  min-width: 0;
 }
 
 .feature-item,
@@ -532,7 +549,6 @@ const handleLogout = () => {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  min-height: 280px;
 }
 
 .feature-icon,
@@ -633,14 +649,23 @@ const handleLogout = () => {
     gap: 20px;
   }
 
+  .section-title {
+    font-size: 1.5rem;
+  }
+
   .feature-grid,
   .admin-grid,
   .recommend-grid {
-    grid-template-columns: 1fr;
+    flex-wrap: wrap;
+    gap: 20px;
   }
 
-  .section-title {
-    font-size: 1.5rem;
+  .feature-item,
+  .admin-item,
+  .recommend-item {
+    flex: 1 1 calc(50% - 10px);
+    min-height: auto;
+    padding: 20px;
   }
 }
 
