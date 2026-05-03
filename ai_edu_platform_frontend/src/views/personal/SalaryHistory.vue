@@ -32,8 +32,10 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { getSalaryHistory } from '../../api/salaryApi'
+import { useUserStore } from '../../store/userStore'
 
 const router = useRouter()
+const userStore = useUserStore()
 const loading = ref(false)
 const historyList = ref([])
 
@@ -44,7 +46,12 @@ onMounted(async () => {
 const loadHistory = async () => {
   loading.value = true
   try {
-    const response = await getSalaryHistory()
+    const uid = userStore.userInfo?.id
+    if (!uid) {
+      ElMessage.error('请先登录')
+      return
+    }
+    const response = await getSalaryHistory(uid)
     if (response.code === 200) {
       historyList.value = response.data || []
     } else {

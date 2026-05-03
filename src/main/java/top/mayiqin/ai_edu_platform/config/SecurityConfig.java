@@ -48,7 +48,8 @@ public class SecurityConfig {
             "/admin/**",     // 管理员接口
             "/quiz/**",      // 题目/答题相关接口
             "/question/**",  // 题库管理接口
-            "/salary/**"     // 薪资相关接口
+            "/salary/**",    // 薪资相关接口
+            "/chat/**"       // AI 对话助手（JWT 由拦截器校验，此处须放行）
     };
 
     @Bean

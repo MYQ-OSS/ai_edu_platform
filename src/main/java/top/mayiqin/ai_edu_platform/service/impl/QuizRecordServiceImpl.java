@@ -1,5 +1,6 @@
 package top.mayiqin.ai_edu_platform.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -9,6 +10,7 @@ import top.mayiqin.ai_edu_platform.ai.tool.QuizScoreTool;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.po.Question;
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
+import top.mayiqin.ai_edu_platform.entity.vo.QuizHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizSubmitVO;
 import top.mayiqin.ai_edu_platform.exception.BusinessException;
@@ -18,7 +20,10 @@ import top.mayiqin.ai_edu_platform.service.QuizRecordService;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
 * @author m'y'q
@@ -189,6 +194,30 @@ public class QuizRecordServiceImpl extends ServiceImpl<QuizRecordMapper, QuizRec
         log.info("答题报告获取成功: recordId={}, score={}", reportVO.getRecordId(), reportVO.getScore());
         
         return reportVO;
+    }
+
+    @Override
+    public List<QuizHistoryVO> getHistoryList(Long userId) {
+        log.info("获取用户答题历史: userId={}", userId);
+        LambdaQueryWrapper<QuizRecord> qw = new LambdaQueryWrapper<>();
+        qw.eq(QuizRecord::getUserId, userId).orderByDesc(QuizRecord::getCreateTime);
+        List<QuizRecord> records = list(qw);
+        if (records == null || records.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return records.stream().map(record -> {
+            Question question = questionMapper.selectById(record.getQuestionId());
+            String questionName = question == null ? "未知题目" : question.getQuestionName();
+            return QuizHistoryVO.builder()
+                    .id(record.getId())
+                    .questionName(questionName)
+                    .score(record.getScore())
+                    .comment(record.getComment())
+                    .reason(record.getReason())
+                    .analysis(record.getAnalysis())
+                    .createTime(formatDate(record.getCreateTime()))
+                    .build();
+        }).collect(Collectors.toList());
     }
 
     /**

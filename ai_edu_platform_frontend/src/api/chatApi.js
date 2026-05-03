@@ -105,7 +105,7 @@ export const getSalaryContext = (reportId) => {
  */
 export const getUserQuizHistory = (userId) => {
   return request({
-    url: "/question/history",
+    url: "/quiz/history",
     method: "GET",
     params: { userId },
   });

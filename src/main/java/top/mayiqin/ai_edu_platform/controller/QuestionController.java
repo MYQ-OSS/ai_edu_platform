@@ -5,15 +5,20 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import top.mayiqin.ai_edu_platform.constant.MessageConstant;
 import top.mayiqin.ai_edu_platform.entity.dto.QuestionGenerateDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuizCollectDTO;
 import top.mayiqin.ai_edu_platform.entity.dto.QuizSubmitDTO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuestionVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizCollectVO;
+import top.mayiqin.ai_edu_platform.entity.vo.QuizHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizSubmitVO;
+import top.mayiqin.ai_edu_platform.exception.BusinessException;
 import top.mayiqin.ai_edu_platform.exception.Result;
+import top.mayiqin.ai_edu_platform.utils.UserContext;
 import top.mayiqin.ai_edu_platform.service.QuestionService;
 import top.mayiqin.ai_edu_platform.service.QuizCollectService;
 import top.mayiqin.ai_edu_platform.service.QuizRecordService;
@@ -108,6 +113,23 @@ public class QuestionController {
         log.info("答题结果提交成功: recordId={}, score={}, accuracy={}",
                 data.getRecordId(), data.getScore(), data.getAccuracy());
         return Result.success(MessageConstant.QUIZ_SUBMIT_SUCCESS, data);
+    }
+
+    /**
+     * 获取答题历史记录列表（用于 AI 聊天附加上下文等）
+     */
+    @Operation(
+            summary = "获取答题历史记录",
+            description = "获取当前用户的答题记录列表，按时间倒序。需要携带有效的JWT Token。"
+    )
+    @GetMapping("/history")
+    public Result<List<QuizHistoryVO>> getQuizHistory(@RequestParam Long userId) {
+        Long currentUserId = UserContext.getCurrentUserId();
+        if (currentUserId == null || !currentUserId.equals(userId)) {
+            throw new BusinessException(403, MessageConstant.PERMISSION_DENIED);
+        }
+        List<QuizHistoryVO> data = quizRecordService.getHistoryList(userId);
+        return Result.success(MessageConstant.GET_QUIZ_HISTORY_SUCCESS, data);
     }
 
     /**

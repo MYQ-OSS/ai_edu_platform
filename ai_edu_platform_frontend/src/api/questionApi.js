@@ -60,10 +60,10 @@ export const toggleCollect = (questionId) => {
   });
 };
 
-// 7. 获取答题历史记录接口
+// 7. 获取答题历史记录接口（与后端 QuestionController /quiz/history 对应）
 export const getHistory = (userId) => {
   return request({
-    url: "/question/history",
+    url: "/quiz/history",
     method: "GET",
     params: { userId },
   });

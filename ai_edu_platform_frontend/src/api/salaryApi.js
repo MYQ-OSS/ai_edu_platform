@@ -26,10 +26,14 @@ export const getSalaryReport = (reportId) => {
   });
 };
 
-// 3. 获取薪资评估历史接口
-export const getSalaryHistory = () => {
+// 3. 获取薪资评估历史接口（后端要求 query: userId）
+export const getSalaryHistory = (userId) => {
   return request({
     url: "/salary/history",
     method: "GET",
+    params: { userId },
   });
 };
+
+/** ContextSelector 等处使用的别名 */
+export const getHistory = getSalaryHistory;

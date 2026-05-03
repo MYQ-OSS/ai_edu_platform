@@ -41,6 +41,7 @@ public class MessageConstant {
     public static final String QUESTION_GENERATE_SUCCESS = "题目生成成功";
     public static final String QUIZ_SUBMIT_SUCCESS = "答题结果提交成功";
     public static final String GET_QUIZ_REPORT_SUCCESS = "获取答题报告成功";
+    public static final String GET_QUIZ_HISTORY_SUCCESS = "获取答题历史成功";
     public static final String GET_COLLECT_LIST_SUCCESS = "获取收藏列表成功";
     public static final String QUESTION_NOT_EXIST = "题目不存在";
     public static final String REQUEST_PARAM_EMPTY = "请求参数不能为空";

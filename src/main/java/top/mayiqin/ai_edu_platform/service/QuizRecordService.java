@@ -2,8 +2,11 @@ package top.mayiqin.ai_edu_platform.service;
 
 import top.mayiqin.ai_edu_platform.entity.po.QuizRecord;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.mayiqin.ai_edu_platform.entity.vo.QuizHistoryVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizReportVO;
 import top.mayiqin.ai_edu_platform.entity.vo.QuizSubmitVO;
+
+import java.util.List;
 
 /**
 * @author m'y'q
@@ -33,4 +36,9 @@ public interface QuizRecordService extends IService<QuizRecord> {
      * @throws top.mayiqin.ai_edu_platform.exception.BusinessException 当记录不存在时抛出404异常
      */
     QuizReportVO getQuizReport(Long recordId);
+
+    /**
+     * 获取用户答题历史（按时间倒序），用于聊天上下文等
+     */
+    List<QuizHistoryVO> getHistoryList(Long userId);
 }

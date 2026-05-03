@@ -250,36 +250,46 @@ const streamSendMessage = async (messageText) => {
       throw new Error(`请求失败: ${response.status}`);
     }
 
-    // 处理SSE流
+    // 处理 SSE：按行缓冲，避免 TCP 分包截断 `data:` 行导致 JSON.parse 失败、界面无回复
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let fullContent = "";
+    let lineBuffer = "";
+    let sseFinished = false;
 
-    while (true) {
+    while (!sseFinished) {
       const { done, value } = await reader.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n");
+      lineBuffer += decoder.decode(value, { stream: true });
+      const lines = lineBuffer.split("\n");
+      lineBuffer = lines.pop() ?? "";
 
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          try {
-            const data = JSON.parse(line.substring(6));
+      for (const rawLine of lines) {
+        const line = rawLine.replace(/\r$/, "");
+        if (!line.startsWith("data:")) continue;
+        const jsonStr = line.slice(5).trimStart();
+        if (!jsonStr) continue;
 
-            if (data.chunk) {
-              fullContent += data.chunk;
-              // 更新AI消息内容
-              chatStore.updateLastAIMessage(sessionId, fullContent);
-            }
+        let data;
+        try {
+          data = JSON.parse(jsonStr);
+        } catch {
+          continue;
+        }
 
-            if (data.complete) {
-              // 完成
-              break;
-            }
-          } catch (e) {
-            // 忽略解析错误
-          }
+        if (data.chunk != null && data.chunk !== "") {
+          fullContent += data.chunk;
+          chatStore.updateLastAIMessage(sessionId, fullContent);
+        }
+
+        if (data.msg && data.chunk == null && !data.complete) {
+          throw new Error(data.msg || "流式响应出错");
+        }
+
+        if (data.complete) {
+          sseFinished = true;
+          break;
         }
       }
     }
