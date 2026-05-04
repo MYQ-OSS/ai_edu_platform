@@ -282,19 +282,22 @@ watch(
 
 .chat-input__actions {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  gap: 8px;
 }
 
 .chat-input__actions .el-button {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
   padding: 0;
-  font-size: 16px;
+  font-size: 18px;
   background: rgba(0, 255, 255, 0.1);
   border: 1px solid rgba(0, 255, 255, 0.2);
   color: #00ffff;
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-input__actions .el-button:hover:not(:disabled) {
@@ -316,16 +319,18 @@ watch(
   width: 100%;
   min-height: 40px;
   max-height: 150px;
-  padding: 8px 12px;
+  padding: 12px 12px;
   border: none;
   border-radius: 8px;
   background: transparent;
   color: #fff;
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 16px;
+  line-height: 1.6;
   resize: none;
   outline: none;
   overflow-y: auto;
+  display: flex;
+  align-items: center;
 }
 
 .chat-input__textarea::placeholder {
@@ -351,8 +356,12 @@ watch(
   background: linear-gradient(135deg, #00ffff 0%, #b44aff 100%);
   border: none;
   font-weight: 600;
+  font-size: 16px;
   transition: all 0.3s ease;
   color: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .chat-input__send:hover:not(:disabled) {
@@ -421,7 +430,7 @@ watch(
   }
 
   .chat-input__actions {
-    flex-direction: row;
+    gap: 6px;
   }
 
   .chat-input__send {

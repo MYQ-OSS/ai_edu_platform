@@ -84,8 +84,19 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
         for (ChatSession session : sessions) {
             String preview = "";
             if (!session.getMessages().isEmpty()) {
-                String content = session.getMessages().getLast().getContent();
-                preview = StrUtil.maxLength(content, SESSION_MESSAGE_PREVIEW_LENGTH);
+                // 查找用户发出的第一条消息（排除SYSTEM类型的欢迎消息）
+                String firstUserMessage = session.getMessages().stream()
+                        .filter(msg -> "user".equals(msg.getRole()))
+                        .map(ChatMessage::getContent)
+                        .findFirst()
+                        .orElse("");
+                
+                // 如果没有用户消息，则使用最后一条消息
+                if (firstUserMessage.isEmpty()) {
+                    firstUserMessage = session.getMessages().getLast().getContent();
+                }
+                
+                preview = StrUtil.maxLength(firstUserMessage, SESSION_MESSAGE_PREVIEW_LENGTH);
             }
             result.add(SessionListItemVO.builder()
                     .sessionId(session.getSessionId())
@@ -145,7 +156,8 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
         }
 
         String filteredMessage = filterInput(request.getMessage());
-        String prompt = buildPrompt(filteredMessage, request);
+        // 构建包含历史对话的Prompt
+        String prompt = buildPromptWithHistory(filteredMessage, request, session);
         StringBuilder assistantReply = new StringBuilder();
 
         saveMessage(request.getSessionId(), "user", filteredMessage, MessageTypeEnum.TEXT);
@@ -226,7 +238,24 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
     }
 
     private String buildPrompt(String userMessage, ChatRequestDTO request) {
+        return buildPromptWithHistory(userMessage, request, null);
+    }
+
+    private String buildPromptWithHistory(String userMessage, ChatRequestDTO request, ChatSession session) {
         StringBuilder contextSection = new StringBuilder();
+
+        // 添加历史对话上下文（最近10轮对话）
+        if (session != null && !session.getMessages().isEmpty()) {
+            contextSection.append("【历史对话】\n");
+            List<ChatMessage> messages = session.getMessages();
+            int startIndex = Math.max(0, messages.size() - 20); // 最多保留20条消息（10轮对话）
+            for (int i = startIndex; i < messages.size(); i++) {
+                ChatMessage msg = messages.get(i);
+                String role = "user".equals(msg.getRole()) ? "用户" : "AI助手";
+                contextSection.append(role).append(": ").append(msg.getContent()).append("\n");
+            }
+            contextSection.append("\n");
+        }
 
         if (request.getQuizRecordIds() != null && !request.getQuizRecordIds().isEmpty()) {
             contextSection.append("【答题记录分析】\n");
@@ -262,6 +291,20 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
         String fullPrompt = """
                 你是一位专业的AI教育助手，擅长分析用户的答题情况和职业规划。
                 请结合上下文给出结构化、可执行的建议。
+                
+                **重要：请按照以下格式回复：**
+                1. 首先在 ``` 代码块中展示你的思考过程和分析步骤
+                2. 然后在代码块外给出最终的清晰回答和建议
+                
+                示例格式：
+                ```
+                思考过程：
+                - 分析用户的问题...
+                - 考虑相关因素...
+                - 得出结论...
+                ```
+                
+                这里是给用户的最终回答和建议...
 
                 【上下文信息】
                 %s

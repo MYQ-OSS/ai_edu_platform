@@ -38,8 +38,9 @@ export const useChatStore = defineStore("chat", () => {
   /**
    * 创建新会话
    * @param {number} userId - 用户ID
+   * @param {boolean} addWelcomeMessage - 是否添加欢迎消息，默认true
    */
-  async function createSession(userId) {
+  async function createSession(userId, addWelcomeMessage = true) {
     loading.value = true;
     error.value = null;
     try {
@@ -55,6 +56,20 @@ export const useChatStore = defineStore("chat", () => {
         sessions.value.unshift(session);
         messages.value[session.sessionId] = [];
         setCurrentSession(session.sessionId);
+        
+        // 如果需要，立即添加欢迎消息
+        if (addWelcomeMessage) {
+          const welcomeMessage = {
+            messageId: "system-welcome-" + Date.now(),
+            role: "assistant",
+            content:
+              "你好！我是AI教育助手，可以帮助你：\n1. 📊 分析答题记录和薄弱环节\n2. 💰 解读薪资评估报告\n3. 📚 提供学习建议和职业规划\n\n你可以直接提问，或者点击下方按钮附加答题记录或薪资报告进行分析。",
+            timestamp: new Date().toLocaleString(),
+            type: "SYSTEM",
+          };
+          addMessage(session.sessionId, welcomeMessage);
+        }
+        
         return session;
       } else {
         throw new Error(response.msg || "创建会话失败");
@@ -77,7 +92,25 @@ export const useChatStore = defineStore("chat", () => {
     try {
       const response = await chatApi.getSessionList(userId);
       if (response.code === 200) {
-        sessions.value = response.data || [];
+        const backendSessions = response.data || [];
+        
+        // 合并后端会话数据和前端已有的摘要信息
+        backendSessions.forEach((backendSession) => {
+          // 查找前端是否已有该会话
+          const existingSession = sessions.value.find(
+            (s) => s.sessionId === backendSession.sessionId
+          );
+          
+          if (existingSession) {
+            // 如果前端已有该会话，保留前端的 lastMessageSummary（如果不为空）
+            if (existingSession.lastMessageSummary) {
+              backendSession.lastMessageSummary = existingSession.lastMessageSummary;
+            }
+          }
+        });
+        
+        sessions.value = backendSessions;
+        
         // 初始化消息缓存
         sessions.value.forEach((session) => {
           if (!messages.value[session.sessionId]) {
@@ -155,14 +188,19 @@ export const useChatStore = defineStore("chat", () => {
     }
     messages.value[sessionId].push(message);
 
-    // 更新会话的最后消息摘要
+    // 更新会话的消息计数和摘要
     const session = sessions.value.find((s) => s.sessionId === sessionId);
     if (session) {
-      session.lastMessageSummary =
-        message.content?.substring(0, 20) ||
-        message.chunk?.substring(0, 20) ||
-        "";
       session.messageCount = messages.value[sessionId].length;
+      
+      // 只在第一次添加用户消息时设置摘要，之后保持不变
+      // 排除 SYSTEM 类型的消息（如欢迎消息）
+      if (message.role === "user" && message.type !== "SYSTEM") {
+        if (!session.lastMessageSummary || session.lastMessageSummary === "开始新对话...") {
+          session.lastMessageSummary = message.content?.substring(0, 20) || "";
+          console.log("[ChatStore] 设置会话摘要:", sessionId, session.lastMessageSummary);
+        }
+      }
     }
   }
 

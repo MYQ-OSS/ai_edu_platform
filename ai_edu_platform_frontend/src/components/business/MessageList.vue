@@ -44,7 +44,32 @@
               {{ message.content }}
             </div>
             <div v-else class="message-item__text">
-              {{ message.content }}
+              <!-- AI助手的消息支持Markdown渲染和折叠 -->
+              <template v-if="message.role === 'assistant'">
+                <div v-if="hasThinkingContent(message)" class="thinking-content">
+                  <div class="thinking-header" @click="toggleCollapse(message.messageId)">
+                    <span class="thinking-title">💭 思考过程</span>
+                    <el-icon class="collapse-icon" :class="{ 'is-collapsed': isCollapsed(message.messageId) }">
+                      <ArrowDown />
+                    </el-icon>
+                  </div>
+                  <div 
+                    v-show="!isCollapsed(message.messageId)"
+                    class="thinking-body"
+                    v-html="renderMarkdown(splitContent(message.content).thinking)"
+                  ></div>
+                </div>
+                <!-- 回答内容单独显示 -->
+                <div 
+                  v-if="splitContent(message.content).answer" 
+                  class="answer-content"
+                  v-html="renderMarkdown(splitContent(message.content).answer)"
+                ></div>
+              </template>
+              <!-- 用户消息纯文本显示 -->
+              <template v-else>
+                {{ message.content }}
+              </template>
             </div>
           </div>
         </div>
@@ -80,8 +105,10 @@
 </template>
 
 <script setup>
-import { ref, watch, nextTick, onMounted } from "vue";
+import { ref, watch, nextTick, onMounted, computed } from "vue";
 import { ArrowDown } from "@element-plus/icons-vue";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 const props = defineProps({
   messages: {
@@ -97,6 +124,62 @@ const props = defineProps({
 const messageListRef = ref(null);
 const showScrollBtn = ref(false);
 const userScrolled = ref(false);
+const collapsedMessages = ref(new Set()); // 存储已折叠的消息ID
+
+// Markdown渲染函数
+const renderMarkdown = (content) => {
+  if (!content) return "";
+  const rawHtml = marked.parse(content);
+  return DOMPurify.sanitize(rawHtml);
+};
+
+// 判断消息是否包含思考内容（以```或特定标记开头）
+const hasThinkingContent = (message) => {
+  if (message.role !== "assistant") return false;
+  const content = message.content || "";
+  // 检查是否包含代码块标记或思考过程标记
+  return content.includes("```") || content.includes("思考过程") || content.includes("分析过程") || content.includes("###");
+};
+
+// 分离思考内容和回答内容
+const splitContent = (content) => {
+  if (!content) return { thinking: "", answer: content };
+  
+  // 尝试按代码块分割
+  const codeBlockMatch = content.match(/```[\s\S]*?```/);
+  if (codeBlockMatch) {
+    const thinking = codeBlockMatch[0];
+    const answer = content.replace(codeBlockMatch[0], "").trim();
+    return { thinking, answer };
+  }
+  
+  // 尝试按标题分割（如 ### 思考过程）
+  const titleMatch = content.match(/(#{1,3}\s*(?:思考|分析|推理)[^\n]*\n[\s\S]*?)(?=\n#{1,3}|$)/);
+  if (titleMatch) {
+    const thinking = titleMatch[1].trim();
+    const answer = content.replace(titleMatch[1], "").trim();
+    return { thinking, answer };
+  }
+  
+  // 如果没有找到明确的分隔，返回原内容
+  return { thinking: "", answer: content };
+};
+
+// 切换折叠状态
+const toggleCollapse = (messageId) => {
+  if (collapsedMessages.value.has(messageId)) {
+    collapsedMessages.value.delete(messageId);
+  } else {
+    collapsedMessages.value.add(messageId);
+  }
+  // 触发响应式更新
+  collapsedMessages.value = new Set(collapsedMessages.value);
+};
+
+// 检查消息是否已折叠
+const isCollapsed = (messageId) => {
+  return collapsedMessages.value.has(messageId);
+};
 
 // 滚动到底部
 const scrollToBottom = (smooth = true) => {
@@ -246,10 +329,10 @@ defineExpose({
 }
 
 .message-item__content {
-  max-width: 70%;
+  max-width: 60%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .message-item--user .message-item__content {
@@ -286,9 +369,9 @@ defineExpose({
 }
 
 .message-item__bubble {
-  padding: 12px 16px;
+  padding: 8px 12px;
   border-radius: 16px;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   word-break: break-word;
 }
@@ -320,6 +403,135 @@ defineExpose({
 
 .message-item__text {
   white-space: pre-wrap;
+}
+
+/* Markdown内容样式 - 保持原始格式 */
+.message-item__text :deep(h1),
+.message-item__text :deep(h2),
+.message-item__text :deep(h3),
+.message-item__text :deep(h4),
+.message-item__text :deep(h5),
+.message-item__text :deep(h6) {
+  margin: 0.6em 0 0.3em 0;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.message-item__text :deep(p) {
+  margin: 0.3em 0;
+  line-height: 1.5;
+}
+
+.message-item__text :deep(ul),
+.message-item__text :deep(ol) {
+  margin: 0.3em 0;
+  padding-left: 1.5em;
+}
+
+.message-item__text :deep(li) {
+  margin: 0.15em 0;
+}
+
+.message-item__text :deep(code) {
+  background: rgba(0, 255, 255, 0.1);
+  padding: 0.15em 0.3em;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+.message-item__text :deep(pre) {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.8em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin: 0.6em 0;
+  border: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.message-item__text :deep(pre code) {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.message-item__text :deep(blockquote) {
+  border-left: 4px solid rgba(0, 255, 255, 0.5);
+  padding-left: 0.8em;
+  margin: 0.6em 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+
+.message-item__text :deep(table) {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.6em 0;
+}
+
+.message-item__text :deep(th),
+.message-item__text :deep(td) {
+  border: 1px solid rgba(0, 255, 255, 0.3);
+  padding: 0.4em 0.6em;
+  text-align: left;
+}
+
+.message-item__text :deep(th) {
+  background: rgba(0, 255, 255, 0.1);
+  font-weight: 600;
+}
+
+/* 思考内容折叠样式 */
+.thinking-content {
+  margin-top: 6px;
+}
+
+.thinking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(180, 74, 255, 0.15);
+  border: 1px solid rgba(180, 74, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.thinking-header:hover {
+  background: rgba(180, 74, 255, 0.25);
+  border-color: rgba(180, 74, 255, 0.5);
+}
+
+.thinking-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b44aff;
+}
+
+.collapse-icon {
+  transition: transform 0.3s ease;
+  color: #b44aff;
+}
+
+.collapse-icon.is-collapsed {
+  transform: rotate(-90deg);
+}
+
+.thinking-body {
+  margin-top: 6px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  border: 1px solid rgba(180, 74, 255, 0.2);
+}
+
+/* 回答内容样式 */
+.answer-content {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 255, 255, 0.2);
 }
 
 /* 打字机动画 */
@@ -362,8 +574,7 @@ defineExpose({
 .scroll-to-bottom {
   position: absolute;
   bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
+  right: 30px;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -379,7 +590,7 @@ defineExpose({
 }
 
 .scroll-to-bottom:hover {
-  transform: translateX(-50%) translateY(-2px);
+  transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(180, 74, 255, 0.5);
 }
 

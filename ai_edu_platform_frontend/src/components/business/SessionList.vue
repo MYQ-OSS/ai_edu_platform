@@ -25,7 +25,7 @@
             会话 {{ session.sessionId?.substring(0, 8) || "新会话" }}
           </div>
           <div class="session-item__summary">
-            {{ session.lastMessageSummary || "开始新对话..." }}
+            {{ session.lastMessageSummary || "暂无消息" }}
           </div>
           <div class="session-item__time">
             {{ formatTime(session.lastActiveTime) }}
@@ -71,9 +71,9 @@ const handleNewSession = async () => {
       return;
     }
 
-    await chatStore.createSession(userId);
+    // 创建会话并自动添加欢迎消息
+    await chatStore.createSession(userId, true);
     emit("new-session");
-    ElMessage.success("新会话已创建");
   } catch (error) {
     ElMessage.error(error.message || "创建会话失败");
   }

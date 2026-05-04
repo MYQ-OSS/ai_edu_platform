@@ -7,6 +7,10 @@
         AI对话助手
       </div>
       <div class="chat-assistant__actions">
+        <el-button type="success" plain size="small" @click="handleBackToHome">
+          <el-icon><Back /></el-icon>
+          返回主页
+        </el-button>
         <el-popconfirm
           title="退出后对话记录将永久丢失且无法恢复，确定要退出吗？"
           confirm-button-text="确定退出"
@@ -38,7 +42,7 @@
             <div class="no-session-icon">💬</div>
             <h3>开始新对话</h3>
             <p>点击左侧「新对话」按钮开始与AI助手的对话</p>
-            <el-button type="primary" @click="handleNewSession">
+            <el-button type="primary" @click="handleCreateNewSession">
               <el-icon><Plus /></el-icon>
               新对话
             </el-button>
@@ -91,7 +95,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
-import { SwitchButton, Plus } from "@element-plus/icons-vue";
+import { SwitchButton, Plus, Back } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useChatStore } from "../../store/chatStore";
 import { useUserStore } from "../../store/userStore";
@@ -150,23 +154,20 @@ const handleBeforeUnload = (e) => {
   }
 };
 
-// 创建新会话
-const handleNewSession = async () => {
+// 创建新会话（从空白页面）
+const handleCreateNewSession = async () => {
   try {
-    await chatStore.createSession(userStore.userInfo.id);
-    // 添加欢迎消息
-    const welcomeMessage = {
-      messageId: "system-welcome",
-      role: "assistant",
-      content:
-        "你好！我是AI教育助手，可以帮助你：\n1. 📊 分析答题记录和薄弱环节\n2. 💰 解读薪资评估报告\n3. 📚 提供学习建议和职业规划\n\n你可以直接提问，或者点击下方按钮附加答题记录或薪资报告进行分析。",
-      timestamp: new Date().toLocaleString(),
-      type: "SYSTEM",
-    };
-    chatStore.addMessage(chatStore.currentSessionId, welcomeMessage);
+    // createSession 会自动添加欢迎消息
+    await chatStore.createSession(userStore.userInfo.id, true);
   } catch (error) {
     ElMessage.error(error.message || "创建会话失败");
   }
+};
+
+// 创建新会话（从 SessionList 组件触发）
+const handleNewSession = async () => {
+  // SessionList 已经处理了会话创建和欢迎消息添加
+  // 这里不需要做任何事情
 };
 
 // 发送消息
@@ -346,6 +347,11 @@ const handleContextConfirm = ({ type, ids }) => {
   }
 };
 
+// 返回主页
+const handleBackToHome = () => {
+  router.push("/home");
+};
+
 // 退出聊天
 const handleExit = async () => {
   try {
@@ -410,6 +416,18 @@ const handleExit = async () => {
 .chat-assistant__actions .el-button:hover {
   background: rgba(255, 0, 128, 0.2);
   border-color: rgba(255, 0, 128, 0.5);
+}
+
+/* 返回主页按钮样式 */
+.chat-assistant__actions .el-button--success {
+  background: rgba(0, 255, 128, 0.1) !important;
+  border: 1px solid rgba(0, 255, 128, 0.3) !important;
+  color: #00ff80 !important;
+}
+
+.chat-assistant__actions .el-button--success:hover {
+  background: rgba(0, 255, 128, 0.2) !important;
+  border-color: rgba(0, 255, 128, 0.5) !important;
 }
 
 .chat-assistant__body {
