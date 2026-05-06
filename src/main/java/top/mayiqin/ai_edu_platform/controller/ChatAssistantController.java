@@ -69,13 +69,13 @@ public class ChatAssistantController {
         SseEmitter emitter = new SseEmitter(0L);
 
         chatAssistantService.streamSendMessage(request).subscribe(
-                chunk -> sendEvent(emitter, "message", Map.of("chunk", chunk)),
+                chunk -> sendEvent(emitter, Map.of("chunk", chunk)),
                 error -> {
-                    sendEvent(emitter, "error", Map.of("msg", error.getMessage()));
+                    sendEvent(emitter, Map.of("msg", error.getMessage()));
                     emitter.completeWithError(error);
                 },
                 () -> {
-                    sendEvent(emitter, "done", Map.of("complete", true));
+                    sendEvent(emitter, Map.of("complete", true));
                     emitter.complete();
                 }
         );
@@ -87,6 +87,13 @@ public class ChatAssistantController {
     public Result<Void> deleteSession(@PathVariable String sessionId) {
         chatAssistantService.deleteSession(sessionId);
         return Result.success("会话已删除", null);
+    }
+
+    @Operation(summary = "清空用户所有会话", description = "删除当前用户的所有会话记录")
+    @DeleteMapping("/session/all")
+    public Result<Integer> deleteAllUserSessions() {
+        int count = chatAssistantService.deleteAllUserSessions();
+        return Result.success("已清空所有会话", count);
     }
 
     @Operation(summary = "获取答题记录详情", description = "获取答题记录详细信息")
@@ -103,11 +110,12 @@ public class ChatAssistantController {
         return Result.success(MessageConstant.OPERATION_SUCCESS, data);
     }
 
-    private void sendEvent(SseEmitter emitter, String event, Object data) {
+    private void sendEvent(SseEmitter emitter, Object data) {
         try {
-            emitter.send(SseEmitter.event().name(event).data(data));
+            // 使用标准的data:格式，不使用命名事件
+            emitter.send(SseEmitter.event().data(data));
         } catch (IOException e) {
-            log.warn("SSE发送失败: event={}, error={}", event, e.getMessage());
+            log.warn("SSE发送失败: error={}", e.getMessage());
             emitter.completeWithError(e);
         }
     }

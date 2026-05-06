@@ -6,7 +6,7 @@ import lombok.Data;
 
 /**
  * 薪资评估历史记录简要VO
- * 用于列表展示，只包含核心字段
+ * 用于列表展示，包含核心字段和摘要信息
  * @author m'y'q
  */
 @Data
@@ -21,10 +21,34 @@ public class SalaryHistoryVO {
     private Long id;
 
     /**
+     * 技术方向
+     */
+    @Schema(description = "技术方向", example = "Java后端开发")
+    private String direction;
+
+    /**
+     * 目标城市
+     */
+    @Schema(description = "目标城市", example = "北京")
+    private String city;
+
+    /**
      * AI预测薪资区间
      */
     @Schema(description = "AI预测薪资区间", example = "8k-12k")
     private String salaryRange;
+
+    /**
+     * 项目/工作经历（作为摘要显示）
+     */
+    @Schema(description = "项目/工作经历")
+    private String experience;
+
+    /**
+     * AI给出的能力提升建议
+     */
+    @Schema(description = "AI给出的能力提升建议")
+    private String aiSuggestion;
 
     /**
      * 生成时间

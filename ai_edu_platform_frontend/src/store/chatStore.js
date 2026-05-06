@@ -10,6 +10,7 @@ export const useChatStore = defineStore("chat", () => {
   const loading = ref(false);
   const sending = ref(false);
   const error = ref(null);
+  const currentUserId = ref(null); // 记录当前用户ID，用于检测用户切换
 
   // Getters
   const currentMessages = computed(() => {
@@ -41,6 +42,12 @@ export const useChatStore = defineStore("chat", () => {
    * @param {boolean} addWelcomeMessage - 是否添加欢迎消息，默认true
    */
   async function createSession(userId, addWelcomeMessage = true) {
+    // 检测用户切换
+    if (currentUserId.value !== null && currentUserId.value !== userId) {
+      clearAllSessions();
+    }
+    currentUserId.value = userId;
+
     loading.value = true;
     error.value = null;
     try {
@@ -56,7 +63,7 @@ export const useChatStore = defineStore("chat", () => {
         sessions.value.unshift(session);
         messages.value[session.sessionId] = [];
         setCurrentSession(session.sessionId);
-        
+
         // 如果需要，立即添加欢迎消息
         if (addWelcomeMessage) {
           const welcomeMessage = {
@@ -69,7 +76,7 @@ export const useChatStore = defineStore("chat", () => {
           };
           addMessage(session.sessionId, welcomeMessage);
         }
-        
+
         return session;
       } else {
         throw new Error(response.msg || "创建会话失败");
@@ -87,20 +94,26 @@ export const useChatStore = defineStore("chat", () => {
    * @param {number} userId - 用户ID
    */
   async function fetchSessionList(userId) {
+    // 检测用户切换，如果用户变化则清空所有状态
+    if (currentUserId.value !== null && currentUserId.value !== userId) {
+      clearAllSessions();
+    }
+    currentUserId.value = userId;
+
     loading.value = true;
     error.value = null;
     try {
       const response = await chatApi.getSessionList(userId);
       if (response.code === 200) {
         const backendSessions = response.data || [];
-        
+
         // 合并后端会话数据和前端已有的摘要信息
         backendSessions.forEach((backendSession) => {
           // 查找前端是否已有该会话
           const existingSession = sessions.value.find(
             (s) => s.sessionId === backendSession.sessionId
           );
-          
+
           if (existingSession) {
             // 如果前端已有该会话，保留前端的 lastMessageSummary（如果不为空）
             if (existingSession.lastMessageSummary) {
@@ -108,9 +121,9 @@ export const useChatStore = defineStore("chat", () => {
             }
           }
         });
-        
+
         sessions.value = backendSessions;
-        
+
         // 初始化消息缓存
         sessions.value.forEach((session) => {
           if (!messages.value[session.sessionId]) {
@@ -243,6 +256,29 @@ export const useChatStore = defineStore("chat", () => {
   }
 
   /**
+   * 删除用户所有会话（后端+前端）
+   */
+  async function deleteAllUserSessions() {
+    loading.value = true;
+    error.value = null;
+    try {
+      const response = await chatApi.deleteAllUserSessions();
+      if (response.code === 200) {
+        // 清空本地数据
+        clearAllSessions();
+        return response.data; // 返回删除的会话数量
+      } else {
+        throw new Error(response.msg || "清空会话失败");
+      }
+    } catch (e) {
+      error.value = e.message;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  /**
    * 清空本地会话数据
    * @param {string} sessionId - 会话ID
    */
@@ -265,6 +301,7 @@ export const useChatStore = defineStore("chat", () => {
     currentSessionId.value = null;
     sessions.value = [];
     messages.value = {};
+    currentUserId.value = null;
     clearContext();
   }
 
@@ -368,6 +405,7 @@ export const useChatStore = defineStore("chat", () => {
     sending,
     error,
     context,
+    currentUserId,
     // Getters
     currentMessages,
     currentSession,
@@ -380,6 +418,7 @@ export const useChatStore = defineStore("chat", () => {
     addMessage,
     updateLastAIMessage,
     deleteSession,
+    deleteAllUserSessions,
     clearSession,
     clearAllSessions,
     addQuizContext,

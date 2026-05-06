@@ -54,7 +54,7 @@
           :disabled="!sessionId || sending"
           :maxlength="maxLength"
           @keydown="handleKeyDown"
-          @input="autoResize"
+          @input="handleInputEvent"
           rows="1"
         ></textarea>
         <div class="chat-input__counter" v-if="inputText.length > maxLength * 0.8">
@@ -112,6 +112,10 @@ const emit = defineEmits(["send", "add-quiz", "add-salary", "remove-quiz", "remo
 const textareaRef = ref(null);
 const inputText = ref("");
 
+// 防抖定时器
+let resizeTimer = null;
+let inputTimer = null;
+
 // 计算属性
 const context = computed(() => chatStore.context);
 
@@ -143,12 +147,28 @@ const canSend = computed(() => {
   );
 });
 
-// 自动调整textarea高度
+// 自动调整textarea高度（带防抖）
 const autoResize = () => {
-  if (textareaRef.value) {
-    textareaRef.value.style.height = "auto";
-    textareaRef.value.style.height = Math.min(textareaRef.value.scrollHeight, 150) + "px";
+  if (resizeTimer) {
+    clearTimeout(resizeTimer);
   }
+  resizeTimer = setTimeout(() => {
+    if (textareaRef.value) {
+      textareaRef.value.style.height = "auto";
+      textareaRef.value.style.height = Math.min(textareaRef.value.scrollHeight, 150) + "px";
+    }
+  }, 100); // 100ms防抖，避免频繁计算高度
+};
+
+// 输入事件处理（带防抖）
+const handleInput = () => {
+  if (inputTimer) {
+    clearTimeout(inputTimer);
+  }
+  inputTimer = setTimeout(() => {
+    // 触发输入完成后的逻辑（如自动补全、语法检查等）
+    // 目前为空，预留扩展点
+  }, 300); // 300ms防抖
 };
 
 // 键盘事件
@@ -158,6 +178,12 @@ const handleKeyDown = (e) => {
     e.preventDefault();
     handleSend();
   }
+};
+
+// 输入事件（同时触发高度调整和防抖处理）
+const handleInputEvent = () => {
+  autoResize();
+  handleInput();
 };
 
 // 发送消息

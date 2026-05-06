@@ -2,9 +2,18 @@
   <div class="chat-assistant">
     <!-- 头部 -->
     <div class="chat-assistant__header">
-      <div class="chat-assistant__title">
-        <span class="chat-assistant__icon">🤖</span>
-        AI对话助手
+      <div class="chat-assistant__header-left">
+        <el-button
+          class="toggle-sidebar-btn"
+          :icon="sidebarCollapsed ? Expand : Fold"
+          @click="sidebarCollapsed = !sidebarCollapsed"
+          circle
+          size="small"
+        />
+        <div class="chat-assistant__title">
+          <span class="chat-assistant__icon">🤖</span>
+          AI对话助手
+        </div>
       </div>
       <div class="chat-assistant__actions">
         <el-button type="success" plain size="small" @click="handleBackToHome">
@@ -30,8 +39,14 @@
     <!-- 主体内容 -->
     <div class="chat-assistant__body">
       <!-- 左侧会话列表 -->
-      <div class="chat-assistant__sidebar">
-        <SessionList @new-session="handleNewSession" />
+      <div
+        class="chat-assistant__sidebar"
+        :class="{ 'chat-assistant__sidebar--collapsed': sidebarCollapsed }"
+      >
+        <SessionList
+          :collapsed="sidebarCollapsed"
+          @new-session="handleNewSession"
+        />
       </div>
 
       <!-- 右侧聊天区域 -->
@@ -95,7 +110,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from "vue";
 import { useRouter } from "vue-router";
-import { SwitchButton, Plus, Back } from "@element-plus/icons-vue";
+import { SwitchButton, Plus, Back, Fold, Expand } from "@element-plus/icons-vue";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useChatStore } from "../../store/chatStore";
 import { useUserStore } from "../../store/userStore";
@@ -116,6 +131,7 @@ const chatInputRef = ref(null);
 const sending = ref(false);
 const showQuizSelector = ref(false);
 const showSalarySelector = ref(false);
+const sidebarCollapsed = ref(false);
 
 // 重试次数
 let retryCount = 0;
@@ -355,17 +371,9 @@ const handleBackToHome = () => {
 // 退出聊天
 const handleExit = async () => {
   try {
-    // 如果有当前会话，删除它
-    if (chatStore.currentSessionId) {
-      try {
-        await chatStore.deleteSession(chatStore.currentSessionId);
-      } catch (e) {
-        console.warn("删除会话失败:", e);
-      }
-    }
-
-    // 清空所有本地会话数据
-    chatStore.clearAllSessions();
+    // 删除用户的所有会话（后端+前端）
+    await chatStore.deleteAllUserSessions();
+    ElMessage.success("已清空所有对话记录");
 
     // 跳转回主页
     router.push("/home");
@@ -391,6 +399,23 @@ const handleExit = async () => {
   padding: 16px 24px;
   background: rgba(20, 20, 40, 0.9);
   border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+.chat-assistant__header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.toggle-sidebar-btn {
+  background: rgba(0, 255, 255, 0.1) !important;
+  border: 1px solid rgba(0, 255, 255, 0.3) !important;
+  color: #00ffff !important;
+}
+
+.toggle-sidebar-btn:hover {
+  background: rgba(0, 255, 255, 0.2) !important;
+  border-color: rgba(0, 255, 255, 0.5) !important;
 }
 
 .chat-assistant__title {
@@ -440,6 +465,13 @@ const handleExit = async () => {
   width: 280px;
   flex-shrink: 0;
   border-right: 1px solid rgba(0, 255, 255, 0.2);
+  transition: width 0.3s ease;
+  overflow: hidden;
+}
+
+.chat-assistant__sidebar--collapsed {
+  width: 0;
+  border-right: none;
 }
 
 .chat-assistant__main {
@@ -538,6 +570,10 @@ const handleExit = async () => {
 
   .chat-assistant__sidebar {
     width: 240px;
+  }
+
+  .chat-assistant__sidebar--collapsed {
+    width: 0;
   }
 
   .no-session-card {

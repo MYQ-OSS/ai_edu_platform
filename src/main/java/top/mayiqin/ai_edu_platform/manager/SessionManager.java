@@ -97,6 +97,28 @@ public class SessionManager {
     }
 
     /**
+     * 删除用户的所有会话
+     *
+     * @param userId 用户ID
+     * @return 删除的会话数量
+     */
+    public int deleteAllUserSessions(Long userId) {
+        List<String> sessionIds = userSessionsMap.remove(userId);
+        if (sessionIds == null || sessionIds.isEmpty()) {
+            return 0;
+        }
+
+        int count = 0;
+        for (String sessionId : sessionIds) {
+            if (sessionMap.remove(sessionId) != null) {
+                count++;
+            }
+        }
+        log.info("已删除用户所有会话: userId={}, count={}", userId, count);
+        return count;
+    }
+
+    /**
      * 添加消息
      */
     public void addMessage(String sessionId, ChatMessage message) {

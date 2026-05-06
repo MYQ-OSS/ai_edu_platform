@@ -178,7 +178,11 @@ public class SalaryReportServiceImpl extends ServiceImpl<SalaryReportMapper, Sal
         List<SalaryHistoryVO> historyList = reportList.stream()
                 .map(report -> SalaryHistoryVO.builder()
                         .id(report.getId())
+                        .direction(report.getDirection())
+                        .city(report.getCity())
                         .salaryRange(report.getSalaryRange())
+                        .experience(report.getExperience())
+                        .aiSuggestion(report.getAiSuggestion())
                         .createTime(formatDate(report.getCreateTime()))
                         .build())
                 .collect(Collectors.toList());

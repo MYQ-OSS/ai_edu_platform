@@ -24,6 +24,7 @@ import top.mayiqin.ai_edu_platform.mapper.QuestionMapper;
 import top.mayiqin.ai_edu_platform.mapper.QuizRecordMapper;
 import top.mayiqin.ai_edu_platform.mapper.SalaryReportMapper;
 import top.mayiqin.ai_edu_platform.service.ChatAssistantService;
+import top.mayiqin.ai_edu_platform.utils.SensitiveWordFilter;
 import top.mayiqin.ai_edu_platform.utils.UserContext;
 
 import java.math.BigDecimal;
@@ -46,24 +47,26 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
     private static final int MAX_PROMPT_LENGTH = 8000;
     private static final int MAX_CONTEXT_ITEMS = 5;
     private static final int SESSION_MESSAGE_PREVIEW_LENGTH = 20;
-    private static final List<String> SIMPLE_SENSITIVE_WORDS = List.of("暴力", "色情", "恐怖主义", "违法");
 
     private final SessionManager sessionManager;
     private final ChatClient chatClient;
     private final QuizRecordMapper quizRecordMapper;
     private final SalaryReportMapper salaryReportMapper;
     private final QuestionMapper questionMapper;
+    private final SensitiveWordFilter sensitiveWordFilter;
 
     public ChatAssistantServiceImpl(SessionManager sessionManager,
                                     ChatClient chatClient,
                                     QuizRecordMapper quizRecordMapper,
                                     SalaryReportMapper salaryReportMapper,
-                                    QuestionMapper questionMapper) {
+                                    QuestionMapper questionMapper,
+                                    SensitiveWordFilter sensitiveWordFilter) {
         this.sessionManager = sessionManager;
         this.chatClient = chatClient;
         this.quizRecordMapper = quizRecordMapper;
         this.salaryReportMapper = salaryReportMapper;
         this.questionMapper = questionMapper;
+        this.sensitiveWordFilter = sensitiveWordFilter;
     }
 
     @Override
@@ -84,19 +87,19 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
         for (ChatSession session : sessions) {
             String preview = "";
             if (!session.getMessages().isEmpty()) {
-                // 查找用户发出的第一条消息（排除SYSTEM类型的欢迎消息）
-                String firstUserMessage = session.getMessages().stream()
-                        .filter(msg -> "user".equals(msg.getRole()))
+                // 获取最后一条非系统消息的摘要
+                String lastMessage = session.getMessages().stream()
+                        .filter(msg -> !"SYSTEM".equals(msg.getType().getCode()))
+                        .reduce((first, second) -> second)  // 获取最后一条
                         .map(ChatMessage::getContent)
-                        .findFirst()
                         .orElse("");
-                
-                // 如果没有用户消息，则使用最后一条消息
-                if (firstUserMessage.isEmpty()) {
-                    firstUserMessage = session.getMessages().getLast().getContent();
+
+                // 如果没有非系统消息，则使用最后一条消息
+                if (lastMessage.isEmpty()) {
+                    lastMessage = session.getMessages().getLast().getContent();
                 }
-                
-                preview = StrUtil.maxLength(firstUserMessage, SESSION_MESSAGE_PREVIEW_LENGTH);
+
+                preview = StrUtil.maxLength(lastMessage, SESSION_MESSAGE_PREVIEW_LENGTH);
             }
             result.add(SessionListItemVO.builder()
                     .sessionId(session.getSessionId())
@@ -184,6 +187,14 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
     }
 
     @Override
+    public int deleteAllUserSessions() {
+        Long userId = getCurrentUserId();
+        int count = sessionManager.deleteAllUserSessions(userId);
+        log.info("清空用户所有会话: userId={}, 删除会话数={}", userId, count);
+        return count;
+    }
+
+    @Override
     public QuizContextVO getQuizContextDetail(Long recordId) {
         Long userId = getCurrentUserId();
         QuizRecord record = quizRecordMapper.selectById(recordId);
@@ -221,20 +232,10 @@ public class ChatAssistantServiceImpl implements ChatAssistantService {
         if (input.length() > 2000) {
             throw new BusinessException(400, "消息长度不能超过2000字符");
         }
-        if (containsSensitiveWord(input)) {
+        if (sensitiveWordFilter.containsSensitiveWord(input)) {
             throw new BusinessException(400, "包含不当内容，请修改后重试");
         }
         return HtmlUtil.escape(input);
-    }
-
-    private boolean containsSensitiveWord(String input) {
-        String text = input == null ? "" : input;
-        for (String word : SIMPLE_SENSITIVE_WORDS) {
-            if (text.contains(word)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String buildPrompt(String userMessage, ChatRequestDTO request) {

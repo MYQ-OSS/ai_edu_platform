@@ -3,11 +3,11 @@
     <div class="session-list__header">
       <el-button type="primary" class="new-session-btn" @click="handleNewSession">
         <el-icon><Plus /></el-icon>
-        新对话
+        <span v-if="!collapsed">新对话</span>
       </el-button>
     </div>
 
-    <div class="session-list__content" v-loading="chatStore.loading">
+    <div v-if="!collapsed" class="session-list__content" v-loading="chatStore.loading">
       <div v-if="chatStore.sessions.length === 0" class="session-list__empty">
         <el-empty description="暂无会话记录" :image-size="60" />
       </div>
@@ -56,6 +56,13 @@ import { Plus, Delete } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import { useChatStore } from "../../store/chatStore";
 import { useUserStore } from "../../store/userStore";
+
+const props = defineProps({
+  collapsed: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const chatStore = useChatStore();
 const userStore = useUserStore();
@@ -144,6 +151,7 @@ const formatTime = (timeStr) => {
   font-weight: 600;
   transition: all 0.3s ease;
   color: #fff !important;
+  justify-content: center;
 }
 
 .new-session-btn:hover {

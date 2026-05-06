@@ -27,6 +27,8 @@ public interface ChatAssistantService {
 
     void deleteSession(String sessionId);
 
+    int deleteAllUserSessions();
+
     QuizContextVO getQuizContextDetail(Long recordId);
 
     SalaryContextVO getSalaryContextDetail(Long reportId);

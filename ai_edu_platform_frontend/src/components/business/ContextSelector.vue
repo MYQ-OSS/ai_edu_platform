@@ -35,8 +35,8 @@
             </span>
           </div>
           <div class="context-item__info">
-            <span v-if="item.comment">{{ item.comment }}</span>
-            <span v-else-if="item.aiSuggestion">{{ item.aiSuggestion }}</span>
+            <span v-if="item.aiSuggestion">{{ item.aiSuggestion }}</span>
+            <span v-else-if="item.experience">{{ item.experience }}</span>
             <span v-else>{{ getItemSummary(item) }}</span>
           </div>
           <div class="context-item__time">
@@ -151,7 +151,8 @@ const getItemSummary = (item) => {
   if (props.type === "quiz") {
     return item.reason || item.analysis || "暂无摘要";
   } else {
-    return item.experience || item.education || "暂无摘要";
+    // 对于薪资报告，优先显示AI建议，其次显示工作经历
+    return item.aiSuggestion || item.experience || "暂无摘要";
   }
 };
 

@@ -75,6 +75,17 @@ export const deleteSession = (sessionId) => {
 };
 
 /**
+ * 清空用户所有会话
+ * @returns {Promise} 返回删除结果
+ */
+export const deleteAllUserSessions = () => {
+  return request({
+    url: "/chat/session/all",
+    method: "DELETE",
+  });
+};
+
+/**
  * 获取答题记录详情
  * @param {number} recordId - 答题记录ID
  * @returns {Promise} 返回答题记录详情

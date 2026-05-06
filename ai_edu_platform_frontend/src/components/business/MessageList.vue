@@ -15,68 +15,137 @@
     </div>
 
     <div v-else class="message-list__content">
+      <!-- 虚拟滚动容器 -->
       <div
-        v-for="(message, index) in messages"
-        :key="message.messageId || index"
-        class="message-item"
-        :class="{
-          'message-item--user': message.role === 'user',
-          'message-item--ai': message.role === 'assistant',
-          'message-item--system': message.type === 'SYSTEM',
-        }"
+        v-if="useVirtualScroll"
+        class="virtual-scroll-container"
+        :style="{ height: totalHeight + 'px', position: 'relative' }"
       >
-        <div class="message-item__avatar">
-          <span v-if="message.role === 'user'">👤</span>
-          <span v-else-if="message.role === 'assistant'">🤖</span>
-          <span v-else>📢</span>
-        </div>
-
-        <div class="message-item__content">
-          <div class="message-item__header">
-            <span class="message-item__role">
-              {{ message.role === "user" ? "你" : message.role === "assistant" ? "AI助手" : "系统" }}
-            </span>
-            <span class="message-item__time">{{ message.timestamp }}</span>
-          </div>
-
-          <div class="message-item__bubble">
-            <div v-if="message.type === 'ERROR'" class="message-item__error">
-              {{ message.content }}
+        <div
+          class="virtual-scroll-wrapper"
+          :style="{ transform: `translateY(${offsetY}px)` }"
+        >
+          <div
+            v-for="message in visibleMessages"
+            :key="message.messageId || message.index"
+            class="message-item"
+            :class="{
+              'message-item--user': message.role === 'user',
+              'message-item--ai': message.role === 'assistant',
+              'message-item--system': message.type === 'SYSTEM',
+            }"
+          >
+            <div class="message-item__avatar">
+              <span v-if="message.role === 'user'">👤</span>
+              <span v-else-if="message.role === 'assistant'">🤖</span>
+              <span v-else>📢</span>
             </div>
-            <div v-else class="message-item__text">
-              <!-- AI助手的消息支持Markdown渲染和折叠 -->
-              <template v-if="message.role === 'assistant'">
-                <div v-if="hasThinkingContent(message)" class="thinking-content">
-                  <div class="thinking-header" @click="toggleCollapse(message.messageId)">
-                    <span class="thinking-title">💭 思考过程</span>
-                    <el-icon class="collapse-icon" :class="{ 'is-collapsed': isCollapsed(message.messageId) }">
-                      <ArrowDown />
-                    </el-icon>
-                  </div>
-                  <div 
-                    v-show="!isCollapsed(message.messageId)"
-                    class="thinking-body"
-                    v-html="renderMarkdown(splitContent(message.content).thinking)"
-                  ></div>
+
+            <div class="message-item__content">
+              <div class="message-item__header">
+                <span class="message-item__role">
+                  {{ message.role === "user" ? "你" : message.role === "assistant" ? "AI助手" : "系统" }}
+                </span>
+                <span class="message-item__time">{{ message.timestamp }}</span>
+              </div>
+
+              <div class="message-item__bubble">
+                <div v-if="message.type === 'ERROR'" class="message-item__error">
+                  {{ message.content }}
                 </div>
-                <!-- 回答内容单独显示 -->
-                <div 
-                  v-if="splitContent(message.content).answer" 
-                  class="answer-content"
-                  v-html="renderMarkdown(splitContent(message.content).answer)"
-                ></div>
-              </template>
-              <!-- 用户消息纯文本显示 -->
-              <template v-else>
-                {{ message.content }}
-              </template>
+                <div v-else class="message-item__text">
+                  <template v-if="message.role === 'assistant'">
+                    <div v-if="hasThinkingContent(message)" class="thinking-content">
+                      <div class="thinking-header" @click="toggleCollapse(message.messageId)">
+                        <span class="thinking-title">💭 思考过程</span>
+                        <el-icon class="collapse-icon" :class="{ 'is-collapsed': isCollapsed(message.messageId) }">
+                          <ArrowDown />
+                        </el-icon>
+                      </div>
+                      <div
+                        v-show="!isCollapsed(message.messageId)"
+                        class="thinking-body"
+                        v-html="renderMarkdown(splitContent(message.content).thinking)"
+                      ></div>
+                    </div>
+                    <div
+                      v-if="splitContent(message.content).answer"
+                      class="answer-content"
+                      v-html="renderMarkdown(splitContent(message.content).answer)"
+                    ></div>
+                  </template>
+                  <template v-else>
+                    {{ message.content }}
+                  </template>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- 普通渲染（消息较少时） -->
+      <template v-else>
+        <div
+          v-for="(message, index) in messages"
+          :key="message.messageId || index"
+          class="message-item"
+          :class="{
+            'message-item--user': message.role === 'user',
+            'message-item--ai': message.role === 'assistant',
+            'message-item--system': message.type === 'SYSTEM',
+          }"
+        >
+          <div class="message-item__avatar">
+            <span v-if="message.role === 'user'">👤</span>
+            <span v-else-if="message.role === 'assistant'">🤖</span>
+            <span v-else>📢</span>
+          </div>
+
+          <div class="message-item__content">
+            <div class="message-item__header">
+              <span class="message-item__role">
+                {{ message.role === "user" ? "你" : message.role === "assistant" ? "AI助手" : "系统" }}
+              </span>
+              <span class="message-item__time">{{ message.timestamp }}</span>
+            </div>
+
+            <div class="message-item__bubble">
+              <div v-if="message.type === 'ERROR'" class="message-item__error">
+                {{ message.content }}
+              </div>
+              <div v-else class="message-item__text">
+                <template v-if="message.role === 'assistant'">
+                  <div v-if="hasThinkingContent(message)" class="thinking-content">
+                    <div class="thinking-header" @click="toggleCollapse(message.messageId)">
+                      <span class="thinking-title">💭 思考过程</span>
+                      <el-icon class="collapse-icon" :class="{ 'is-collapsed': isCollapsed(message.messageId) }">
+                        <ArrowDown />
+                      </el-icon>
+                    </div>
+                    <div
+                      v-show="!isCollapsed(message.messageId)"
+                      class="thinking-body"
+                      v-html="renderMarkdown(splitContent(message.content).thinking)"
+                    ></div>
+                  </div>
+                  <div
+                    v-if="splitContent(message.content).answer"
+                    class="answer-content"
+                    v-html="renderMarkdown(splitContent(message.content).answer)"
+                  ></div>
+                </template>
+                <template v-else>
+                  {{ message.content }}
+                </template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </template>
+
       <!-- 加载中动画 -->
-      <div v-if="loading" class="message-item message-item--ai">
+      <div v-if="loading && !hasLoadingMessage" class="message-item message-item--ai message-item--loading">
         <div class="message-item__avatar">🤖</div>
         <div class="message-item__content">
           <div class="message-item__bubble">
@@ -124,45 +193,97 @@ const props = defineProps({
 const messageListRef = ref(null);
 const showScrollBtn = ref(false);
 const userScrolled = ref(false);
-const collapsedMessages = ref(new Set()); // 存储已折叠的消息ID
+const collapsedMessages = ref(new Set());
 
-// Markdown渲染函数
+// 检查是否存在正在加载的AI消息（内容为空的assistant消息）
+const hasLoadingMessage = computed(() => {
+  if (!props.messages || props.messages.length === 0) return false;
+  const lastMessage = props.messages[props.messages.length - 1];
+  return lastMessage.role === 'assistant' && (!lastMessage.content || lastMessage.content.trim() === '');
+});
+
+// 虚拟滚动配置
+const VIRTUAL_SCROLL_THRESHOLD = 100; // 消息超过100条时启用虚拟滚动
+const ITEM_HEIGHT = 80; // 预估每条消息高度
+const BUFFER_SIZE = 10; // 可视区域外预渲染的消息数量
+const scrollTop = ref(0);
+const containerHeight = ref(600);
+
+// 是否使用虚拟滚动
+const useVirtualScroll = computed(() => props.messages.length > VIRTUAL_SCROLL_THRESHOLD);
+
+// 虚拟滚动相关计算
+const totalHeight = computed(() => props.messages.length * ITEM_HEIGHT);
+
+const offsetY = computed(() => {
+  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - BUFFER_SIZE);
+  return startIndex * ITEM_HEIGHT;
+});
+
+const visibleMessages = computed(() => {
+  if (!useVirtualScroll.value) return props.messages;
+
+  const startIndex = Math.max(0, Math.floor(scrollTop.value / ITEM_HEIGHT) - BUFFER_SIZE);
+  const endIndex = Math.min(
+    props.messages.length,
+    Math.ceil((scrollTop.value + containerHeight.value) / ITEM_HEIGHT) + BUFFER_SIZE
+  );
+
+  return props.messages.slice(startIndex, endIndex).map((msg, idx) => ({
+    ...msg,
+    index: startIndex + idx,
+  }));
+});
+
+// Markdown渲染函数 - 保持原始排版
 const renderMarkdown = (content) => {
   if (!content) return "";
-  const rawHtml = marked.parse(content);
-  return DOMPurify.sanitize(rawHtml);
+
+  // 确保content是字符串
+  const text = typeof content === 'string' ? content : String(content);
+
+  // 使用marked.parse并配置选项
+  const rawHtml = marked.parse(text, {
+    breaks: true, // 换行符转为 <br>
+    gfm: true,    // GitHub风格Markdown
+  });
+
+  // 清理HTML并允许br标签
+  return DOMPurify.sanitize(rawHtml, {
+    ADD_TAGS: ['br'],
+    ADD_ATTR: ['class'],
+  });
 };
 
-// 判断消息是否包含思考内容（以```或特定标记开头）
+// 判断消息是否包含思考内容
 const hasThinkingContent = (message) => {
   if (message.role !== "assistant") return false;
   const content = message.content || "";
-  // 检查是否包含代码块标记或思考过程标记
   return content.includes("```") || content.includes("思考过程") || content.includes("分析过程") || content.includes("###");
 };
 
 // 分离思考内容和回答内容
 const splitContent = (content) => {
-  if (!content) return { thinking: "", answer: content };
-  
-  // 尝试按代码块分割
-  const codeBlockMatch = content.match(/```[\s\S]*?```/);
+  // 确保content是字符串
+  const text = typeof content === 'string' ? content : String(content || "");
+
+  if (!text) return { thinking: "", answer: "" };
+
+  const codeBlockMatch = text.match(/```[\s\S]*?```/);
   if (codeBlockMatch) {
     const thinking = codeBlockMatch[0];
-    const answer = content.replace(codeBlockMatch[0], "").trim();
+    const answer = text.replace(codeBlockMatch[0], "").trim();
     return { thinking, answer };
   }
-  
-  // 尝试按标题分割（如 ### 思考过程）
-  const titleMatch = content.match(/(#{1,3}\s*(?:思考|分析|推理)[^\n]*\n[\s\S]*?)(?=\n#{1,3}|$)/);
+
+  const titleMatch = text.match(/(#{1,3}\s*(?:思考|分析|推理)[^\n]*\n[\s\S]*?)(?=\n#{1,3}|$)/);
   if (titleMatch) {
     const thinking = titleMatch[1].trim();
-    const answer = content.replace(titleMatch[1], "").trim();
+    const answer = text.replace(titleMatch[1], "").trim();
     return { thinking, answer };
   }
-  
-  // 如果没有找到明确的分隔，返回原内容
-  return { thinking: "", answer: content };
+
+  return { thinking: "", answer: text };
 };
 
 // 切换折叠状态
@@ -172,11 +293,9 @@ const toggleCollapse = (messageId) => {
   } else {
     collapsedMessages.value.add(messageId);
   }
-  // 触发响应式更新
   collapsedMessages.value = new Set(collapsedMessages.value);
 };
 
-// 检查消息是否已折叠
 const isCollapsed = (messageId) => {
   return collapsedMessages.value.has(messageId);
 };
@@ -193,11 +312,13 @@ const scrollToBottom = (smooth = true) => {
   }
 };
 
-// 检测是否需要显示回到底部按钮
+// 检测滚动位置
 const checkScroll = () => {
   if (messageListRef.value) {
-    const { scrollTop, scrollHeight, clientHeight } = messageListRef.value;
-    const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+    const { scrollTop: st, scrollHeight, clientHeight } = messageListRef.value;
+    scrollTop.value = st;
+    containerHeight.value = clientHeight;
+    const distanceFromBottom = scrollHeight - st - clientHeight;
     showScrollBtn.value = distanceFromBottom > 100;
     userScrolled.value = distanceFromBottom > 100;
   }
@@ -228,6 +349,7 @@ watch(
 onMounted(() => {
   if (messageListRef.value) {
     messageListRef.value.addEventListener("scroll", checkScroll);
+    containerHeight.value = messageListRef.value.clientHeight;
   }
   scrollToBottom(false);
 });
@@ -288,10 +410,20 @@ defineExpose({
   margin: 0 auto;
 }
 
+/* 虚拟滚动容器样式 */
+.virtual-scroll-container {
+  width: 100%;
+  overflow: hidden;
+}
+
+.virtual-scroll-wrapper {
+  will-change: transform;
+}
+
 .message-item {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
+  gap: 10px;
+  margin-bottom: 16px;
   animation: fadeIn 0.3s ease;
 }
 
@@ -332,7 +464,7 @@ defineExpose({
   max-width: 60%;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
 .message-item--user .message-item__content {
@@ -369,10 +501,10 @@ defineExpose({
 }
 
 .message-item__bubble {
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-radius: 16px;
-  font-size: 15px;
-  line-height: 1.6;
+  font-size: 14px;
+  line-height: 1.4;
   word-break: break-word;
 }
 
@@ -397,44 +529,56 @@ defineExpose({
   font-size: 13px;
 }
 
+/* 加载状态下隐藏头像 */
+.message-item--loading .message-item__avatar {
+  display: none;
+}
+
 .message-item__error {
   color: #ff6b6b;
 }
 
 .message-item__text {
   white-space: pre-wrap;
+  word-break: break-word;
+  line-height: 1.4;
 }
 
-/* Markdown内容样式 - 保持原始格式 */
+/* Markdown内容样式 - 保持原始排版 */
 .message-item__text :deep(h1),
 .message-item__text :deep(h2),
 .message-item__text :deep(h3),
 .message-item__text :deep(h4),
 .message-item__text :deep(h5),
 .message-item__text :deep(h6) {
-  margin: 0.6em 0 0.3em 0;
+  margin: 0.3em 0 !important;
+  padding: 0 !important;
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.4;
 }
 
 .message-item__text :deep(p) {
-  margin: 0.3em 0;
-  line-height: 1.5;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4;
+  display: inline; /* 让p标签变成行内元素 */
 }
 
 .message-item__text :deep(ul),
 .message-item__text :deep(ol) {
-  margin: 0.3em 0;
+  margin: 0.3em 0 !important;
   padding-left: 1.5em;
 }
 
 .message-item__text :deep(li) {
-  margin: 0.15em 0;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.4;
 }
 
 .message-item__text :deep(code) {
   background: rgba(0, 255, 255, 0.1);
-  padding: 0.15em 0.3em;
+  padding: 0.1em 0.3em;
   border-radius: 3px;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
@@ -442,10 +586,10 @@ defineExpose({
 
 .message-item__text :deep(pre) {
   background: rgba(0, 0, 0, 0.3);
-  padding: 0.8em;
-  border-radius: 6px;
+  padding: 0.5em;
+  border-radius: 4px;
   overflow-x: auto;
-  margin: 0.6em 0;
+  margin: 0.3em 0 !important;
   border: 1px solid rgba(0, 255, 255, 0.2);
 }
 
@@ -456,9 +600,9 @@ defineExpose({
 }
 
 .message-item__text :deep(blockquote) {
-  border-left: 4px solid rgba(0, 255, 255, 0.5);
-  padding-left: 0.8em;
-  margin: 0.6em 0;
+  border-left: 3px solid rgba(0, 255, 255, 0.5);
+  padding-left: 0.6em;
+  margin: 0.3em 0 !important;
   color: rgba(255, 255, 255, 0.7);
   font-style: italic;
 }
@@ -466,13 +610,13 @@ defineExpose({
 .message-item__text :deep(table) {
   border-collapse: collapse;
   width: 100%;
-  margin: 0.6em 0;
+  margin: 0 !important;
 }
 
 .message-item__text :deep(th),
 .message-item__text :deep(td) {
   border: 1px solid rgba(0, 255, 255, 0.3);
-  padding: 0.4em 0.6em;
+  padding: 0.2em 0.4em;
   text-align: left;
 }
 
@@ -483,17 +627,17 @@ defineExpose({
 
 /* 思考内容折叠样式 */
 .thinking-content {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .thinking-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 4px 8px;
   background: rgba(180, 74, 255, 0.15);
   border: 1px solid rgba(180, 74, 255, 0.3);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.3s ease;
   user-select: none;
@@ -505,7 +649,7 @@ defineExpose({
 }
 
 .thinking-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #b44aff;
 }
@@ -520,17 +664,17 @@ defineExpose({
 }
 
 .thinking-body {
-  margin-top: 6px;
-  padding: 10px;
+  margin-top: 4px;
+  padding: 8px;
   background: rgba(0, 0, 0, 0.2);
-  border-radius: 8px;
+  border-radius: 6px;
   border: 1px solid rgba(180, 74, 255, 0.2);
 }
 
 /* 回答内容样式 */
 .answer-content {
-  margin-top: 8px;
-  padding-top: 8px;
+  margin-top: 6px;
+  padding-top: 6px;
   border-top: 1px solid rgba(0, 255, 255, 0.2);
 }
 
